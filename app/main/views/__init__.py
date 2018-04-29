@@ -1,0 +1,38 @@
+
+from flask import request, current_app, redirect, flash, url_for
+from flask_sqlalchemy import get_debug_queries
+from app.models import Permission
+from .. import main
+from flask_login import current_user
+
+from .answer import *
+from .comment import *
+from .favorite import *
+from .index import *
+from .post import *
+from .question import *
+
+
+__all__=['before_request','after_request']
+
+@main.before_app_request
+def before_request():
+    """请求钩子,拦截admin的请求
+        没有权限或者未登录的重定向
+    """
+    if request.path.startswith('/admin'):
+        if not current_user.is_authenticated:
+            flash('请先登录')
+            return redirect(url_for('auth.login'))
+        else:
+            if not current_user.can(Permission.ADMINISTER):
+                flash('你不是管理员',category='warning')
+                return redirect(url_for('main.index'))
+
+@main.after_app_request
+def after_request(response):
+    for query in get_debug_queries():
+        if query.duration>current_app.config['FLASK_SLOW_DB_QUERY_TIME']:
+            current_app.logger.warning('Slow query:{}\nParameters:{}\nDuration:{}\nContext:{}'\
+                                       .format(query.statement,query.parameters,query.duration,query.context))
+    return response
