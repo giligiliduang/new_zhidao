@@ -1,0 +1,36 @@
+{% for question in questions  %}
+       <div class="news-item clearfix">
+               <div class="title">
+               <a href="{{ url_for('main.question',id=question.id) }}">{{ question.title }}</a>
+               </div>
+               <div class="info text-muted">
+                   <div class="col-md-6">
+                       {% if not question.anonymous %}
+                           <a class="avatar" href="{{ url_for('main.user',username=question.author.username) }}"><img src="{{ question.author.avatar_url_sm }}" alt=""></a>
+                           <a href="{{ url_for('main.user',username=question.author.username) }}" class="author">{{ question.author.username }}</a>
+                       {% else %}
+                           <a class="avatar" href="#"><img src="https://dummyimage.com/20x20/748/699" alt="avatar"></a>
+                             <span class="author">匿名用户</span>
+                       {% endif %}
+                   <a href="{{ url_for('main.question_comments',id=question.id) }}" class="author">{{ question.comments.count() }}条评论</a>
+                   <span>.</span>
+                   <span class="timestamp">{{ moment(question.timestamp).fromNow() }}</span>
+                   </div>
+                   <div class="col-md-6">
+                       {% if question.author!=current_user%}
+                           {% if not current_user.has_collect(question)  %}
+                           <a href="{{ url_for('main.collect_question',id=question.id) }}" class="">
+                               <span class="glyphicon glyphicon-empty"></span>
+                               收藏
+                           </a>
+                           {% else  %}
+                            <a href="#" class="">
+                               <span class="glyphicon glyphicon-star"></span>
+                               已收藏
+                           </a>
+                               {% endif %}
+                       {% endif %}
+                   </div>
+               </div>
+       </div>
+{% endfor %}

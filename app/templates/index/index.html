@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% import"_macros.html" as macros%}
+{% block head %}
+{{ super() }}
+    <style>
+        .TopstoryHeader-nav{
+            max-width: 100%;
+            height: 50px;
+            border: 1px solid navajowhite;
+            font-size: 20px;
+        }
+    .TopstoryHeader-nav a{
+        padding-left: 40px;
+        margin-left:100px;
+    }
+    .wrapper{
+        position: relative;
+        top: 10px;
+    }
+    .wrapper a{
+        color: #0f0927;
+    }
+    .title{
+        font-size: 25px;
+        font-weight: bold;
+    }
+    .news-item{
+        margin-bottom: 50px;
+    }
+    .info a{
+        padding-left: 20px;
+    }
+    </style>
+{% endblock %}
+
+{% block page_content %}
+
+    <div class="container">
+    <div class="col-md-1">
+    </div>
+    <div class="news col-md-8">
+        <div class="TopstoryHeader-nav">
+            <div class="wrapper">
+            <a href="{{ url_for('main.render_question') }}" class=""><span class="glyphicon glyphicon-question-sign"></span>提问</a>
+            <a href="" class=""><span class="glyphicon glyphicon-list"></span>回答</a>
+            <a href="{{ url_for('main.create_post') }}" class=""><span class="glyphicon glyphicon-pencil"></span>写文章</a>
+            </div>
+        </div>
+
+    {% include "_questions.html" %}
+    {% if pagination %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.index') }}
+    </div>
+    {% endif %}
+
+    </div>
+    <div class="col-md-3">
+      <div class="jumbotron">
+         <div class="adv">
+             <p>广告位招租</p>
+         </div>
+      </div>
+      <div class="tags jumbotron">
+          <div class="tag-item">
+          <a href="#" class="label label-danger">python</a>
+          <a href="#" class="label label-default">Java</a>
+          <a href="#" class="label label-warning">C++</a>
+          <a href="#" class="label label-success">C#</a>
+          <a href="#" class="label label-info">Javascript</a>
+          <a href="#" class="label label-danger">F#</a>
+          <a href="#" class="label label-danger">nodejs</a>
+          <a href="#" class="label label-danger">bootstrap</a>
+          <a href="#" class="label label-danger">angular.js</a>
+          <a href="#" class="label label-danger">个人随笔</a>
+          <a href="#" class="label label-danger">日记</a>
+          <a href="#" class="label label-info">写在前面</a>
+          <a href="#" class="label label-danger">该说不说的</a>
+          </div>
+      </div>
+    </div>
+</div>
+
+{% endblock %}

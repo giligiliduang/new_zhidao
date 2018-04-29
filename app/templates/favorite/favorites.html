@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% import "_macros.html"as macros %}
+{% block title %}个人资料{% endblock %}
+{% block head %}
+{{ super() }}
+    <style>
+        .introduce{
+            position: relative;
+            top: 120px;
+            right: 30px;
+        }
+    .edit-btn{
+    position: relative;
+    top: 126px;
+    left:542px;
+}
+    .breadcrumb a{
+        margin-left: 15px;
+    }
+    .title{
+        font-size: 25px;
+        font-weight: bold;
+    }
+    .news-item{
+        margin-bottom: 50px;
+    }
+    .total-answers{
+        height: auto;
+        position: relative;
+        top: 20px;
+        background-color: #eeeeee;
+        margin-top: 30px;
+    }
+    .indicator{
+        position: relative;
+        left: 20px;
+        width: 30px;
+        height: 1px;
+        background-color: red;
+    }
+    .followed{
+        display: block;
+    }
+    .favorite-widget{
+        height: 30px;
+        border-bottom: 1px solid dimgray;
+        margin-bottom: 30px;
+        margin-top: 10px;
+    }
+    .favorite-widget a{
+        padding-left: 15px;
+    }
+    .avatar img{
+        width: 50px;
+        height: 50px;
+    }
+    .favorite-author{
+        position: relative;
+        top: 30px;
+    }
+    </style>
+{% endblock %}
+
+
+{% block page_content %}
+    <div class="container">
+        <div class="col-md-7">
+            <h1 class="favorite-title">{{ favorite.title }}</h1>
+            <h4>{{ favorite.description|safe }}</h4>
+            <span class="text-muted">创建于{{ favorite.timestamp }}</span>
+            <div class="favorite-widget">
+                <a href="{{ url_for('main.favorite_comments',username=user.username,id=favorite.id) }}">{{ favorite.comments.count() }}评论</a>
+                <a href="{{ url_for('main.edit_favorite',username=user.username,id=favorite.id) }}">编辑</a>
+                <a href="" id="delete-favorite">删除</a>
+            </div>
+            {% if not current_user==favorite.user %}
+                {% if not current_user.is_following_favorite(favorite) %}
+                <a href="{{ url_for('.follow_favorite',id=favorite.id) }}" class="btn btn-danger">关注</a>
+                {% else %}
+                 <a href="{{ url_for('.unfollow_favorite',id=favorite.id) }}" class="btn btn-danger">取消关注</a>
+                {% endif %}
+            {% endif %}
+            {% include "_questions.html" %}
+            {% include "_answers.html" %}
+            {% include "_posts.html" %}
+        </div>
+        <div class="col-md-5">
+            <h2>关于创作者</h2>
+            <div class="favorite-author">
+                <a class="avatar" href="{{ url_for('main.user',username=user.username) }}"><img src="{{ user.avatar_url_nm }}" alt="avatar"></a>
+                <span class="author">{{ user.username }}</span>
+                <span style="display: block;position: relative;left: 50px;bottom: 10px">{{ user.about_me }}</span>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+    <script>
+    var btn=$('#delete-favorite');
+    $(document).ready(function () {
+        btn.on('click',function (e) {
+        e.preventDefault();
+        var res=confirm('是否删除?');
+        var data={'ensure':Number(res)};
+        $.ajax(
+            '{{ url_for('main.delete_favorite',username=user.username,id=favorite.id) }}',
+         {data:data
+        }
+        ).done(function (data) {
+            console.log(data);
+        })
+    })
+    });
+    </script>
+{% endblock %}

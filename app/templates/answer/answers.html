@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "_macros.html" as macros %}
+
+{% block head %}
+    {{ super() }}
+    <style>
+        .news-item{
+        margin-bottom: 50px;
+
+    }
+    .title{
+        font-size: 25px;
+        font-weight: bold;
+    }
+    </style>
+{% endblock %}
+{% block page_content %}
+    <div class="container">
+    <div class="col-md-1"></div>
+    <div class="col-md-8">
+    {% include "_answers.html" %}
+    {% if pagination %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.posts') }}
+    </div>
+    {% endif %}
+    </div>
+    <div class="col-md-3">
+      <div class="jumbotron">
+         <div class="adv">
+         </div>
+      </div>
+    {% if tags %}
+      <div class="tags jumbotron">
+          <div class="tag-item">
+                {% for tag in tags %}
+                    <a href="{{ url_for('main.tag_posts',id=tag.id) }}" class="label label-{{ choice() }}">{{ tag.title }}</a>
+                {% endfor %}
+          </div>
+      </div>
+    {% endif %}
+    </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends  "base.html"%}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% import '_macros.html' as macros %}
+{% block title %}文章{% endblock %}
+{% block head %}
+    {{ super() }}
+    <script src="//cdn.ckeditor.com/4.8.0/standard/ckeditor.js"></script>
+    <style>
+        .post-body{
+            word-wrap: break-word;
+            word-break: break-all;
+        }
+    .total-answers{
+        height: auto;
+        position: relative;
+        top: 30px;
+        background-color: #eeeeee;
+        margin-top: 20px;
+    }
+
+    </style>
+{% endblock %}
+{% block page_content %}
+    <div class="col-md-2"></div>
+    <div class="total-answers clearfix col-md-8">
+            <div class="author-info">
+                <div class="col-md-1"><a href="{{ url_for('main.user',username=post.author.username) }} "><img src="{{ post.author.avatar_url_sm }}" alt="avatar"></a></div>
+                <div class="col-md-11">
+                    <a href="{{ url_for('main.user',username=post.author.username) }}">{{ post.author.username }}</a>
+                    <span style="display: block">{{ post.author.about_me }}</span>
+
+                </div>
+            </div>
+            <span class="text-muted" style="position: relative;top: 10px">1420人赞同了该文章</span>
+            <div class="answer-body">
+                <h1 style="text-align: center">{{ post.title }}</h1>
+                <p>{{ post.body|safe }}</p>
+                <div style="margin-top: 30px">
+                <span class="text-muted">编辑于{{ moment(post.timestamp).format('L') }}</span>
+                </div>
+            </div>
+            <div class="question-widget" style="margin-top: 20px">
+            {% if not current_user.is_like_post(post) %}
+                     <a href="{{ url_for('main.like_post',id=post.id) }}" class="">
+                       <span class="glyphicon glyphicon-thumbs-up"></span>
+                       <span class="badge">{{ post.liked_posts.count() }}</span>
+                   </a>
+            {% else %}
+                   <a href="{{ url_for('main.unlike_post',id=post.id) }}" class="">
+                       <span class="glyphicon glyphicon-thumbs-down"></span>
+                       <span class="badge">{{ post.liked_posts.count() }}</span>
+                   </a>
+            {% endif %}
+                   <a href=""><span class=""></span>{{ post.comments.count() }}评论</a>
+                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
+                   <a href=""><span class="glyphicon glyphicon-star"></span>收藏</a>
+                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
+                    {% if post.author==current_user or current_user.can(Permission.ADMINISTER) %}
+                   <a href="{{ url_for('main.edit_post',id=post.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑文章</a>
+                    {% endif %}
+            </div>
+            {% if not post.disable_comment %}
+            <div class="edit-self">
+                <h1>评论</h1>
+
+                <form method="post">
+                    {{ form.hidden_tag() }}
+                    {{ wtf.form_errors(form,hiddens='only') }}
+                    {{ wtf.form_field(form.body,class='ckeditor') }}
+                    {{ wtf.form_field(form.submit) }}
+                </form>
+            {#    {{ wtf.quick_form(form) }}#}
+
+                <div class="comments">
+                    {% include "_comments.html" %}
+                </div>
+                {% if pagination %}
+                    <div class="pagination">
+                    {{ macros.pagination_widget(pagination,'.post',id=post.id) }}
+                    </div>
+                {% endif %}
+                </div>
+                {% else %}
+                <h1>禁止评论</h1>
+            {% endif %}
+    </div>
+    <div class="col-md-2"></div>
+{% endblock %}

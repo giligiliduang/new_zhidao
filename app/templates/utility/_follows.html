@@ -1,0 +1,9 @@
+{% for follow in follows %}
+    <div class="author-info">
+                <div class="col-md-1"><a href="{{ url_for('main.user',username=follow.username) }} "><img src="{{ follow.avatar_url_sm }}" alt="avatar"></a></div>
+                <div class="col-md-11">
+                    <a href="{{ url_for('main.user',username=follow.username) }}">{{ follow.username }}</a>
+                    <span style="display: block">{{ follow.about_me }}</span>
+                </div>
+    </div>
+{% endfor %}

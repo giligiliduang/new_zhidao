@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block title %}写文章{% endblock %}
+{% block head %}
+{{ super() }}
+    <script src="//cdn.ckeditor.com/4.8.0/standard/ckeditor.js"></script>
+{% endblock %}
+{% block page_content %}
+    <div class="edit-self col-md-6">
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_errors(form,hiddens='only') }}
+        {{ wtf.form_field(form.title) }}
+        {{ wtf.form_field(form.body,class='ckeditor') }}
+        {{ wtf.form_field(form.tags) }}
+        {{ wtf.form_field(form.disable_comment) }}
+        {{ wtf.form_field(form.submit) }}
+    </form>
+{#    {{ wtf.quick_form(form) }}#}
+    </div>
+{% endblock %}

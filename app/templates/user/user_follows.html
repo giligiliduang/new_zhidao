@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% import "_macros.html"as macros %}
+{% block title%}{{ title }}{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+
+{% block page_content %}
+    <h1>{{ title }}</h1>
+    {% include "_follows.html" %}
+    {% if style=='user_followers' %}
+        {% if pagination %}
+            <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.user_followers',username=user.username) }}
+            </div>
+        {% endif %}
+    {% elif style=='user_followed' %}
+        {% if pagination %}
+            <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.user_followed',username=user.username) }}
+            </div>
+        {% endif %}
+    {% elif style=='question_followers' %}
+        {% if pagination %}
+            <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.question_followers',id=question.id) }}
+            </div>
+        {% endif %}
+    {% endif %}
+{% endblock %}

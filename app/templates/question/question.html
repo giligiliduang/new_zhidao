@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% import "_macros.html" as macros %}
+{% block head %}
+{{ super() }}
+    <style>
+        .question-follow-count{
+            max-width: 100%;
+            height: 100px;
+            border: 1px solid antiquewhite;
+            font-size: 20px;
+        }
+    .question-followr{
+        position: relative;
+        left: 20px;
+        top: 20px;
+        cursor: pointer;
+        color: black;
+    }
+    .question-followr-num{
+        position: relative;
+        top: 50px;
+        right: 30px;
+        cursor: pointer;
+        color: black;
+    }
+    .question-browse{
+        position: relative;
+        top: 20px;
+        left: 50px;
+    }
+
+    .question-description{
+        position: relative;
+        top: 5px;
+        word-break: break-all;
+        word-wrap: break-word;
+        font-size: 15px;
+    }
+    .question-widget *{
+        margin-left: 10px;
+    }
+    .total-answers-count{
+        max-width: 100%;
+        height: 40px;
+        background-color: #eee;
+        text-align: center;
+        letter-spacing: 5px;
+    }
+    .total-answers p{
+        position: relative;
+        top: 15px;
+    }
+    .total-answers{
+        height: auto;
+        position: relative;
+        top: 20px;
+        background-color: #eeeeee;
+    }
+    .question-widget{
+        margin-left: 10px;
+
+    }
+    </style>
+{% endblock %}
+
+{% block page_content %}
+{#    {% if current_user.is_authenticated %}#}
+{#        <h1>欢迎回来！{{ current_user.username|upper}}</h1>#}
+{#    {% else %}#}
+{#        <h1>登录</h1>#}
+{#    {% endif %}#}
+    <div class="container">
+    <div class="col-md-1">
+    </div>
+    <div class="news col-md-8">
+       <div class="news-item clearfix">
+           <div class="question-header-main">
+               <div class="topic-tag">
+                   <a class="label label-default">{{ question.topic.title }}</a>
+               </div>
+               <div class="title">
+               <a href=""><h3>{{ question.title }}</h3></a>
+               </div>
+               <div class="question-description">
+                   <p>{{ question.description|safe }}</p>
+               </div>
+               <div class="question-widget">
+                    {% if not current_user==question.author %}
+                        {% if not current_user.is_following_question(question) %}
+                       <a class="btn btn-info" href="{{ url_for('main.follow_question',id=question.id) }}">关注问题</a>
+                        {% else %}
+                        <a class="btn btn-info" href="{{ url_for('main.unfollow_question',id=question.id) }}">取消关注</a>
+                       {% endif %}
+                    {% endif %}
+                   <a class="btn btn-info" href="{{ url_for('main.write_answer',id=question.id) }}"><span class="glyphicon glyphicon-pencil"></span>写回答</a>
+                   <a href="{{ url_for('main.question_comments',id=question.id) }}"><span class=""></span>{{ question.comments.count() }}条评论</a>
+                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
+                   <a href=""><span class="glyphicon glyphicon-user"></span>邀请回答</a>
+                   {% if current_user==question.author or current_user.can(Permission.ADMINISTER)%}
+                   <a href="{{ url_for('main.edit_question',id=question.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑问题</a>
+                   {% endif %}
+               </div>
+           </div>
+       </div>
+        <div class="total-answers-count"><p>全部{{ question.answers.count() }}回答</p></div>
+{#        {% for answer in answers %}#}
+{#        <div class="total-answers clearfix">#}
+{#            <div class="author-info">#}
+{#                {% if not answer.anonymous %}#}
+{#                <div class="col-md-1"><a href="{{ url_for('main.user',username=answer.author.username) }} "><img src="{{ answer.author.avatar_url_sm }}" alt="avatar"></a></div>#}
+{#                {% else %}#}
+{#                 <div class="col-md-1"><img src="https://dummyimage.com/20x20/748/699" alt="avatar"></div>#}
+{#                {% endif %}#}
+{#                <div class="col-md-11">#}
+{#                    {% if not answer.anonymous %}#}
+{#                    <a href="{{ url_for('main.user',username=answer.author.username) }}">{{ answer.author.username }}</a>#}
+{#                    <span style="display: block">{{ answer.author.about_me }}</span>#}
+{#                    {% else %}#}
+{#                    <a href="">匿名用户</a>#}
+{#                    {% endif %}#}
+{#                </div>#}
+{#            </div>#}
+{#            <span class="text-muted" style="position: relative;top: 10px">1420人赞同了该答案</span>#}
+{#            <div class="answer-body">#}
+{#                <p>{{ answer.body|safe }}</p>#}
+{#                <div style="margin-top: 30px">#}
+{#                <span class="text-muted">编辑于{{ moment(answer.timestamp).format('L') }}</span>#}
+{#                </div>#}
+{#            </div>#}
+{#            <div class="question-widget" style="margin-top: 20px">#}
+{#                     <a href="#" class="">#}
+{#                       <span class="glyphicon glyphicon-thumbs-up"></span>#}
+{#                       <span class="badge">15</span>#}
+{#                   </a>#}
+{#                   <a href="#" class="">#}
+{#                       <span class="glyphicon glyphicon-thumbs-down"></span>#}
+{#                       <span class="badge">15</span>#}
+{#                   </a>#}
+{#                   <a href=""><span class=""></span>12条评论</a>#}
+{#                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>#}
+{#                   <a href=""><span class="glyphicon glyphicon-star"></span>收藏</a>#}
+{#                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>#}
+{#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
+{#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}
+{#                    {% endif %}#}
+{#            </div>#}
+{#        </div>#}
+{#        {% endfor %}#}
+    {% include "_answers.html" %}
+    {% if pagination %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.user',username=question.author.username) }}
+    </div>
+    {% endif %}
+    </div>
+    <div class="col-md-3">
+      <div class="question-follow-count">
+          <a class="question-followr" href="{{ url_for('.question_followers',id=question.id) }}">关注者</a>
+          <a class="question-followr-num">{{ question.followers.count() }}</a>
+          <span class="question-browse">被浏览</span>
+          <span style="position: relative;top: 50px">{{ question.browse_count }}次</span>
+      </div>
+      <div class="tags jumbotron">
+          <div class="tag-item">
+          <a href="#" class="label label-danger">python</a>
+          <a href="#" class="label label-default">Java</a>
+          <a href="#" class="label label-warning">C++</a>
+          <a href="#" class="label label-success">C#</a>
+          <a href="#" class="label label-info">Javascript</a>
+          <a href="#" class="label label-danger">F#</a>
+          <a href="#" class="label label-danger">nodejs</a>
+          <a href="#" class="label label-danger">bootstrap</a>
+          <a href="#" class="label label-danger">angular.js</a>
+          <a href="#" class="label label-danger">个人随笔</a>
+          <a href="#" class="label label-danger">日记</a>
+          <a href="#" class="label label-info">写在前面</a>
+          <a href="#" class="label label-danger">该说不说的</a>
+          </div>
+      </div>
+    </div>
+</div>
+
+
+{% endblock %}

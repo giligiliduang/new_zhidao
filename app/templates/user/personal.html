@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% import "_macros.html"as macros %}
+{% block title %}个人资料{% endblock %}
+{% block head %}
+{{ super() }}
+    <style>
+        .introduce{
+            position: relative;
+            top: 120px;
+            right: 30px;
+        }
+    .edit-btn{
+    position: relative;
+    top: 126px;
+    left:542px;
+}
+    .breadcrumb a{
+        margin-left: 15px;
+    }
+    .title{
+        font-size: 25px;
+        font-weight: bold;
+    }
+    .news-item{
+        margin-bottom: 50px;
+    }
+    .total-answers{
+        height: auto;
+        position: relative;
+        top: 20px;
+        background-color: #eeeeee;
+        margin-top: 30px;
+    }
+    .indicator{
+        position: relative;
+        left: 20px;
+        width: 30px;
+        height: 1px;
+        background-color: red;
+    }
+    .followed{
+        display: block;
+    }
+    .follow-user{
+        position: relative;
+        left:670px ;
+        top: 130px;
+    }
+    </style>
+{% endblock %}
+{% block page_content %}
+<div class="person">
+        <div class="container">
+            <div class="person-title">
+                <div class="user-avatar col-md-4">
+                    {% if user.avatar_url_nm %}
+                        <a href="{{ url_for('main.upload_avatar') }}">
+                            <img src="{{ user.avatar_url_nm}}" alt="avatar" id="avatar">
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('main.upload_avatar') }}">
+                            <img src="{{ user.gravatar(400) }}" alt="avatar" id="avatar">
+                        </a>
+                    {% endif %}
+                    <h2 style="text-align: right;font-weight: bold;position: relative;bottom: 40px;right: 27px">{{ user.name }}</h2>
+                    <div class="user-info">
+                        <span><a href="#">{{ user.job }}</a></span>
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <span class="introduce"><h4>{{ user.about_me }}</h4></span>
+                    {% if user==current_user %}
+                            <div class="edit-btn">
+                            <a href="{{ url_for('main.edit_profile') }}" class="btn btn-danger">编辑个人资料</a>
+                            </div>
+                    {% else  %}
+                        <div class="follow-user">
+                            {% if not current_user.is_following_user(user) %}
+                                <a href="{{ url_for('main.follow_user',username=user.username) }}" class="btn btn-danger">关注</a>
+                            {% else %}
+                                <a href="{{ url_for('main.unfollow_user',username=user.username) }}" class="btn btn-danger">取消关注</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+
+                </div>
+            </div>
+        </div>
+        <div class="person-body">
+            <div class="col-md-8">
+                <ul class="nav nav-tabs">
+                    <li><a href="{{ url_for('main.user_questions',username=user.username) }}" id="render">提问 <span class="badge">{{ user.questions.count() }}</span></a></li>
+                    <li><a href="{{ url_for('main.user_answers',username=user.username) }}" id="answer">回答 <span class="badge">{{ user.answers.count() }}</span></a></li>
+                    <li><a href="{{ url_for('main.user_posts',username=user.username) }}">文章 <span class="badge">{{ user.posts.count() }}</span></a></li>
+                    <li class="dropdown">
+                      <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">收藏 <span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+
+                          {% for favorite in favorites %}
+                              {% if favorite.public %}
+                        <li><a href="{{ url_for('main.favorite',username=user.username,id=favorite.id) }}">{{ favorite.title }}</a></li>
+                              {% endif %}
+                          {% endfor %}
+
+                        <li role="separator" class="divider"></li>
+                        {% if current_user==user or current_user.can(Permission.ADMINISTER) %}
+                        <li><a href="{{ url_for('main.create_favorite',username=user.username) }}">新建收藏夹</a></li>
+                        {% endif %}
+                      </ul>
+                     </li>
+                </ul>
+{#                <div class="indicator"></div>#}
+                {% if type=='question' %}
+                {% include "_questions.html" %}
+                {% elif type=='answer' %}
+                {% include "_answers.html" %}
+                {% elif type=='post' %}
+                {% include "_posts.html" %}
+                {% endif %}
+                {% if pagination %}
+                    <div class="pagination">
+                        {{ macros.pagination_widget(pagination,'.user',username=user.username) }}
+                    </div>
+                    {% endif %}
+
+            </div>
+            <div class="col-md-4">
+                <div class="follow">
+                    <a href="{{ url_for('.user_followers',username=user.username) }}">关注者</a>
+                    <span class="follower">{{ user.followers.count()-1 }}</span>
+                    <a href="{{ url_for('.user_followed',username=user.username) }}">关注了</a>
+                    <span class="followed">{{ user.followed.count()-1 }}</span>
+                </div>
+                <div class="list-group">
+                    <a href="{{ url_for('.followed_questions',username=user.username) }}" class="list-group-item">关注的问题<span class="badge">{{ user.followed_questions.count() }}</span></a>
+                    <a href="#" class="list-group-item">关注的收藏夹<span class="badge">4</span></a>
+                    <a href="" class="list-group-item">我赞过的文章<span class="badge">12</span></a>
+                    <a href="" class="list-group-item">关注的专栏<span class="badge">12</span></a>
+                    <a href="{{ url_for('.recent_questions') }}" class="list-group-item">最近浏览问题<span class="badge">12</span></a>
+                </div>
+                <div class="text-muted">
+                    <h5>注册时间 ·<span>{{ moment(user.member_since).format('L') }}</span></h5>
+                    <h5>上次浏览 ·<span>{{ moment(user.last_seen).fromNow() }}</span></h5>
+                    <h5>个人主页被浏览了 ·<span>{{ user.visited_count }}次</span></h5>
+                </div></div>
+        </div>
+    </div>
+{% endblock %}
+
