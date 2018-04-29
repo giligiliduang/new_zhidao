@@ -64,7 +64,7 @@ def create_superadmin():
         if u:
             click.echo(click.style('用户已经存在!', fg='red'))
             return
-        u=User(username=username,password=pwd,confirmed=True)
+        u=User.create(username=username,password=pwd,confirmed=True)
         u.role=Role.query.filter_by(name='Administrator').first()
         db.session.add(u)
         db.session.commit()
@@ -109,4 +109,5 @@ def create_newapp(name):
 
 
 if __name__ == '__main__':
-    app.run()
+    app.jinja_env.auto_reload=True
+    app.run(host='localhost',port=5001,debug=True)

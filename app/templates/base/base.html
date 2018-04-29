@@ -3,15 +3,16 @@
 {% block title %}吱道{% endblock %}
 {% block head %}
 {{ super() }}
-<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
 <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
     <style>
-        .avatar-sm{
+    .avatar-sm{
             position: relative;
             left:20px;
         }
     </style>
+
 {% endblock %}
 {% block navbar %}
 <nav class="navbar navbar-inverse">

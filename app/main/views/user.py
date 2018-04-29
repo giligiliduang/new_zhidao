@@ -1,15 +1,18 @@
 from flask import flash, url_for, redirect, request, current_app, render_template, make_response
 from flask_login import login_required, current_user
 
+from app.constants import jobs
 from app.decorators import permission_required
 from app.main import main
+from app.main.forms import EditProfileForm
 from app.models import User, Question, Post, Answer, Permission, Follow, Favorite, FollowQuestion, FollowFavorite
 from .search import search
 from app.signals import user_visited, favorite_unfollow, \
     favorite_follow, question_unfollow, question_follow, post_voteup, post_cancel_vote, answer_cancel_vote, \
     answer_voteup
 
-from app import signals
+from app import signals, db
+
 
 @main.route('/user/<username>',methods=['GET','POST'])
 @login_required
@@ -61,6 +64,31 @@ def user(username):
         return render_template('user/personal.html',**q_context)
 
     return render_template('user/personal.html',user=user,questions=questions,answers=answers,posts=posts,type=type,pagination=pagination,favorites=favorites)
+
+
+
+@main.route('/edit-profile',methods=['GET','POST'])
+@login_required
+def edit_profile():
+    s = search()
+    if s:
+        return s
+    form=EditProfileForm()
+    if form.validate_on_submit():
+        current_user.name=form.name.data
+        current_user.location=form.location.data
+        current_user.job=jobs[form.job.data]
+        current_user.about_me=form.about_me.data
+        db.session.add(current_user)
+        flash('更新资料成功')
+        return redirect(url_for('main.user',username=current_user.username))
+    form.name.data=current_user.name
+    form.location.data=current_user.location
+    form.about_me.data=current_user.about_me
+    form.job.data=current_user.job
+    return render_template('user/edit_profile.html',form=form)
+
+
 
 @main.route('/user/<username>/answers')
 def user_answers(username):

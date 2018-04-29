@@ -142,6 +142,11 @@ a:hover,a:active{
     position: relative;
     top: 59px;
 }
+.avatar-sm{
+            position: relative;
+            left:20px;
+        }
+
 .user-info{
     text-align: right;
     position: relative;
@@ -193,7 +198,12 @@ a:hover,a:active{
     top: 200px;
 }
 
-
+/*个人主页*/
+.introduce{
+            position: relative;
+            top: 120px;
+            right: 30px;
+        }
 
 
 

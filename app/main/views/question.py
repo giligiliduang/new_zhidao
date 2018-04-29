@@ -8,7 +8,7 @@ from app.main.forms import CommentForm, EditQuestionForm, Topic, QuestionForm
 from app.signals import question_unfollow, question_follow, question_answer_add,question_browsed,question_comment_add
 
 from app.main.views import search
-from app.models import Question, Answer, Comment, Permission
+from app.models import Question, Answer, Comment, Permission, FollowQuestion
 from collections import deque
 
 
@@ -28,6 +28,7 @@ def question(id):
     pagination=question.answers.order_by(Answer.timestamp.desc()).\
     paginate(page,per_page=current_app.config['ZHIDAO_ANSWER_PER_PAGE'],error_out=False)
     answers=pagination.items
+    topics=[i.topic for i in question.topics.all()]
     if current_user!=question.author:
         question_browsed.send(question)#发送信号更新
     recent_q=request.cookies.get('recent_q','')
@@ -41,7 +42,7 @@ def question(id):
         else:
             recent_q.appendleft(ques_id)
         recent_q=','.join(recent_q)#拼接字符串 类似'4,8,6,9'
-        a_context=dict(question=question,answers=answers,pagination=pagination)
+        a_context=dict(question=question,answers=answers,pagination=pagination,topics=topics)
         resp=make_response(render_template('question/question.html',**a_context))
         resp.set_cookie('recent_q',recent_q)
         return resp
@@ -54,7 +55,7 @@ def question(id):
         else:
             recent_q.appendleft(ques_id)
         recent_q = ','.join(recent_q)  # 拼接字符串 类似'4,8,6,9'
-        context=dict(question=question, answers=answers, pagination=pagination)
+        context=dict(question=question, answers=answers, pagination=pagination,topics=topics)
         resp = make_response(
             render_template('question/question.html',**context))
         resp.set_cookie('recent_q', recent_q)
@@ -149,3 +150,21 @@ def pose_question():
     return render_template('question/pose_question.html',form=form)
 
 
+
+@main.route('/question/<int:id>/followers',methods=['GET','POST'])
+def question_followers(id):
+    s = search()
+    if s:
+        return s
+    question=Question.query.get_or_404(id)
+    if question is None:
+        flash('问题不存在')
+        return redirect(url_for('.index'))
+    page=request.args.get('page',1,type=int)
+    pagination=question.followers.order_by(FollowQuestion.timestamp.desc()).\
+        paginate(page,per_page=current_app.config['ZHIDAO_FOLLOW_PER_PAGE'],error_out=False)
+    follows=[item.follower for item in pagination.items]#关注问题的人
+    title='关注问题{}的人'.format(question.title)
+    style='question_followers'
+    return render_template('user/user_follows.html',pagination=pagination,follows=follows,
+                           question=question,title=title,style=style)

@@ -92,8 +92,8 @@ class Comment(db.Model,BaseMixin,DateTimeMixin):
 
 class PostFavorite(db.Model,BaseMixin,DateTimeMixin):
     __tablename__='postfavorites'
-    post_id=db.Column(db.Integer,db.ForeignKey('posts.id',primary_key=True))
-    favorite_id=db.Column(db.Integer,db.ForeignKey('favorites.id',primary_key=True))
+    post_id=db.Column(db.Integer,db.ForeignKey('posts.id'),primary_key=True)
+    favorite_id=db.Column(db.Integer,db.ForeignKey('favorites.id'),primary_key=True)
 
 
 class LikePost(db.Model,BaseMixin,DateTimeMixin):
@@ -156,6 +156,7 @@ class LikeAnswer(db.Model,BaseMixin,DateTimeMixin):
     like_answer_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)#赞同回答的人
     answer_liked_id=db.Column(db.Integer,db.ForeignKey('answers.id'),primary_key=True)#被喜欢的回答
 class AnswerFavorite(db.Model,BaseMixin,DateTimeMixin):
+    __tablename__='answerfavorites'
     answer_id=db.Column(db.Integer,db.ForeignKey('answers.id'),primary_key=True)
     favorite_id=db.Column(db.Integer,db.ForeignKey('favorites.id'),primary_key=True)
 
@@ -206,7 +207,7 @@ class QuestionTopic(db.Model,BaseMixin,DateTimeMixin):
     question_id=db.Column(db.Integer,db.ForeignKey('questions.id'),primary_key=True)
 
 class QuestionFavorite(db.Model,BaseMixin,DateTimeMixin):
-    __tablename__='questiontopics'
+    __tablename__='questionfavorites'
     question_id=db.Column(db.Integer,db.ForeignKey('questions.id'),primary_key=True)
     favorite_id=db.Column(db.Integer,db.ForeignKey('favorites.id'),primary_key=True)
 
@@ -282,7 +283,7 @@ class Topic(db.Model,BaseMixin,DateTimeMixin):
 
 
 class FollowFavorite(db.Model,BaseMixin,DateTimeMixin):
-    __tablename__='followposts'
+    __tablename__='followfavorites'
     follower_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)#关注问题的人
     followed_id=db.Column(db.Integer,db.ForeignKey('favorites.id'),primary_key=True)#被关注的收藏夹
 
@@ -692,16 +693,6 @@ class User(db.Model,UserMixin,BaseMixin):
         return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
 
-    def add_topic(self,topic):
-        if topic not in self.topics:
-            self.topics.append(topic)
-            db.session.commit()
-
-    def remove_topic(self,topic):
-        t=Topic.query.filter_by(id=topic.id)
-        if t:
-            db.session.delete(t)
-            db.session.commit()
 
 
 
@@ -715,9 +706,7 @@ class User(db.Model,UserMixin,BaseMixin):
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
 
-    def ping(self):
-        self.last_seen=datetime.utcnow()
-        db.session.add(self)
+
     @property
     def password(self):
             raise AttributeError('禁止访问')

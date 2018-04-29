@@ -14,13 +14,20 @@ from .question import *
 from .upload import *
 from .user import *
 
-__all__=['before_request','after_request','index',
+
+__all__=['before_request','after_request','index','upload_avatar','image_resize',
          'user','user_answers','user_questions','user_posts','user_followed','user_followers',
          'unfollow_user','follow_user','my_followed_user_posts','my_followed_user_questions',
+        'like_answer','unlike_answer','like_post','unlike_post','followed_favorites','followed_questions',
 
          'favorite','favorite_posts','favorite_questions','edit_favorite','create_favorite',
          'collect_post','collect_question','collect_answer',
 
+         'edit_answer','write_answer','answer_comments',
+
+         'post','post_order_by_likecount','post_order_by_timestamp','tag_posts','create_post','edit_post',
+         'posts',
+        'question','edit_question','pose_question','recent_questions','question_comments'
          ]
 
 @main.before_app_request

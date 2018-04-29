@@ -1,5 +1,5 @@
 {% extends "base/base.html" %}
-{% import "_macros.html"as macros %}
+{% import "base/_macros.html"as macros %}
 {% block title %}个人资料{% endblock %}
 {% block head %}
 {{ super() }}
@@ -9,45 +9,10 @@
             top: 120px;
             right: 30px;
         }
-    .edit-btn{
-    position: relative;
-    top: 126px;
-    left:542px;
-}
-    .breadcrumb a{
-        margin-left: 15px;
-    }
-    .title{
-        font-size: 25px;
-        font-weight: bold;
-    }
-    .news-item{
-        margin-bottom: 50px;
-    }
-    .total-answers{
-        height: auto;
-        position: relative;
-        top: 20px;
-        background-color: #eeeeee;
-        margin-top: 30px;
-    }
-    .indicator{
-        position: relative;
-        left: 20px;
-        width: 30px;
-        height: 1px;
-        background-color: red;
-    }
-    .followed{
-        display: block;
-    }
-    .follow-user{
-        position: relative;
-        left:670px ;
-        top: 130px;
-    }
     </style>
+
 {% endblock %}
+
 {% block page_content %}
 <div class="person">
         <div class="container">
@@ -62,13 +27,13 @@
                             <img src="{{ user.gravatar(400) }}" alt="avatar" id="avatar">
                         </a>
                     {% endif %}
-                    <h2 style="text-align: right;font-weight: bold;position: relative;bottom: 40px;right: 27px">{{ user.name }}</h2>
+                    <h2 style="text-align: right;font-weight: bold;position: relative;bottom: 40px;right: 27px">{{ user.name or "无"}}</h2>
                     <div class="user-info">
-                        <span><a href="#">{{ user.job }}</a></span>
+                        <span><a href="#">{{ user.job or"无" }}</a></span>
                     </div>
                 </div>
                 <div class="col-md-8">
-                    <span class="introduce"><h4>{{ user.about_me }}</h4></span>
+                    <span class="introduce"><h4>{{ user.about_me or "无" }}</h4></span>
                     {% if user==current_user %}
                             <div class="edit-btn">
                             <a href="{{ url_for('main.edit_profile') }}" class="btn btn-danger">编辑个人资料</a>
@@ -112,11 +77,11 @@
                 </ul>
 {#                <div class="indicator"></div>#}
                 {% if type=='question' %}
-                {% include "_questions.html" %}
+                {% include "utility/_questions.html" %}
                 {% elif type=='answer' %}
-                {% include "_answers.html" %}
+                {% include "utility/_answers.html" %}
                 {% elif type=='post' %}
-                {% include "_posts.html" %}
+                {% include "utility/_posts.html" %}
                 {% endif %}
                 {% if pagination %}
                     <div class="pagination">

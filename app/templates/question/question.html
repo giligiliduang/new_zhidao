@@ -77,7 +77,9 @@
        <div class="news-item clearfix">
            <div class="question-header-main">
                <div class="topic-tag">
-                   <a class="label label-default">{{ question.topic.title }}</a>
+                   {% if topics !=[] %}
+                   <a class="label label-default">{{ topic.title }}</a>
+                   {% endif %}
                </div>
                <div class="title">
                <a href=""><h3>{{ question.title }}</h3></a>

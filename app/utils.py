@@ -9,7 +9,7 @@ from flask_mail import Message
 from app import mail
 
 
-@main.app_context_processor
+@main.context_processor
 def inject_permissions():
     searchform=SearchForm()
     return dict(Permission=Permission,searchform=searchform)#全局渲染表单
