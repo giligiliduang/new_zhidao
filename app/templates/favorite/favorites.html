@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% import "_macros.html"as macros %}
+{% extends "base/base.html" %}
+{% import "base/_macros.html"as macros %}
 {% block title %}个人资料{% endblock %}
 {% block head %}
 {{ super() }}
@@ -80,9 +80,20 @@
                  <a href="{{ url_for('.unfollow_favorite',id=favorite.id) }}" class="btn btn-danger">取消关注</a>
                 {% endif %}
             {% endif %}
-            {% include "_questions.html" %}
-            {% include "_answers.html" %}
-            {% include "_posts.html" %}
+
+        <ul class="nav nav-tabs nav-justified">
+                <li><a href="{{ url_for('main.favorite_questions',id=favorite.id) }}">问题</a></li>
+                <li><a href="{{ url_for('main.favorite_posts',id=favorite.id) }}">文章</a></li>
+            </ul>
+
+            {% if type=='post' %}
+                {% include "_posts.html" %}
+            {% elif type=='question' %}
+                {% include '_questions.html' %}
+            {% elif type is none %}
+                {% include '_questions.html' %}
+            {% endif %}
+
         </div>
         <div class="col-md-5">
             <h2>关于创作者</h2>

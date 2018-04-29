@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% import "_macros.html" as macros %}
+{% extends "base/base.html" %}
+{% import "base/_macros.html" as macros %}
 
 {% block head %}
     {{ super() }}
@@ -18,7 +18,7 @@
     <div class="container">
     <div class="col-md-1"></div>
     <div class="col-md-8">
-    {% include "_answers.html" %}
+    {% include "utility/_answers.html" %}
     {% if pagination %}
     <div class="pagination">
         {{ macros.pagination_widget(pagination,'.posts') }}

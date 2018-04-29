@@ -11,9 +11,17 @@ from .favorite import *
 from .index import *
 from .post import *
 from .question import *
+from .upload import *
+from .user import *
 
+__all__=['before_request','after_request','index',
+         'user','user_answers','user_questions','user_posts','user_followed','user_followers',
+         'unfollow_user','follow_user','my_followed_user_posts','my_followed_user_questions',
 
-__all__=['before_request','after_request']
+         'favorite','favorite_posts','favorite_questions','edit_favorite','create_favorite',
+         'collect_post','collect_question','collect_answer',
+
+         ]
 
 @main.before_app_request
 def before_request():

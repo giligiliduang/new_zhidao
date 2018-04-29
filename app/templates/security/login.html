@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block title %}登录{% endblock %}
+{% block head %}
+{{ super() }}
+    <style>
+        .login{
+            position: relative;
+            top: 200px;
+            left: 500px;
+        }
+    </style>
+{% endblock %}
+{% block page_content %}
+<div class="col-md-4 login">
+<h1>登录</h1>
+    <form class="form" method="post">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_errors(form,hiddens='only') }}
+        {{ wtf.form_field(form.email) }}
+        {{ wtf.form_field(form.password) }}
+        {{ wtf.form_field(form.remember_me) }}
+        {{ wtf.form_field(form.submit,class='col-md-12 btn btn-danger') }}
+    </form>
+{#{{ wtf.quick_form(form) }}#}
+    <div><a href="{{ url_for('auth.register') }}" class="text-muted">还没账号?点击注册</a></div>
+    <div><a href="{{ url_for('auth.password_reset_request') }}" class="text-muted">忘记密码?点击重置</a></div>
+</div>
+{% endblock %}

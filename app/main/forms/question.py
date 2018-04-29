@@ -34,13 +34,13 @@ class EditQuestionForm(FlaskForm):
         super(EditQuestionForm,self).__init__(*args,**kwargs)
         choices=[(topic.id,topic.title)for topic in Topic.query.order_by(Topic.timestamp.desc()).all()]
         self.topic.choices=choices
-    def validate(self):
-        checked=super(EditQuestionForm,self).validate()
-        if not checked:
-            return False
-        question=Question.query.filter_by(title=self.title.data).first()
-        if question:
-            self.title.errors.append('您提问的问题已经存在,快去搜索一下吧')
-            return False
-        return True
+    # def validate(self):
+    #     checked=super(EditQuestionForm,self).validate()
+    #     if not checked:
+    #         return False
+    #     question=Question.query.filter_by(title=self.title.data).first()
+    #     if question:
+    #         self.title.errors.append('您提问的问题已经存在,快去搜索一下吧')
+    #         return False
+    #     return True
 

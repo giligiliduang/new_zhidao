@@ -1,6 +1,6 @@
-{% extends  "base.html"%}
+{% extends  "base/base.html"%}
 {% import 'bootstrap/wtf.html' as wtf %}
-{% import '_macros.html' as macros %}
+{% import 'base/_macros.html' as macros %}
 {% block title %}文章{% endblock %}
 {% block head %}
     {{ super() }}
@@ -31,7 +31,7 @@
 
                 </div>
             </div>
-            <span class="text-muted" style="position: relative;top: 10px">1420人赞同了该文章</span>
+            <span class="text-muted" style="position: relative;top: 10px">{{ post.liked_count }}人赞同了该文章</span>
             <div class="answer-body">
                 <h1 style="text-align: center">{{ post.title }}</h1>
                 <p>{{ post.body|safe }}</p>
@@ -72,7 +72,7 @@
             {#    {{ wtf.quick_form(form) }}#}
 
                 <div class="comments">
-                    {% include "_comments.html" %}
+                    {% include "utility/_comments.html" %}
                 </div>
                 {% if pagination %}
                     <div class="pagination">

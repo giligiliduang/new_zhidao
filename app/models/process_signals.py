@@ -20,6 +20,18 @@ def update_user_lastseen(current_app,sender):
     db.session.commit()
 
 
+@use_signal(signals.user_visited)
+def update_user_visited_count(sender):
+    assert isinstance(sender,User)
+    sender.visited+=1
+    db.session.add(sender)
+    db.session.commit()
+
+
+
+
+
+
 ###################回答#####################
 
 @use_signal(signals.answer_comment_add)
@@ -62,6 +74,15 @@ def update_question_followers_count(sender):
     sender.followers_count = Question.query.get(sender.id).followers.count()
     db.session.add(sender)
     db.session.commit()
+@use_signal(signals.question_browsed)
+def update_question_browsed_count(sender):
+    assert isinstance(sender,Question)
+    sender.browse_count+=1
+    db.session.add(sender)
+    db.session.commit()
+
+
+
 
 ####################文章###################
 

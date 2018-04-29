@@ -7,7 +7,7 @@ from flask import current_app, request
 import hashlib
 from app import db,bcrypt,login_manager
 from ..constants import default_tags
-
+from sqlalchemy.ext.hybrid import hybrid_property,hybrid_method
 class PostTag(db.Model,BaseMixin,DateTimeMixin):
     """关系表"""
     __tablename_='posttags'
@@ -90,6 +90,12 @@ class Comment(db.Model,BaseMixin,DateTimeMixin):
         return '<Comment {}>'.format(self.id)
 
 
+class PostFavorite(db.Model,BaseMixin,DateTimeMixin):
+    __tablename__='postfavorites'
+    post_id=db.Column(db.Integer,db.ForeignKey('posts.id',primary_key=True))
+    favorite_id=db.Column(db.Integer,db.ForeignKey('favorites.id',primary_key=True))
+
+
 class LikePost(db.Model,BaseMixin,DateTimeMixin):
     like_post_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
     post_liked_id=db.Column(db.Integer,db.ForeignKey('posts.id'),primary_key=True)
@@ -102,7 +108,7 @@ class Post(db.Model,BaseMixin,DateTimeMixin):
     title=db.Column(db.String(64))
     body=db.Column(db.Text)
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))
-    favorite_id = db.Column(db.Integer, db.ForeignKey('favorites.id'))
+    favorites = db.relationship('PostFavorite',backref='post',lazy='dynamic',foreign_keys=[PostFavorite.post_id])
     tags = db.relationship('PostTag', backref='post', foreign_keys=[PostTag.post_id], lazy='dynamic')#标签
     disable_comment=db.Column(db.Boolean,default=False)#是否禁止评论
     comments=db.relationship('Comment',backref='post',lazy='dynamic')#属于文章的评论
@@ -113,11 +119,10 @@ class Post(db.Model,BaseMixin,DateTimeMixin):
     liked_count = db.Column(db.Integer, default=0)  # 以点赞数排序
     tag_count=db.Column(db.Integer)#标签数量
     comments_count=db.Column(db.Integer)
-    def count_ping(self):
-        """点赞，取消赞之后调用"""
-        self.liked_count = self.liked_posts.count()
-        db.session.add(self)
-        db.session.commit()
+
+
+
+
 
     def disable(self):
         self.disable_comment=True
@@ -150,7 +155,9 @@ class Post(db.Model,BaseMixin,DateTimeMixin):
 class LikeAnswer(db.Model,BaseMixin,DateTimeMixin):
     like_answer_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)#赞同回答的人
     answer_liked_id=db.Column(db.Integer,db.ForeignKey('answers.id'),primary_key=True)#被喜欢的回答
-
+class AnswerFavorite(db.Model,BaseMixin,DateTimeMixin):
+    answer_id=db.Column(db.Integer,db.ForeignKey('answers.id'),primary_key=True)
+    favorite_id=db.Column(db.Integer,db.ForeignKey('favorites.id'),primary_key=True)
 
 class Answer(db.Model,BaseMixin,DateTimeMixin):
     __tablename__='answers'
@@ -160,7 +167,7 @@ class Answer(db.Model,BaseMixin,DateTimeMixin):
     body=db.Column(db.Text)#回答详情
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))#作者
     question_id=db.Column(db.Integer,db.ForeignKey('questions.id'))#属于哪个问题
-    favorite_id = db.Column(db.Integer, db.ForeignKey('favorites.id'))
+    favorites = db.relationship('AnswerFavorite',lazy='dynamic',backref='answer',foreign_keys=[AnswerFavorite.answer_id])
     anonymous=db.Column(db.Boolean,default=False)#作者是否匿名回答
     disable_comment = db.Column(db.Boolean, default=False)  # 是否禁止评论
     comments = db.relationship('Comment', backref='answer', lazy='dynamic')
@@ -198,6 +205,12 @@ class QuestionTopic(db.Model,BaseMixin,DateTimeMixin):
     topic_id=db.Column(db.Integer,db.ForeignKey('topics.id'),primary_key=True)
     question_id=db.Column(db.Integer,db.ForeignKey('questions.id'),primary_key=True)
 
+class QuestionFavorite(db.Model,BaseMixin,DateTimeMixin):
+    __tablename__='questiontopics'
+    question_id=db.Column(db.Integer,db.ForeignKey('questions.id'),primary_key=True)
+    favorite_id=db.Column(db.Integer,db.ForeignKey('favorites.id'),primary_key=True)
+
+
 class Question(db.Model,BaseMixin,DateTimeMixin):
     __tablename__='questions'
     __searchable__=['title']
@@ -207,7 +220,7 @@ class Question(db.Model,BaseMixin,DateTimeMixin):
     description=db.Column(db.String(128))#问题描述
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))#提出问题的人
     topics=db.relationship('QuestionTopic',backref='question',lazy='dynamic',foreign_keys=[QuestionTopic.question_id])#属于的话题
-    favorite_id=db.Column(db.Integer,db.ForeignKey('favorites.id'))
+    favorites=db.relationship('QuestionFavorite',backref='question',lazy='dynamic',foreign_keys=[QuestionFavorite.question_id])
     answers=db.relationship('Answer',backref='question',lazy='dynamic')#回答者
     browse_count=db.Column(db.Integer,default=0)#问题被浏览了多少次
     anonymous=db.Column(db.Boolean,default=False)#是否匿名提问
@@ -223,12 +236,9 @@ class Question(db.Model,BaseMixin,DateTimeMixin):
     def disable(self):
         self.disable_comment=True
         db.session.add(self)
-
+    @hybrid_property
     def browsed(self):
-        count=self.browse_count
-        count+=1
-        self.browse_count=count
-        db.session.add(self)
+        return self.browse_count
 
     def is_followed_by(self,user):
         return self.followers.filter_by(follower_id=user.id).first() is not None
@@ -285,9 +295,9 @@ class Favorite(db.Model,BaseMixin,DateTimeMixin):
     description = db.Column(db.String(150))  # 描述
     public=db.Column(db.Boolean,default=True)#是否公开
     user_id=db.Column(db.Integer,db.ForeignKey('users.id'))#用户
-    questions=db.relationship('Question',backref='favorite',lazy='dynamic')
-    answers=db.relationship('Answer',backref='favorite',lazy='dynamic')
-    posts=db.relationship('Post',backref='favorite',lazy='dynamic')
+    questions=db.relationship('QuestionFavorite',backref='favorite',lazy='dynamic',foreign_keys=[QuestionFavorite.favorite_id])
+    answers=db.relationship('AnswerFavorite',backref='favorite',lazy='dynamic',foreign_keys=[AnswerFavorite.favorite_id])
+    posts=db.relationship('PostFavorite',backref='favorite',lazy='dynamic',foreign_keys=[PostFavorite.favorite_id])
     comments=db.relationship('Comment',backref='favorite',lazy='dynamic')
     followers = db.relationship('FollowFavorite', backref=db.backref('followed', lazy='joined'),
                                 lazy='dynamic', foreign_keys=[FollowFavorite.followed_id],
@@ -314,42 +324,36 @@ class Favorite(db.Model,BaseMixin,DateTimeMixin):
 
     def collect_question(self,question):
         if not self.has_collect_question(question):
-            question.favorite=self
-            db.session.add(question)
-            db.session.commit()
+            QuestionFavorite.create(favorite=self,question=question)
     def uncollect_question(self,question):
-        f=self.questions.filter_by(id=question.id).first()
+        f=self.questions.filter_by(question_id=question.id).first()
         if f:
             db.session.delete(f)
             db.session.commit()
     def has_collect_question(self,question):
-        return self.questions.filter_by(id=question.id).first() is not None
+        return self.questions.filter_by(question_id=question.id).first() is not None
 
     def collect_answer(self,answer):
         if not self.has_collect_answer(answer):
-            answer.favorite=self
-            db.session.add(answer)
-            db.session.commit()
+            AnswerFavorite.create(favorite=self,answer=answer)
     def uncollect_answer(self,answer):
-        f=self.questions.filter_by(id=answer.id).first()
+        f=self.questions.filter_by(answer_id=answer.id).first()
         if f:
             db.session.delete(f)
             db.session.commit()
     def has_collect_answer(self,answer):
-        return self.answers.filter_by(id=answer.id).first() is not None
+        return self.answers.filter_by(answer_id=answer.id).first() is not None
 
     def collect_post(self,post):
         if not self.has_collect_post(post):
-            post.favorite=self
-            db.session.add(post)
-            db.session.commit()
+            PostFavorite.create(favorite=self,post=post)
     def uncollect_post(self,post):
-        f=self.posts.filter_by(id=post.id).first()
+        f=self.posts.filter_by(post_id=post.id).first()
         if f:
             db.session.delete(f)
             db.session.commit()
     def has_collect_post(self,post):
-        return self.posts.filter_by(id=post.id).first() is not None
+        return self.posts.filter_by(post_id=post.id).first() is not None
 
     def is_followed_by(self,user):
         return self.followers.filter_by(follower_id=user.id).first() is not None
@@ -633,13 +637,13 @@ class User(db.Model,UserMixin,BaseMixin):
 
     def has_collect_question(self,question):
 
-        return any(quest==question  for favorite in self.favorites for quest in favorite.questions.all())
+        return any(quest.question==question  for favorite in self.favorites for quest in favorite.questions.all())
 
     def has_collect_answer(self,answer):
-        return any(ans == answer for favorite in self.favorites for ans in favorite.answers.all())
+        return any(ans.answer == answer for favorite in self.favorites for ans in favorite.answers.all())
 
     def has_collect_post(self,post):
-        return any(pos == post for favorite in self.favorites for pos in favorite.posts.all())
+        return any(pos.post == post for favorite in self.favorites for pos in favorite.posts.all())
 
 
     def has_collect(self,item):
@@ -701,11 +705,9 @@ class User(db.Model,UserMixin,BaseMixin):
 
 
 
+    @hybrid_property
     def visited(self):
-        count=self.visited_count
-        count+=1
-        self.visited_count=count
-        db.session.add(self)
+        return self.visited_count
 
     def can(self,permissions):
         return self.role is not None and (self.role.permissions&permissions)==permissions

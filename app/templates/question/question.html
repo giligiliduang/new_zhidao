@@ -1,6 +1,6 @@
-{% extends "base.html" %}
+{% extends "base/base.html" %}
 {% import "bootstrap/wtf.html" as wtf%}
-{% import "_macros.html" as macros %}
+{% import "base/_macros.html" as macros %}
 {% block head %}
 {{ super() }}
     <style>
@@ -147,7 +147,7 @@
 {#            </div>#}
 {#        </div>#}
 {#        {% endfor %}#}
-    {% include "_answers.html" %}
+    {% include "utility/_answers.html" %}
     {% if pagination %}
     <div class="pagination">
         {{ macros.pagination_widget(pagination,'.user',username=question.author.username) }}

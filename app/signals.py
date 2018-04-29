@@ -9,7 +9,9 @@ signals=Namespace()
 
 # user_follow=signals.signal('user_follow')
 # user_unfollow=signals.signal('user_unfollow')
+user_visited=signals.signal('user_visited')
 
+question_browsed=signals.signal('question_browsed')
 question_answer_add = signals.signal('question_answer_add')
 question_follow = signals.signal('question_follow')
 question_unfollow = signals.signal('question_unfollow')
