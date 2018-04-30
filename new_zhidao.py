@@ -1,3 +1,4 @@
+import forgery_py
 
 from app import create_app,db
 from app.models import *
@@ -5,6 +6,7 @@ from flask_migrate import Migrate
 import pymysql
 import click
 from click import prompt
+from app import signals
 app=create_app('development')
 migrate=Migrate(app,db)
 pymysql.install_as_MySQLdb()
@@ -14,7 +16,7 @@ def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role, Question=Question, Answer=Answer,
                 Topic=Topic, PostTag=PostTag, Post=Post, Tag=Tag, Comment=Comment,
                 Favorite=Favorite, LikePost=LikePost, LikeAnswer=LikeAnswer, LikeComment=LikeComment,
-                Follow=Follow,)
+                Follow=Follow,QuestionTopic=QuestionTopic)
 
 
 @app.cli.command()
@@ -106,6 +108,99 @@ def create_newapp(name):
                 print(e)
                 break
 
+@app.cli.command()
+@click.argument('numbers')
+def generate_fake_users(numbers):
+    """
+    生成假用户并让他们随即关注话题
+    :param numbers:
+    :return:
+    """
+    import random
+
+    with click.progressbar(range(int(numbers)),label='正在生成 用户 数据') as bar:
+        for i in bar:
+            username = forgery_py.internet.user_name()
+            email = forgery_py.internet.email_address()
+            password = 'Bye0Bye6'
+            location=forgery_py.address.city()
+            job=forgery_py.name.job_title()
+            about_me='Have a nice day'
+            User.create(username=username,email=email,password=password,location=location,
+                        job=job,about_me=about_me,confirm=True)
+    users=User.query.all()[1:]
+    topics = Topic.query.all()
+    with click.progressbar(users,label='随机关注话题')as bar:
+        for each_user in bar:
+            chosen_topics=random.sample(topics,4)
+            for i in chosen_topics:
+                each_user.follow(i)
+                signals.topic_follow.send(i)
+
+@app.cli.command()
+@click.argument('numbers')
+def generate_fake_questions(numbers):
+    """
+    生成假问题
+    :param numbers:
+    :return:
+    """
+    import random
+    users=User.query.all()
+    with click.progressbar(range(int(numbers)),label='正在生成 问题 数据',fill_char='*') as bar:
+        for i in bar:
+            title=forgery_py.lorem_ipsum.title()
+            description='HELP ME PLEASE'
+            author=random.choice(users)
+            Question.create(title=title,description=description,author=author)
+
+@app.cli.command()
+@click.argument('numbers')
+def generate_fake_posts(numbers):
+    """
+    生成假文章
+    :param numbers:
+    :return:
+    """
+    import random
+    users=User.query.all()
+    tags=Tag.query.all()
+    with click.progressbar(range(int(numbers)), label='正在文章生成数据', fill_char='*') as bar:
+        for i in bar:
+            title = forgery_py.lorem_ipsum.title()
+            body = forgery_py.lorem_ipsum.sentences(random.randint(1,3))
+            author = random.choice(users)
+            tag=random.sample(tags,2)
+            p=Post.create(title=title, body=body, author=author)
+            for i in tag:
+                i.add_post(p)
+                signals.post_tag_add.send(p)
+@app.cli.command()
+def random_topic_follow():
+    """
+    随机关注,用户，话题
+    :param numbers:
+    :return:
+    """
+    import random
+    users=User.query.all()[1:]
+    topics=Topic.query.all()
+    with click.progressbar(users,label='随机关注话题中') as bar:
+        for each_user in bar:
+            for i in random.sample(topics,10):
+                each_user.follow(i)
+                signals.topic_follow.send(i)
+
+@app.cli.command()
+def random_topic_question_add():
+    import random
+    questions=Question.query.all()
+    topics=Topic.query.all()
+    with click.progressbar(topics,label='添加问题中',fill_char='*') as bar:
+        for each_topic in bar:
+             for i in random.sample(questions,5):
+                 each_topic.add_question(i)
+                 signals.topic_question_add.send(each_topic)
 
 
 if __name__ == '__main__':

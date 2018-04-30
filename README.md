@@ -1,4 +1,4 @@
-本项目为简易问答网站
+本项目为简易问答网站,重构版本
 
 1. pip install -r requirements.txt
 2.运行 flask drop_db

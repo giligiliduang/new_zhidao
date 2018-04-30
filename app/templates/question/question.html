@@ -78,7 +78,9 @@
            <div class="question-header-main">
                <div class="topic-tag">
                    {% if topics !=[] %}
-                   <a class="label label-default">{{ topic.title }}</a>
+                       {% for topic in topics %}
+                   <a class="label label-default" href="{{ url_for('main.topic_detail',id=topic.id) }}">{{ topic.title }}</a>
+                       {% endfor %}
                    {% endif %}
                </div>
                <div class="title">

@@ -1,0 +1,23 @@
+{% extends "base/base.html" %}
+{% import "base/_macros.html" as macros %}
+{% block title %}topics{% endblock %}
+{% block head %}
+    {{ super() }}
+{% endblock %}
+{% block page_content %}
+    <div class="col-md-2"></div>
+    <div class="col-md-6">
+    <ul class="breadcrumb">
+
+        <li><a href="{{ url_for('main.topic_detail',id=topic.id) }}">回到话题页</a></li>
+    </ul>
+    <h1>话题关注者</h1>
+    {% include "utility/_follows.html" %}
+    {% if pagination %}
+        <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.topic_followers',id=topic.id) }}
+            </div>
+    {% endif %}
+    </div>
+    <div class="col-md-4"></div>
+{% endblock %}

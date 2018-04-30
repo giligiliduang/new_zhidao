@@ -2,8 +2,13 @@
         <div class="total-answers clearfix">
             <div class="author-info">
                 {% if not answer.anonymous %}
+                    {% if answer.author.avatar_url_sm %}
                 <div class="col-md-1"><a href="{{ url_for('main.user',username=answer.author.username) }} "><img src="{{ answer.author.avatar_url_sm }}" alt="avatar"></a></div>
-                {% else %}
+                    {% else %}
+                        <div class="col-md-1"><a href="{{ url_for('main.user',username=answer.author.username) }} "><img src="{{ answer.author.gravatar(50) }}" alt="avatar"></a></div>
+                        {% endif %}
+
+                    {% else %}
                  <div class="col-md-1"><img src="https://dummyimage.com/20x20/748/699" alt="avatar"></div>
                 {% endif %}
                 <div class="col-md-11">

@@ -5,7 +5,7 @@ from app.main.forms import SearchForm
 from app.models import Post, current_app, Answer,Question
 from app.constants import types
 
-@cache.cached(timeout=1,key_prefix='search')
+# @cache.cached(timeout=1,key_prefix='search')
 def search():
     """抽离搜索业务逻辑,每个视图函数都支持"""
     page = request.args.get('page', 1, type=int)

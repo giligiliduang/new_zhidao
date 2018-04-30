@@ -36,7 +36,6 @@ class DevelopmentConfig(Config):
         # 'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
     CELERY_BROKER_URL='redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-    TEMPLATES_AUTO_RELOAD=True
 class TestingConfig(Config):
     CACHE_TYPE = 'simple'
     TESTING = True

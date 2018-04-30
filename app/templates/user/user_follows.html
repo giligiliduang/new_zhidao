@@ -1,12 +1,17 @@
-{% extends "base.html" %}
-{% import "_macros.html"as macros %}
+{% extends "base/base.html" %}
+{% import "base/_macros.html"as macros %}
 {% block title%}{{ title }}{% endblock %}
 {% block head %}
     {{ super() }}
 {% endblock %}
 
 {% block page_content %}
-    <h1>{{ title }}</h1>
+    <div class="col-md-2"></div>
+    <div class="col-md-6">
+    <ul class="breadcrumb">
+        <li><a href="{{ url_for('main.user',username=user.username) }}">回到资料页</a></li>
+    </ul>
+         <h1>{{ title }}</h1>
     {% include "utility/_follows.html" %}
     {% if style=='user_followers' %}
         {% if pagination %}
@@ -27,4 +32,7 @@
             </div>
         {% endif %}
     {% endif %}
+
+    </div>
+    <div class="col-md-4"></div>
 {% endblock %}

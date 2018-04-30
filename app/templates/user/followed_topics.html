@@ -1,10 +1,6 @@
 {% extends "base/base.html" %}
-{% import "base/_macros.html"as macros %}
-{% block title%}{{ title }}{% endblock %}
-{% block head %}
-    {{ super() }}
-{% endblock %}
-
+{% import "base/_macros.html" as macros %}
+{% block title %}topics{% endblock %}
 {% block page_content %}
     <div class="col-md-2"></div>
     <div class="col-md-6">
@@ -12,16 +8,16 @@
 
         <li><a href="{{ url_for('main.user',username=user.username) }}">回到资料页</a></li>
     </ul>
-    <h1>关注的问题</h1>
-
-        {% if questions %}
-            {% include "utility/_questions.html" %}
+    <h1>关注的话题</h1>
+        {% if topics %}
+            {% include "utility/_topics.html" %}
     {% endif %}
     {% if pagination %}
             <div class="pagination">
-        {{ macros.pagination_widget(pagination,'.followed_questions',username=user.username) }}
+        {{ macros.pagination_widget(pagination,'.followed_topics',username=user.username) }}
             </div>
-        {% endif %}
+    {% endif %}
+
     </div>
     <div class="col-md-4"></div>
 {% endblock %}

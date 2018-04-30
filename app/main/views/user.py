@@ -1,15 +1,16 @@
-from flask import flash, url_for, redirect, request, current_app, render_template, make_response
+from flask import flash, url_for, redirect, request, current_app, render_template, make_response, session, abort
 from flask_login import login_required, current_user
 
 from app.constants import jobs
 from app.decorators import permission_required
 from app.main import main
 from app.main.forms import EditProfileForm
-from app.models import User, Question, Post, Answer, Permission, Follow, Favorite, FollowQuestion, FollowFavorite
+from app.models import User, Question, Post, Answer, Permission, Follow, Favorite, FollowQuestion, FollowFavorite, \
+    Topic, FollowTopic
 from .search import search
 from app.signals import user_visited, favorite_unfollow, \
     favorite_follow, question_unfollow, question_follow, post_voteup, post_cancel_vote, answer_cancel_vote, \
-    answer_voteup
+    answer_voteup, topic_follow, topic_unfollow
 
 from app import signals, db
 
@@ -134,6 +135,13 @@ def follow_user(username):
         flash('你已经关注了该用户')
     current_user.follow(user)
     flash('关注了{}'.format(user.username))
+    t_id=session.get('topic_id')
+    try:
+        t_id = int(t_id) if t_id else None
+    except ValueError:
+        abort(500)
+    if request.referrer==url_for('main.topic_followers',id=t_id,_external=True):
+        return redirect(url_for('main.topic_followers',id=t_id))
     return redirect(url_for('.user',username=user.username))
 
 @main.route('/unfollow/user/<username>')
@@ -144,9 +152,16 @@ def unfollow_user(username):
     if user is None:
         flash('用户不存在')
         return redirect(url_for('.index'))
+    t_id=session.get('topic_id')
+    try:
+        t_id = int(t_id) if t_id else None
+    except ValueError:
+        abort(500)
     if user.is_followed_by_user(current_user):
         current_user.unfollow(user)
         flash('取消关注{}'.format(user.username))
+        if request.referrer == url_for('main.topic_followers', id=t_id, _external=True):
+            return redirect(url_for('main.topic_followers', id=t_id))
         return redirect(url_for('.user',username=user.username))
     else:
         flash('你还没有关注该用户')
@@ -215,6 +230,49 @@ def unfollow_question(id):
         return redirect(url_for('.question',id=question.id))
     else:
         flash('你还没有关注该问题','warning')
+
+
+@main.route('/follow/topic/<int:id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def follow_topic(id):
+
+    topic=Topic.query.get_or_404(id)
+    if topic is None:
+        flash('话题不存在','warning')
+        return redirect(url_for('.index'))
+
+    if current_user.is_following_question(topic):
+        flash('你已经关注了话题','info')
+    current_user.follow(topic)
+    topic_follow.send(topic)
+    flash('关注了话题{}'.format(topic.title),'info')
+    if request.referrer==url_for('main.topics',_external=True):
+        return redirect(url_for('main.topics'))
+    else:
+        return redirect(url_for('main.topic_detail',id=topic.id))
+
+@main.route('/unfollow/topic/<int:id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def unfollow_topic(id):
+    topic=Topic.query.get_or_404(id)
+
+    if topic is None:
+        flash('话题不存在','warning')
+        return redirect(url_for('.index'))
+    if topic.is_followed_by(current_user):
+        current_user.unfollow(topic)
+        topic_unfollow.send(topic)
+        flash('取消关注了话题{}'.format(topic.title),'info')
+        if request.referrer == url_for('main.topics', _external=True):
+            return redirect(url_for('main.topics'))
+        else:
+            return redirect(url_for('main.topic_detail', id=topic.id))
+
+    flash('你还没关注话题')
+
+
 
 
 
@@ -311,6 +369,23 @@ def followed_favorites(username):
     follows = [item.followed for item in pagination.items]  # 关注的收藏夹
     context = dict(questions=follows, user=user, pagination=pagination)
     return render_template('user/followed_favorites.html',**context)
+
+@main.route('/user/<username>/followed_topics')
+def followed_topics(username):
+    s = search()
+    if s:
+        return s
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('用户不存在', 'error')
+        return redirect(url_for('.index'))
+    page = request.args.get('page', 1, type=int)
+    pagination = user.followed_topics.order_by(FollowTopic.timestamp.desc()). \
+        paginate(page, per_page=current_app.config['ZHIDAO_FOLLOW_PER_PAGE'], error_out=False)
+    follows = [item.followed for item in pagination.items]  # 关注的话题
+    context = dict(topics=follows, user=user, pagination=pagination)
+    return render_template('user/followed_topics.html',**context)
+
 
 @main.route('/user/<username>/followed-user-questions')
 def my_followed_user_questions(username):

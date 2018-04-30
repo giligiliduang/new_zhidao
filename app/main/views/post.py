@@ -1,12 +1,12 @@
-from flask import request, current_app, render_template, make_response, redirect, url_for, flash
+from flask import request, current_app, render_template, make_response, redirect, url_for, flash,abort
 from flask_login import login_required, current_user
 
 from app import db
 from app.decorators import permission_required
 from app.main import main
-from app.main.forms import WriteArticleForm, EditArticleForm
-from app.main.views import search, Post, CommentForm, Comment, abort
-from app.models import Tag, Permission
+from app.main.forms import WriteArticleForm, EditArticleForm,CommentForm
+from app.main.views.search import search
+from app.models import Tag, Permission,Post,Comment
 
 
 @main.route('/posts',methods=['GET','POST'])

@@ -7,7 +7,7 @@ from flask_login import current_user, login_required
 from app.main.forms import CommentForm, EditQuestionForm, Topic, QuestionForm
 from app.signals import question_unfollow, question_follow, question_answer_add,question_browsed,question_comment_add
 
-from app.main.views import search
+from app.main.views.search import search
 from app.models import Question, Answer, Comment, Permission, FollowQuestion
 from collections import deque
 
@@ -140,6 +140,7 @@ def pose_question():
 
         question=Question.create(author=current_user._get_current_object(),title=form.title.data,
                           description=form.description.data,anonymous=form.anonymous.data)
+
         for each in form.topic.data:
             topic=Topic.query.get(each)
             if topic.add_question(question):

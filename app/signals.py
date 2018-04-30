@@ -45,3 +45,5 @@ post_tag_add=signals.signal('post_tag_add')
 
 topic_question_add=signals.signal('topic_question_add')
 topic_question_delete=signals.signal('topic_question_delete')
+topic_follow=signals.signal('topic_follow')
+topic_unfollow=signals.signal('topic_unfollow')

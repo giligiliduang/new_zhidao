@@ -8,7 +8,11 @@
                </div>
                <div class="info text-muted">
                    <div class="col-md-6">
+                       {% if post.author.avatar_url_sm %}
                        <a class="avatar" href="{{ url_for('main.user',username=post.author.username) }}"><img src="{{ post.author.avatar_url_sm }}" alt="avatar"></a>
+                       {% else %}
+                            <a class="avatar" href="{{ url_for('main.user',username=post.author.username) }}"><img src="{{ post.author.gravatar(50) }}" alt="avatar"></a>
+                       {% endif %}
                        <span class="author">{{ post.author.username }}</span>
                    <span class="author">{{ post.comments.count() }}条评论</span>
                    <span>.</span>

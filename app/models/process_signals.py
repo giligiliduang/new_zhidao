@@ -24,8 +24,7 @@ def update_user_lastseen(current_app,sender):
 def update_user_visited_count(sender):
     assert isinstance(sender,User)
     sender.visited+=1
-    db.session.add(sender)
-    db.session.commit()
+
 
 
 
@@ -77,10 +76,8 @@ def update_question_followers_count(sender):
 @use_signal(signals.question_browsed)
 def update_question_browsed_count(sender):
     assert isinstance(sender,Question)
-    sender.browse_count+=1
-    db.session.add(sender)
-    db.session.commit()
-
+    sender.browsed+=1
+    print(sender.browsed)
 
 
 
@@ -173,4 +170,10 @@ def update_topic_question_count(sender):
     db.session.add(sender)
     db.session.commit()
 
-
+@use_signal(signals.topic_follow)
+@use_signal(signals.topic_unfollow)
+def update_topic_followers_count(sender):
+    assert isinstance(sender,Topic)
+    sender.follower_count=Topic.query.get(sender.id).followers.count()
+    db.session.add(sender)
+    db.session.commit()

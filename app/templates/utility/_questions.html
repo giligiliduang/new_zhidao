@@ -1,26 +1,60 @@
+<style>
+    .collect-question{
+        float: right;
+    }
+    .questions-item{
+
+        box-shadow: #d9efc8 2px 2px 1px -1px;
+        border: 1px solid #dbefe9;
+        margin-top: 20px;
+    }
+    .question-timestamp{
+        float: right;
+        position: relative;
+        top: 30px;
+    }
+    .question-comments{
+        display: inline;
+        position: relative;
+        top: 20px;
+        left: 150px;
+    }
+    .question-author-name{
+        padding-left: 20px;
+    }
+</style>
+
 {% for question in questions  %}
-       <div class="news-item clearfix">
+       <div class="questions-item clearfix">
                <div class="title">
-               <a href="{{ url_for('main.question',id=question.id) }}">{{ question.title }}</a>
+               <h2><a href="{{ url_for('main.question',id=question.id) }}">{{ question.title }}</a></h2>
                </div>
                <div class="info text-muted">
-                   <div class="col-md-6">
+                   <div class="col-md-8">
                        {% if not question.anonymous %}
-                           <a class="avatar" href="{{ url_for('main.user',username=question.author.username) }}"><img src="{{ question.author.avatar_url_sm }}" alt=""></a>
-                           <a href="{{ url_for('main.user',username=question.author.username) }}" class="author">{{ question.author.username }}</a>
+                           {% if  question.author.avatar_url_sm%}
+                           <a class="avatar" href="{{ url_for('main.user',username=question.author.username) }}"><img src="{{ question.author.avatar_url_sm }}" alt="avatar"></a>
+                           {% else %}
+                            <a class="avatar" href="{{ url_for('main.user',username=question.author.username) }}"><img src="{{ question.author.gravatar(50) }}" alt="avatar"></a>
+                       {% endif %}
+                           <a href="{{ url_for('main.user',username=question.author.username) }}" class="question-author-name">{{ question.author.username }}</a>
                        {% else %}
                            <a class="avatar" href="#"><img src="https://dummyimage.com/20x20/748/699" alt="avatar"></a>
                              <span class="author">匿名用户</span>
                        {% endif %}
-                   <a href="{{ url_for('main.question_comments',id=question.id) }}" class="author">{{ question.comments.count() }}条评论</a>
-                   <span>.</span>
-                   <span class="timestamp">{{ moment(question.timestamp).fromNow() }}</span>
+                   <div class="question-comments">
+                       <a href="{{ url_for('main.question_comments',id=question.id) }}" class="author">{{ question.comments.count() }}条评论</a>
                    </div>
-                   <div class="col-md-6">
+
+                   <div class="question-timestamp">
+                        <span class="timestamp">{{ moment(question.timestamp).fromNow() }}</span>
+                   </div>
+                   </div>
+                   <div class="col-md-4">
                        {% if question.author!=current_user%}
+                           <div class="collect-question">
                            {% if not current_user.has_collect(question)  %}
-                           <a href="{{ url_for('main.collect_question',id=question.id) }}" class="">
-                               <span class="glyphicon glyphicon-empty"></span>
+                           <a href="{{ url_for('main.collect_question',id=question.id) }}" class="btn btn-danger">
                                收藏
                            </a>
                            {% else  %}
@@ -29,6 +63,7 @@
                                已收藏
                            </a>
                                {% endif %}
+                           </div>
                        {% endif %}
                    </div>
                </div>

@@ -1,9 +1,39 @@
+<style>
+    .author-info{
+        max-width: 100%;
+        height: 100px;
+        box-shadow: #d9efc8 2px 2px 1px -1px;
+        border: 1px solid #dbefe9;
+        margin-top: 20px;
+}
+    .follow-user-btn{
+        float: right;
+
+    }
+
+</style>
+
 {% for follow in follows %}
     <div class="author-info">
-                <div class="col-md-1"><a href="{{ url_for('main.user',username=follow.username) }} "><img src="{{ follow.avatar_url_sm }}" alt="avatar"></a></div>
-                <div class="col-md-11">
+
+                <div class="col-md-2">
+                    {% if follow.avatar_url_sm %}
+                    <a href="{{ url_for('main.user',username=follow.username) }} "><img src="{{ follow.avatar_url_sm }}" alt="avatar"></a>
+                    {% else %}
+                         <a href="{{ url_for('main.user',username=follow.username) }} "><img src="{{ follow.gravatar() }}" alt="avatar"></a>
+                    {% endif %}
+                </div>
+                <div class="col-md-10">
                     <a href="{{ url_for('main.user',username=follow.username) }}">{{ follow.username }}</a>
                     <span style="display: block">{{ follow.about_me }}</span>
+                    <div class="follow-user-btn">
+                        {% if not current_user.is_following_user(follow) %}
+                        <a href="{{ url_for('main.follow_user',username=follow.username) }}" class="btn btn-danger btn-lg">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关注</a>
+                        {% else %}
+                            <a href="{{ url_for('main.unfollow_user',username=follow.username) }}" class="btn btn-danger btn-lg">取消关注</a>
+                        {% endif %}
+                    </div>
                 </div>
+
     </div>
 {% endfor %}

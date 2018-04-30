@@ -7,7 +7,7 @@ from flask_login import login_required, current_user
 from app import photos, db
 from app.main import main
 from app.main.forms import UploadForm
-from app.main.views import search
+from app.main.views.search import search
 
 
 @main.route('/upload',methods=['GET','POST'])

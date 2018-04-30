@@ -5,7 +5,7 @@ from app import db
 from app.decorators import permission_required
 from app.main import main
 from app.main.forms import WriteAnswerForm, EditAnswerForm, CommentForm
-from app.main.views import search
+from app.main.views.search import search
 from app.models import Permission, Question, Answer, Comment
 from app.signals import question_answer_add,answer_comment_add
 

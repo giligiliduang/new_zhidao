@@ -1,0 +1,114 @@
+{% extends "base/base.html" %}
+{% import "base/_macros.html" as macros %}
+{% block title %}topics{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <style>
+    .zd-topic-title{
+    border-bottom: 1px solid dimgray;
+}
+    .zd-topic-title a{
+        float: right;
+        color: dimgray;
+    }
+    .zd-topic-main{
+        position: relative;
+        top: 20px;
+        text-overflow: clip;
+    }
+    .zd-topic-main h4{
+        display: inline;
+    }
+    .zd-topic-main li{
+        margin-top: 10px;
+    }
+    .topic-item-description{
+        position: relative;
+        left: 50px;
+    }
+    .topic-follow{
+        float: right;
+    }
+    </style>
+{% endblock %}
+
+{% block page_content %}
+<div class="topic">
+<div class="col-md-2 ">
+
+</div>
+    <div class="col-md-6">
+        <div class="zd-topic-title">
+            <a href="">已关注{{ current_user.followed_topics.count() }}个话题</a>
+            <h4>话题广场</h4>
+        </div>
+        <div class="zd-topic-main clearfix">
+            <div class="col-md-6">
+                <ul class="list-group">
+                    {% for item in l_items %}
+                <li class="list-group-item">
+                    <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
+                    {% if not item.is_followed_by(current_user) %}
+                        <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="btn btn-danger topic-follow">关注</a>
+                    {% else %}
+                        <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="btn btn-warning topic-follow">取消关注</a>
+                    {% endif %}
+                    <p class="topic-item-description">{{ item.description }}</p>
+                </li>
+                    {% endfor %}
+            </ul>
+            </div>
+            <div class="col-md-6">
+                <ul class="list-group">
+                    {% for item in r_items %}
+                <li class="list-group-item">
+                    <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
+                    {% if not item.is_followed_by(current_user) %}
+                        <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="btn btn-danger topic-follow">关注</a>
+                    {% else %}
+                        <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="btn btn-warning topic-follow">取消关注</a>
+                    {% endif %}
+                    <p class="topic-item-description">{{ item.description }}</p>
+                </li>
+                {% endfor %}
+            </ul>
+
+            </div>
+
+        </div>
+        <div class="zd-topic-sub">
+
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="hot-topic-title">
+            <h4>热门话题</h4>
+
+        </div>
+        <div class="hot-topic-main">
+        <div class="col-md-6">
+            <ul class="list-group">
+                    {% for item in hot_topics %}
+                <li class="list-group-item">
+                    <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
+                    {% if not item.is_followed_by(current_user) %}
+                        <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="topic-follow">关注</a>
+                    {% else %}
+                        <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="topic-follow">取消关注</a>
+                    {% endif %}
+                    <p class="topic-item-description">{{ item.followers.count() }}人关注</p>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div class="col-md-6"></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

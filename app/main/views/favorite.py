@@ -2,8 +2,8 @@ from flask import flash, redirect, url_for, abort, render_template, make_respons
 from flask_login import login_required, current_user
 from app import db
 from app.main import main
-from app.main.views import search, Question
-from app.models import User, Favorite, Permission, Answer, Post
+from app.main.views.search import search
+from app.models import User, Favorite, Permission, Answer, Post,Question
 from app.main.forms import EditFavoriteForm, FavoriteForm, CollectForm
 from app.signals import favorite_question_delete,favorite_question_add,\
     favorite_answer_delete,favorite_answer_add,favorite_post_add,favorite_post_delete

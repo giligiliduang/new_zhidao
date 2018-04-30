@@ -8,6 +8,8 @@ import hashlib
 from app import db,bcrypt,login_manager
 from ..constants import default_tags
 from sqlalchemy.ext.hybrid import hybrid_property,hybrid_method
+from app.constants import topics
+import forgery_py
 class PostTag(db.Model,BaseMixin,DateTimeMixin):
     """关系表"""
     __tablename_='posttags'
@@ -240,7 +242,11 @@ class Question(db.Model,BaseMixin,DateTimeMixin):
     @hybrid_property
     def browsed(self):
         return self.browse_count
-
+    @browsed.setter
+    def browsed(self,val):
+        self.browse_count=val
+        db.session.add(self)
+        db.session.commit()
     def is_followed_by(self,user):
         return self.followers.filter_by(follower_id=user.id).first() is not None
 
@@ -250,6 +256,10 @@ class Question(db.Model,BaseMixin,DateTimeMixin):
     def __repr__(self):
         return '<Question {}>'.format(self.title)
 
+class FollowTopic(db.Model,BaseMixin,DateTimeMixin):
+    __tablename__='followtopics'
+    follower_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
+    followed_id=db.Column(db.Integer,db.ForeignKey('topics.id'),primary_key=True)
 
 class Topic(db.Model,BaseMixin,DateTimeMixin):
     __tablename__='topics'
@@ -257,15 +267,19 @@ class Topic(db.Model,BaseMixin,DateTimeMixin):
     title=db.Column(db.String(64))#话题名称
     description=db.Column(db.Text)#话题描述
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))#创建人
+    followers = db.relationship('FollowTopic', backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic', foreign_keys=[FollowTopic.followed_id],
+                                cascade='all,delete-orphan')
     questions=db.relationship('QuestionTopic',backref='topic',lazy='dynamic',foreign_keys=[QuestionTopic.topic_id])#包括的问题
+    follower_count=db.Column(db.Integer)
     questions_count=db.Column(db.Integer)
     def __repr__(self):
         return '<Topic {}>'.format(self.title)
 
     def add_question(self,question):
         if not self.is_in_topic(question):
-            l=QuestionTopic.create(topic=self,question=question)
-            return True if l else False
+            QuestionTopic.create(topic=self,question=question)
+            return True
         return False
     def remove_question(self,question):
         f=self.questions.filter_by(question_id=question.id).first()
@@ -275,11 +289,22 @@ class Topic(db.Model,BaseMixin,DateTimeMixin):
 
     def is_in_topic(self,question):
 
-        return self.questions.filter_by(question_id=question.id) is not None
+        return self.questions.filter_by(question_id=question.id).first() is not None
 
     @classmethod
     def topic_exists(cls,title):
         return cls.query.filter_by(title=title).first() is not None
+
+    @classmethod
+    def generate_topics(cls):
+        u=User.query.all()[0]
+        for each in topics:
+            Topic.create(title=each,author=u,description='话题描述')
+
+    def is_followed_by(self,user):
+        return self.followers.filter_by(follower_id=user.id).first() is not None
+
+
 
 
 class FollowFavorite(db.Model,BaseMixin,DateTimeMixin):
@@ -459,6 +484,9 @@ class User(db.Model,UserMixin,BaseMixin):
     followed_favorites = db.relationship('FollowFavorite', backref=db.backref('follower', lazy='joined'),
                                          foreign_keys=[FollowFavorite.follower_id], lazy='dynamic',
                                          cascade='all,delete-orphan')  # 关注的收藏夹
+    followed_topics=db.relationship('FollowTopic', backref=db.backref('follower', lazy='joined'),
+                                         foreign_keys=[FollowTopic.follower_id], lazy='dynamic',
+                                         cascade='all,delete-orphan')  # 关注的收藏夹
     answer_likes = db.relationship('LikeAnswer', backref=db.backref('like_answer', lazy='joined'),
                                     lazy='dynamic', foreign_keys=[LikeAnswer.like_answer_id],
                                     cascade='all,delete-orphan')#赞过的答案
@@ -484,6 +512,8 @@ class User(db.Model,UserMixin,BaseMixin):
             self.follow(self)
 
 
+
+
     def follow(self,item):
         if isinstance(item,User):
             self.follow_user(item)
@@ -491,6 +521,8 @@ class User(db.Model,UserMixin,BaseMixin):
             self.follow_question(item)
         elif isinstance(item,Favorite):
             self.follow_favorite(item)
+        elif isinstance(item,Topic):
+            self.follow_topic(item)
         else:
             raise TypeError('参数错误')
     def unfollow(self,item):
@@ -500,6 +532,8 @@ class User(db.Model,UserMixin,BaseMixin):
             self.unfollow_question(item)
         elif isinstance(item,Favorite):
             self.unfollow_favorite(item)
+        elif isinstance(item,Topic):
+            self.unfollow_topic(item)
         else:
             raise TypeError('参数错误')
 
@@ -544,7 +578,7 @@ class User(db.Model,UserMixin,BaseMixin):
 
     def follow_favorite(self,favorite):
         if not self.is_following_favorite(favorite):
-            f=FollowFavorite.create(follower=self,followed=favorite)
+            FollowFavorite.create(follower=self,followed=favorite)
 
 
     def unfollow_favorite(self,favorite):
@@ -555,6 +589,19 @@ class User(db.Model,UserMixin,BaseMixin):
 
     def is_following_favorite(self,favorite):
         return self.followed_favorites.filter_by(followed_id=favorite.id).first() is not None
+
+    def follow_topic(self,topic):
+        if not self.is_following_topic(topic):
+            FollowTopic.create(follower=self,followed=topic)
+    def unfollow_topic(self,topic):
+        f=self.followed_topics.filter_by(followed_id=topic.id).first()
+        if f:
+            db.session.delete(f)
+            db.session.commit()
+
+    def is_following_topic(self,topic):
+        return self.followed_topics.filter_by(followed_id=topic.id).first() is not None
+
 
     @property
     def followed_user_questions(self):
@@ -695,10 +742,17 @@ class User(db.Model,UserMixin,BaseMixin):
 
 
 
-
     @hybrid_property
     def visited(self):
         return self.visited_count
+
+    @visited.setter
+    def visited(self,val):
+        self.visited_count=val
+        db.session.add(self)
+        db.session.commit()
+
+
 
     def can(self,permissions):
         return self.role is not None and (self.role.permissions&permissions)==permissions

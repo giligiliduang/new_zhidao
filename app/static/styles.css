@@ -158,33 +158,7 @@ a:hover,a:active{
     top: 126px;
     left:542px;
 }
-.follow{
-    max-width: 80%;
-    height: 100px;
-    background-color: #EEDFDF;
-    text-align: center;
-    margin: 0;
-}
-.follow a{
-    position: relative;
-    top: 30px;
-    padding-left: 37px;
-    padding-right: 21px;
-    font-size: 20px;
-    color: black;
-}
-.follower{
-    position: relative;
-    top: 54px;
-    right: 69px;
-    font-size: 20px;
-}
-.followed{
-    position: relative;
-    top: 27px;
-    font-size: 20px;
-    left: 83px;
-}
+
 
 #edit{
     position: relative;
@@ -197,6 +171,13 @@ a:hover,a:active{
     position: relative;
     top: 200px;
 }
+/*关注者列表*/
+.author-info{
+    max-width: 100%;
+    height: 100px;
+}
+
+
 
 /*个人主页*/
 .introduce{
@@ -206,6 +187,8 @@ a:hover,a:active{
         }
 
 
+
+/*话题*/
 
 
 

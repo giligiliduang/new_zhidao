@@ -2,5 +2,18 @@
 
 {% block title %}最近浏览的问题{% endblock %}
 {% block page_content %}
-{% include 'utility/_questions.html' %}
+
+    <div class="col-md-2"></div>
+    <div class="col-md-6">
+    <ul class="breadcrumb">
+
+        <li><a href="{{ url_for('main.user',username=current_user.username) }}">回到资料页</a></li>
+    </ul>
+    <h1>最近浏览的问题</h1>
+        {% include 'utility/_questions.html' %}
+    </div>
+    <div class="col-md-4">
+
+    </div>
+
 {% endblock %}

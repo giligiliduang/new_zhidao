@@ -4,13 +4,17 @@
 {% block head %}
 {{ super() }}
     <style>
-        .introduce{
-            position: relative;
-            top: 120px;
-            right: 30px;
+        .follow-card{
+            max-width: 100%;
+        height: 130px;
+        box-shadow: #d9efc8 2px 2px 1px -1px;
+        border: 1px solid #dbefe9;
+        margin-top: 20px;
         }
+    .follow-card p{
+        font-size: 30px;
+    }
     </style>
-
 {% endblock %}
 
 {% block page_content %}
@@ -19,13 +23,21 @@
             <div class="person-title">
                 <div class="user-avatar col-md-4">
                     {% if user.avatar_url_nm %}
+                        {% if current_user==user %}
                         <a href="{{ url_for('main.upload_avatar') }}">
                             <img src="{{ user.avatar_url_nm}}" alt="avatar" id="avatar">
                         </a>
+                            {% else %}
+                                <img src="{{ user.avatar_url_nm}}" alt="avatar" id="avatar">
+                            {% endif %}
                     {% else %}
+                        {% if current_user==user %}
                         <a href="{{ url_for('main.upload_avatar') }}">
                             <img src="{{ user.gravatar(400) }}" alt="avatar" id="avatar">
                         </a>
+                            {% else %}
+                                <img src="{{ user.gravatar(400) }}" alt="avatar" id="avatar">
+                            {% endif %}
                     {% endif %}
                     <h2 style="text-align: right;font-weight: bold;position: relative;bottom: 40px;right: 27px">{{ user.name or "无"}}</h2>
                     <div class="user-info">
@@ -91,14 +103,21 @@
 
             </div>
             <div class="col-md-4">
-                <div class="follow">
-                    <a href="{{ url_for('.user_followers',username=user.username) }}">关注者</a>
-                    <span class="follower">{{ user.followers.count()-1 }}</span>
-                    <a href="{{ url_for('.user_followed',username=user.username) }}">关注了</a>
-                    <span class="followed">{{ user.followed.count()-1 }}</span>
+                <div class="follow-card">
+                    <div class="col-md-6">
+                        <h2><a href="{{ url_for('.user_followers',username=user.username) }}">关注者</a></h2>
+                    <p class="">{{ user.followers.count()-1 }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h2><a href="{{ url_for('.user_followed',username=user.username) }}">关注了</a></h2>
+                        <p class="">{{ user.followed.count()-1 }}</p>
+                    </div>
+
+
                 </div>
                 <div class="list-group">
                     <a href="{{ url_for('.followed_questions',username=user.username) }}" class="list-group-item">关注的问题<span class="badge">{{ user.followed_questions.count() }}</span></a>
+                    <a href="{{ url_for('.followed_topics',username=user.username) }}" class="list-group-item">关注的话题<span class="badge">{{ user.followed_questions.count() }}</span></a>
                     <a href="#" class="list-group-item">关注的收藏夹<span class="badge">4</span></a>
                     <a href="" class="list-group-item">我赞过的文章<span class="badge">12</span></a>
                     <a href="" class="list-group-item">关注的专栏<span class="badge">12</span></a>
