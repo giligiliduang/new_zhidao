@@ -1,0 +1,47 @@
+{% extends "base/base.html" %}
+{% import "base/_macros.html" as macros %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block head %}
+    {{ super() }}
+    <script src="//cdn.ckeditor.com/4.8.0/standard/ckeditor.js"></script>
+    <style>
+        .news-item{
+        margin-bottom: 50px;
+
+    }
+    .title{
+        font-size: 25px;
+        font-weight: bold;
+    }
+    </style>
+{% endblock %}
+{% block page_content %}
+    <div class="container">
+    <div class="col-md-1"></div>
+    <div class="col-md-8">
+    <h1>{{ favorite.title }}</h1>
+    <h1>收藏夹评论</h1>
+    <form method="post">
+        {{ form.hidden_tag() }}
+        {{ wtf.form_errors(form,hiddens='only') }}
+        {{ wtf.form_field(form.body,class='ckeditor') }}
+        {{ wtf.form_field(form.submit) }}
+    </form>
+    {% include "utility/_comments.html" %}
+    {% if pagination %}
+    <div class="pagination">
+        {{ macros.pagination_widget(pagination,'.favorite_comments',username=user.username,id=favorite.id) }}
+    </div>
+    {% endif %}
+    </div>
+    <div class="col-md-3">
+      <div class="jumbotron">
+         <div class="adv">
+         </div>
+      </div>
+      <div class="tags jumbotron">
+
+      </div>
+    </div>
+    </div>
+{% endblock %}

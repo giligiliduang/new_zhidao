@@ -51,14 +51,22 @@ def create_superadmin():
     """
     import re
     PWD_PATTERN=re.compile(r'^[a-zA-Z\d_]{8,}$')#长度8位
-    passed=False
+    EMAIL_PATTERN=re.compile(r'^[A-Za-zd0-9]+([-_.][A-Za-zd]+)*@([A-Za-zd0-9]+[-.])+[A-Za-zd]{2,5}$')
+    password_passed=False
+    email_passed=False
+    while not email_passed:
+        email=prompt('请输入邮箱')
+        if EMAIL_PATTERN.match(email):
+            email_passed=True
+        else:
+            click.echo('邮箱格式错误,请重新输入',color='red')
     username=prompt('请输入用户名')
-    while not passed:
+    while not password_passed:
         pwd=prompt('请输入密码',hide_input=True)
         pwd1=prompt('再输入一遍',hide_input=True)
         if PWD_PATTERN.match(pwd) and PWD_PATTERN.match(pwd1):
-            passed=True
-        if not passed:
+            password_passed=True
+        if not password_passed:
             click.echo(click.style('验证未通过，请重新输入', fg='red'))
 
     if pwd==pwd1:
@@ -66,7 +74,7 @@ def create_superadmin():
         if u:
             click.echo(click.style('用户已经存在!', fg='red'))
             return
-        u=User.create(username=username,password=pwd,confirmed=True)
+        u=User.create(username=username,password=pwd,confirmed=True,email=email)
         u.role=Role.query.filter_by(name='Administrator').first()
         db.session.add(u)
         db.session.commit()
@@ -201,6 +209,9 @@ def random_topic_question_add():
              for i in random.sample(questions,5):
                  each_topic.add_question(i)
                  signals.topic_question_add.send(each_topic)
+
+
+
 
 
 if __name__ == '__main__':

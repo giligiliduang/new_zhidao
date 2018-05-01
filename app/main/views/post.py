@@ -103,7 +103,7 @@ def create_post():
         return s
     form=WriteArticleForm()
     if form.validate_on_submit():
-        post=Post.create(title=form.title.data,body=form.body.data,
+        Post.create(title=form.title.data,body=form.body.data,
                   author=current_user._get_current_object(),
                   disable_comment=form.disable_comment.data)
         for each in form.tags.data:

@@ -8,11 +8,14 @@ from ..utils import send_email
 @auth.route('/login',methods=['GET','POST'])
 def login():
     form=LoginForm()
-    if form.validate_on_submit():
+    if form.validate() and request.method=='POST':
         user=User.query.filter_by(email=form.email.data).first()
-        login_user(user,remember=form.remember_me.data)#是否记住登录状态
-        flash('登录成功',category='success')
-        return redirect(url_for('main.index') or request.args.get('next'))
+        if user.verify_password(password=form.password.data):
+            login_user(user,remember=form.remember_me.data)#是否记住登录状态
+            flash('登录成功',category='success')
+            return redirect(url_for('main.index') or request.args.get('next'))
+        else:
+            flash('密码错误')
     return render_template('security/login.html',form=form)
 
 @auth.route('/logout')
@@ -40,6 +43,7 @@ def confirm(token):
         return redirect(url_for('main.index'))
     if current_user.confirm(token):
         flash('验证通过，谢谢',category='success')
+        return redirect(url_for('auth.login'))
     else:
         flash('令牌过期或令牌非法',category='error')
     return redirect(url_for('main.index'))
@@ -48,6 +52,7 @@ def before_request():
     if current_user.is_authenticated:
         if not current_user.confirmed \
         and request.endpoint[:5]!='auth.'and request.endpoint!='static':
+            flash('你还没有通过认证')
             return redirect(url_for('auth.unconfirmed'))
 
 @auth.route('/unconfirmed')

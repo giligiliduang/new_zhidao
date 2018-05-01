@@ -8,6 +8,7 @@ import hashlib
 from app import db,bcrypt,login_manager
 from ..constants import default_tags
 from sqlalchemy.ext.hybrid import hybrid_property,hybrid_method
+from sqlalchemy.ext.associationproxy import association_proxy
 from app.constants import topics
 import forgery_py
 class PostTag(db.Model,BaseMixin,DateTimeMixin):
@@ -266,6 +267,8 @@ class Topic(db.Model,BaseMixin,DateTimeMixin):
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.String(64))#话题名称
     description=db.Column(db.Text)#话题描述
+    cover_url=db.Column(db.String(128))#封面图片
+    cover_url_sm=db.Column(db.String(128))#封面缩略图片
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))#创建人
     followers = db.relationship('FollowTopic', backref=db.backref('followed', lazy='joined'),
                                 lazy='dynamic', foreign_keys=[FollowTopic.followed_id],
@@ -297,9 +300,8 @@ class Topic(db.Model,BaseMixin,DateTimeMixin):
 
     @classmethod
     def generate_topics(cls):
-        u=User.query.all()[0]
         for each in topics:
-            Topic.create(title=each,author=u,description='话题描述')
+            Topic.create(title=each,description='话题描述')
 
     def is_followed_by(self,user):
         return self.followers.filter_by(follower_id=user.id).first() is not None
@@ -363,7 +365,7 @@ class Favorite(db.Model,BaseMixin,DateTimeMixin):
         if not self.has_collect_answer(answer):
             AnswerFavorite.create(favorite=self,answer=answer)
     def uncollect_answer(self,answer):
-        f=self.questions.filter_by(answer_id=answer.id).first()
+        f=self.answers.filter_by(answer_id=answer.id).first()
         if f:
             db.session.delete(f)
             db.session.commit()
@@ -627,6 +629,16 @@ class User(db.Model,UserMixin,BaseMixin):
     def followed_user_favorites(self):
         return Favorite.query.join(Follow,db.and_(Follow.followed_id==Favorite.user_id,Follow.followed_id!=self.id)).\
             filter(Follow.follower_id==self.id)
+    def who_is_following_current_user_in_my_followed(self,user):
+        """
+        除自己之外我关注的人里面谁也关注了他,返回两个数据
+        :param user:
+        :return:
+        """
+
+        return [i.followed for i in self.followed.order_by(Follow.timestamp.desc()).all()
+                if i.followed.is_following_user(user) and user!=i.followed][:2]
+
 
     def like(self,item):
         if isinstance(item,Answer):
@@ -842,10 +854,25 @@ class User(db.Model,UserMixin,BaseMixin):
         return user
 
 
+
     def __repr__(self):
         return '<User{}>'.format(self.username)
 
 
+class AnonymousUser(AnonymousUserMixin):
+    def can(self,permissions):
+        return False
+
+    def is_administrator(self):
+        return False
+
+    def has_collect(self,item):
+        return False
+    def is_following_question(self,question):
+        return False
+
 @login_manager.user_loader
 def load_user(id):
     return User.query.get_or_404(int(id))
+
+login_manager.anonymous_user=AnonymousUser

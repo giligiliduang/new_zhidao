@@ -4,43 +4,12 @@
 {% block head %}
 {{ super() }}
     <style>
-        .introduce{
-            position: relative;
-            top: 120px;
-            right: 30px;
-        }
-    .edit-btn{
-    position: relative;
-    top: 126px;
-    left:542px;
+
 }
     .breadcrumb a{
         margin-left: 15px;
     }
-    .title{
-        font-size: 25px;
-        font-weight: bold;
-    }
-    .news-item{
-        margin-bottom: 50px;
-    }
-    .total-answers{
-        height: auto;
-        position: relative;
-        top: 20px;
-        background-color: #eeeeee;
-        margin-top: 30px;
-    }
-    .indicator{
-        position: relative;
-        left: 20px;
-        width: 30px;
-        height: 1px;
-        background-color: red;
-    }
-    .followed{
-        display: block;
-    }
+
     .favorite-widget{
         height: 30px;
         border-bottom: 1px solid dimgray;
@@ -64,7 +33,8 @@
 
 {% block page_content %}
     <div class="container">
-        <div class="col-md-7">
+    <div class="col-md-2"></div>
+        <div class="col-md-6">
             <h1 class="favorite-title">{{ favorite.title }}</h1>
             <h4>{{ favorite.description|safe }}</h4>
             <span class="text-muted">创建于{{ favorite.timestamp }}</span>
@@ -82,23 +52,27 @@
             {% endif %}
 
         <ul class="nav nav-tabs nav-justified">
-                <li><a href="{{ url_for('main.favorite_questions',id=favorite.id) }}">问题</a></li>
-                <li><a href="{{ url_for('main.favorite_posts',id=favorite.id) }}">文章</a></li>
+                <li><a href="{{ url_for('main.favorite_questions',id=favorite.id) }}">问题 <span class="badge">{{ favorite.questions.count() }}</span></a></li>
+                <li><a href="{{ url_for('main.favorite_posts',id=favorite.id) }}">文章<span class="badge">{{ favorite.posts.count() }}</span></a></li>
             </ul>
 
             {% if type=='post' %}
-                {% include "_posts.html" %}
+                {% include "utility/_posts.html" %}
             {% elif type=='question' %}
-                {% include '_questions.html' %}
+                {% include 'utility/_questions.html' %}
             {% elif type is none %}
-                {% include '_questions.html' %}
+                {% include 'utility/_questions.html' %}
             {% endif %}
 
         </div>
-        <div class="col-md-5">
+        <div class="col-md-4">
             <h2>关于创作者</h2>
             <div class="favorite-author">
+                {% if user.avatar_url_nm %}
                 <a class="avatar" href="{{ url_for('main.user',username=user.username) }}"><img src="{{ user.avatar_url_nm }}" alt="avatar"></a>
+                {% else %}
+                    <a class="avatar" href="{{ url_for('main.user',username=user.username) }}"><img src="{{ user.gravatar(50) }}" alt="avatar"></a>
+                {% endif %}
                 <span class="author">{{ user.username }}</span>
                 <span style="display: block;position: relative;left: 50px;bottom: 10px">{{ user.about_me }}</span>
             </div>
@@ -108,21 +82,21 @@
 
 {% block scripts %}
 {{ super() }}
-    <script>
-    var btn=$('#delete-favorite');
-    $(document).ready(function () {
-        btn.on('click',function (e) {
-        e.preventDefault();
-        var res=confirm('是否删除?');
-        var data={'ensure':Number(res)};
-        $.ajax(
-            '{{ url_for('main.delete_favorite',username=user.username,id=favorite.id) }}',
-         {data:data
-        }
-        ).done(function (data) {
-            console.log(data);
-        })
-    })
-    });
-    </script>
+{#    <script>#}
+{#    var btn=$('#delete-favorite');#}
+{#    $(document).ready(function () {#}
+{#        btn.on('click',function (e) {#}
+{#        e.preventDefault();#}
+{#        var res=confirm('是否删除?');#}
+{#        var data={'ensure':Number(res)};#}
+{#        $.ajax(#}
+{#            '{{ url_for('main.delete_favorite',username=user.username,id=favorite.id) }}',#}
+{#         {data:data#}
+{#        }#}
+{#        ).done(function (data) {#}
+{#            console.log(data);#}
+{#        })#}
+{#    })#}
+{#    });#}
+{#    </script>#}
 {% endblock %}

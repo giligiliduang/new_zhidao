@@ -118,7 +118,7 @@
                 <div class="list-group">
                     <a href="{{ url_for('.followed_questions',username=user.username) }}" class="list-group-item">关注的问题<span class="badge">{{ user.followed_questions.count() }}</span></a>
                     <a href="{{ url_for('.followed_topics',username=user.username) }}" class="list-group-item">关注的话题<span class="badge">{{ user.followed_questions.count() }}</span></a>
-                    <a href="#" class="list-group-item">关注的收藏夹<span class="badge">4</span></a>
+                    <a href="{{ url_for('.followed_favorites',username=user.username) }}" class="list-group-item">关注的收藏夹<span class="badge">{{ user.followed_favorites.count() }}</span></a>
                     <a href="" class="list-group-item">我赞过的文章<span class="badge">12</span></a>
                     <a href="" class="list-group-item">关注的专栏<span class="badge">12</span></a>
                     <a href="{{ url_for('.recent_questions') }}" class="list-group-item">最近浏览问题<span class="badge">12</span></a>

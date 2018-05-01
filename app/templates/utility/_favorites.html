@@ -1,0 +1,44 @@
+<style>
+    .favorite-main{
+        max-width: 100%;
+        height: 100px;
+        box-shadow: #d9efc8 2px 2px 1px -1px;
+        border: 1px solid #dbefe9;
+        margin-top: 20px;
+    }
+    .follow-favorite-btn{
+        float: right;
+
+    }
+</style>
+
+
+{% for favorite in favorites %}
+    <div class="favorite-main clearfix">
+        <div class="col-md-2">
+            {% if favorite.user.avatar_url_sm %}
+                    <a href="{{ url_for('main.user',username=favorite.user.username) }} "><img src="{{ favorite.user.avatar_url_sm }}" alt="avatar"></a>
+                    {% else %}
+                         <a href="{{ url_for('main.user',username=favorite.user.username) }} "><img src="{{ favorite.user.gravatar() }}" alt="avatar"></a>
+                    {% endif %}
+        </div>
+    <div class="col-md-10">
+        <div class="col-md-8">
+            <a href="{{ url_for('main.user',username=favorite.user.username) }}">{{ favorite.user.username }}</a>
+            <h1 style="display: inline">{{ favorite.title }}</h1>
+        </div>
+
+        <div class="col-md-4">
+            <div class="follow-favorite-btn">
+                        {% if not current_user.is_following_favorite(favorite) %}
+                        <a href="{{ url_for('main.follow_favorite',id=favorite.id) }}" class="btn btn-danger btn-lg">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关注</a>
+                        {% else %}
+                            <a href="{{ url_for('main.unfollow_favorite',id=favorite.id) }}" class="btn btn-danger btn-lg">取消关注</a>
+                        {% endif %}
+                    </div>
+        </div>
+
+    </div>
+    </div>
+
+{% endfor %}

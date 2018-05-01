@@ -13,7 +13,9 @@ from datetime import datetime
 #############用户################
 
 @use_signal(user_logged_in)
-def update_user_lastseen(current_app,sender):
+def update_user_lastseen(app,**kwargs):
+
+    sender=kwargs.get('user')
     assert isinstance(sender,User)
     sender.lastseen=datetime.utcnow()
     db.session.add(sender)

@@ -4,7 +4,7 @@ from flask_login import login_required, current_user
 from app.constants import jobs
 from app.decorators import permission_required
 from app.main import main
-from app.main.forms import EditProfileForm
+from app.main.forms import EditProfileForm,UserForm
 from app.models import User, Question, Post, Answer, Permission, Follow, Favorite, FollowQuestion, FollowFavorite, \
     Topic, FollowTopic
 from .search import search
@@ -75,7 +75,7 @@ def edit_profile():
     if s:
         return s
     form=EditProfileForm()
-    if form.validate_on_submit():
+    if form.validate():
         current_user.name=form.name.data
         current_user.location=form.location.data
         current_user.job=jobs[form.job.data]
@@ -297,6 +297,7 @@ def user_followers(username):
         page,per_page=current_app.config['ZHIDAO_FOLLOW_PER_PAGE'],error_out=False
     )
     follows=[item.follower for item in pagination.items]#我的关注者
+
     style='user_followers'
     context=dict(follows=follows,user=user,
                            pagination=pagination,title='关注者',style=style)
@@ -367,7 +368,7 @@ def followed_favorites(username):
     pagination = user.followed_favorites.order_by(FollowFavorite.timestamp.desc()). \
         paginate(page, per_page=current_app.config['ZHIDAO_FOLLOW_PER_PAGE'], error_out=False)
     follows = [item.followed for item in pagination.items]  # 关注的收藏夹
-    context = dict(questions=follows, user=user, pagination=pagination)
+    context = dict(favorites=follows, user=user, pagination=pagination)
     return render_template('user/followed_favorites.html',**context)
 
 @main.route('/user/<username>/followed_topics')

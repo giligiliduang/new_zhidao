@@ -16,13 +16,27 @@
         position: relative;
         top: 20px;
         text-overflow: clip;
+
     }
     .zd-topic-main h4{
         display: inline;
     }
     .zd-topic-main li{
         margin-top: 10px;
+        box-shadow: #d9efc8 2px 2px 1px -1px;
+        border: 1px solid #dbefe9;
+
+        max-width: 100%;
+        height: 100px;
     }
+    .hot-topic-main li{
+        margin-top: 10px;
+        box-shadow: #d9efc8 2px 2px 1px -1px;
+        border: 1px solid #dbefe9;
+        max-width: 100%;
+        height: 100px;
+    }
+
     .topic-item-description{
         position: relative;
         left: 50px;
@@ -30,6 +44,7 @@
     .topic-follow{
         float: right;
     }
+
     </style>
 {% endblock %}
 
@@ -39,8 +54,14 @@
 
 </div>
     <div class="col-md-6">
+    {% if current_user.can(Permission.ADMINISTER) %}
+        <ul class="breadcrumb">
+            <li><a href="{{ url_for('main.create_topic') }}">创建话题</a></li>
+        </ul>
+    {% endif %}
+
         <div class="zd-topic-title">
-            <a href="">已关注{{ current_user.followed_topics.count() }}个话题</a>
+            <a href="{{ url_for('main.followed_topics',username=current_user.username) }}">已关注{{ current_user.followed_topics.count() }}个话题</a>
             <h4>话题广场</h4>
         </div>
         <div class="zd-topic-main clearfix">
@@ -48,13 +69,26 @@
                 <ul class="list-group">
                     {% for item in l_items %}
                 <li class="list-group-item">
-                    <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
+                    <div class="col-md-3 ">
+                        {% if item.cover_url %}
+                            <a href="{{ url_for('main.topic_detail',id=item.id) }}"><img src="{{ item.cover_url }}" alt=""></a>
+                        {% else %}
+                            <a class="avatar" href="#"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-9">
+                        <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
                     {% if not item.is_followed_by(current_user) %}
                         <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="btn btn-danger topic-follow">关注</a>
                     {% else %}
                         <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="btn btn-warning topic-follow">取消关注</a>
                     {% endif %}
                     <p class="topic-item-description">{{ item.description }}</p>
+
+                    </div>
+
+
+
                 </li>
                     {% endfor %}
             </ul>
@@ -63,13 +97,24 @@
                 <ul class="list-group">
                     {% for item in r_items %}
                 <li class="list-group-item">
-                    <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
+                    <div class="col-md-3 ">
+                        {% if item.cover_url %}
+                            <a href="{{ url_for('main.topic_detail',id=item.id) }}"><img src="{{ item.cover_url }}" alt=""></a>
+                        {% else %}
+                            <a class="avatar" href="#"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-9">
+                        <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
                     {% if not item.is_followed_by(current_user) %}
                         <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="btn btn-danger topic-follow">关注</a>
                     {% else %}
                         <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="btn btn-warning topic-follow">取消关注</a>
                     {% endif %}
                     <p class="topic-item-description">{{ item.description }}</p>
+
+                    </div>
+
                 </li>
                 {% endfor %}
             </ul>
@@ -87,23 +132,35 @@
 
         </div>
         <div class="hot-topic-main">
-        <div class="col-md-6">
+        <div class="col-md-9">
             <ul class="list-group">
                     {% for item in hot_topics %}
                 <li class="list-group-item">
-                    <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
+                 <div class="col-md-3 ">
+                        {% if item.cover_url %}
+                            <a href="{{ url_for('main.topic_detail',id=item.id) }}"><img src="{{ item.cover_url }}" alt=""></a>
+                        {% else %}
+                            <a class="avatar" href="#"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
+                        {% endif %}
+                    </div>
+                <div class="col-md-9">
+                     <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
                     {% if not item.is_followed_by(current_user) %}
                         <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="topic-follow">关注</a>
                     {% else %}
                         <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="topic-follow">取消关注</a>
                     {% endif %}
                     <p class="topic-item-description">{{ item.followers.count() }}人关注</p>
+
+                </div>
+
+
                 </li>
                 {% endfor %}
             </ul>
         </div>
 
-        <div class="col-md-6"></div>
+        <div class="col-md-3"></div>
         </div>
     </div>
 </div>

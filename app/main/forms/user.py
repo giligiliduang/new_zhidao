@@ -1,7 +1,14 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField
 from wtforms.validators import Length
+
+from app import db
 from app.constants import jobs
+from wtforms.ext.sqlalchemy.orm import model_form
+from app.models import User
+
+
+UserForm=model_form(User,db_session=db.session)
 
 
 class EditProfileForm(FlaskForm):

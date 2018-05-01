@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import TextAreaField, StringField, SelectMultipleField, BooleanField, SubmitField
+from wtforms.fields import SelectFieldBase
 from wtforms.validators import DataRequired
-
+from .custom_fields import TagListField
 from app.models import Tag
 
 

@@ -8,7 +8,16 @@
 }
     .follow-user-btn{
         float: right;
-
+        position: relative;
+        top: 25px;
+        right: -20px;
+    }
+    .who-is-following{
+        display: inline;
+    }
+    .who-is-following span{
+        position: relative;
+        top: 40px;
     }
 
 </style>
@@ -24,15 +33,31 @@
                     {% endif %}
                 </div>
                 <div class="col-md-10">
+                <div class="col-md-8">
                     <a href="{{ url_for('main.user',username=follow.username) }}">{{ follow.username }}</a>
                     <span style="display: block">{{ follow.about_me }}</span>
-                    <div class="follow-user-btn">
+                <div class="who-is-following">
+                {% set items=current_user.who_is_following_current_user_in_my_followed(follow)  %}
+                {% if items !=[] %}
+                <span>我关注的人里面</span>
+                {% for item in  items%}
+                    <span class="text-muted"><a href="{{ url_for('main.user',username=item.username) }}">{{ item.username }}</a></span>.
+                    {% endfor %}
+                <span>关注了他</span>
+                {% endif %}
+                </div>
+                </div>
+                    <div class="col-md-4">
+                        <div class="follow-user-btn">
                         {% if not current_user.is_following_user(follow) %}
                         <a href="{{ url_for('main.follow_user',username=follow.username) }}" class="btn btn-danger btn-lg">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;关注</a>
                         {% else %}
                             <a href="{{ url_for('main.unfollow_user',username=follow.username) }}" class="btn btn-danger btn-lg">取消关注</a>
                         {% endif %}
                     </div>
+
+                    </div>
+
                 </div>
 
     </div>

@@ -10,3 +10,5 @@ class UploadForm(FlaskForm):
         FileAllowed(photos, '只能上传图片！'),
         FileRequired('文件未选择！')])
     submit = SubmitField(u'上传')
+
+

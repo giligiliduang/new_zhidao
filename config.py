@@ -37,6 +37,8 @@ class DevelopmentConfig(Config):
     CELERY_BROKER_URL='redis://localhost:6379/0'
     CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 class TestingConfig(Config):
+    SERVER_NAME='localhost.dev'
+    WTF_CSRF_ENABLED=False
     CACHE_TYPE = 'simple'
     TESTING = True
     SQLALCHEMY_DATABASE_URI = os.environ.get('TEST_DATABASE_URL') or \
