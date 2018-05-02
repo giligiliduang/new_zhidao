@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import SubmitField,StringField,BooleanField,PasswordField
 from wtforms.validators import DataRequired, Email, Length, Regexp, EqualTo, ValidationError
 from ..models import User
+
 class LoginForm(FlaskForm):
     email=StringField('',validators=[DataRequired(),Email(),Length(1,64)],render_kw={'placeholder':'邮箱'})
     password=PasswordField('',validators=[DataRequired(),Length(6,64)],render_kw={'placeholder':'密码'})

@@ -1,0 +1,11 @@
+{% extends 'admin/master.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block body %}
+{{ super() }}
+<div class="row-fluid">
+    <div class="col-sm-8 col-sm-offset-2">
+        <h1>欢迎来到后台管理系统</h1>
+        <a href="{{ url_for('main.index') }}">回到首页</a>
+    </div>
+</div>
+{% endblock body %}

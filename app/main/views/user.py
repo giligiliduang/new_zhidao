@@ -6,7 +6,7 @@ from app.decorators import permission_required
 from app.main import main
 from app.main.forms import EditProfileForm,UserForm
 from app.models import User, Question, Post, Answer, Permission, Follow, Favorite, FollowQuestion, FollowFavorite, \
-    Topic, FollowTopic
+    Topic, FollowTopic, LikePost
 from .search import search
 from app.signals import user_visited, favorite_unfollow, \
     favorite_follow, question_unfollow, question_follow, post_voteup, post_cancel_vote, answer_cancel_vote, \
@@ -388,6 +388,8 @@ def followed_topics(username):
     return render_template('user/followed_topics.html',**context)
 
 
+
+
 @main.route('/user/<username>/followed-user-questions')
 def my_followed_user_questions(username):
     s = search()
@@ -402,7 +404,7 @@ def my_followed_user_questions(username):
     per_page=current_app.config['ZHIDAO_FOLLOW_PER_PAGE'],error_out=False)
     questions=pagination.items
     context=dict(questions=questions,user=user,pagination=pagination)
-    return render_template('user/followed_user_questions',**context)
+    return render_template('user/followed_user_questions.html',**context)
 
 @main.route('/user/<username>/followed-user-posts')
 def my_followed_user_posts(username):
@@ -419,7 +421,7 @@ def my_followed_user_posts(username):
                                                        error_out=False)
     posts = pagination.items
     context = dict(posts=posts, user=user, pagination=pagination)
-    return render_template('user/followed_user_posts', **context)
+    return render_template('user/followed_user_posts.html', **context)
 
 
 
@@ -448,6 +450,27 @@ def unlike_post(id):
         flash('取消赞')
         return redirect(url_for('.post',id=post.id))
     flash('还没赞呢')
+
+@main.route('/user/<username>/post_likes')
+def post_likes(username):
+    s = search()
+    if s:
+        return s
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('用户不存在')
+        return redirect(url_for('.index'))
+    page = request.args.get('page', 1, type=int)
+    pagination=user.post_likes.order_by(LikePost.timestamp.desc()).paginate(
+        page,per_page=current_app.config['ZHIDAO_LIKE_PER_PAGE'],error_out=False
+    )
+
+    posts=[i.post_liked for i in pagination.items]
+    context=dict(pagination=pagination,posts=posts,user=user)
+    return render_template('user/post_likes.html',**context)
+
+
+
 
 @main.route('/like/answer/<int:id>')
 @login_required

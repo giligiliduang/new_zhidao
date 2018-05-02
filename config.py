@@ -13,6 +13,7 @@ class Config:
     ZHIDAO_POST_PER_PAGE=15
     ZHIDAO_COMMENT_PER_PAGE=20
     ZHIDAO_FOLLOW_PER_PAGE=20
+    ZHIDAO_LIKE_PER_PAGE=20
     WHOOSH_BASE='path/to/whoosh/base'
     UPLOADED_PHOTOS_DEST=os.getcwd() + '/app/static/photos/'
     SQLALCHEMY_RECORD_QUERIES=True

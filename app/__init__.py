@@ -1,8 +1,9 @@
 from  flask import Flask
 from config import config
-from .ext import db,bootstrap,login_manager,moment,mail,cache,bcrypt,photos
+from .ext import db,bootstrap,login_manager,moment,mail,cache,bcrypt,photos,admin
 from flask_uploads import configure_uploads,patch_request_class
 import flask_whooshalchemyplus
+
 def create_app(config_name):
     app=Flask(__name__)
     app.config.from_object(config[config_name])
@@ -17,7 +18,7 @@ def create_app(config_name):
     flask_whooshalchemyplus.init_app(app)
     configure_uploads(app,photos)
     patch_request_class(app)
-
+    admin.init_app(app)
     from .main import main as main_blueprint
     app.register_blueprint(main_blueprint)
     from .auth import auth as auth_blueprint

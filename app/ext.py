@@ -6,8 +6,9 @@ from flask_bcrypt import Bcrypt
 from flask_moment import Moment
 from flask_cache import Cache
 from flask_uploads import UploadSet,IMAGES
-
+from flask_admin import Admin
 import os
+
 db=SQLAlchemy()
 bootstrap=Bootstrap()
 login_manager=LoginManager()
@@ -19,3 +20,4 @@ mail=Mail()
 cache=Cache()
 bcrypt=Bcrypt()
 photos=UploadSet('photos',IMAGES)
+admin=Admin(name='吱道后台管理',template_mode='bootstrap3')

@@ -44,6 +44,7 @@ def before_request():
                 flash('你不是管理员',category='warning')
                 return redirect(url_for('main.index'))
 
+
 @main.after_app_request
 def after_request(response):
     for query in get_debug_queries():
