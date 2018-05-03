@@ -1,1 +1,11 @@
-/.idea
+/.idea/
+
+#migrations
+
+/migrations/
+
+#python
+*.py[cod]
+*.so
+*.egg
+*.egg-info
