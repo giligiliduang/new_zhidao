@@ -23,13 +23,16 @@
 {% block page_content %}
     <div class="col-md-2"></div>
     <div class="total-answers clearfix col-md-8">
+
             <div class="author-info">
+
                 <div class="col-md-1"><a href="{{ url_for('main.user',username=post.author.username) }} "><img src="{{ post.author.avatar_url_sm }}" alt="avatar"></a></div>
                 <div class="col-md-11">
                     <a href="{{ url_for('main.user',username=post.author.username) }}">{{ post.author.username }}</a>
                     <span style="display: block">{{ post.author.about_me }}</span>
 
                 </div>
+
             </div>
             <span class="text-muted" style="position: relative;top: 10px">{{ post.liked_count }}人赞同了该文章</span>
             <div class="answer-body">

@@ -26,6 +26,11 @@ def choice():
     styles = ['success', 'info', 'default', 'warning', 'danger', 'primary']
     return random.choice(styles)
 
+@main.add_app_template_filter
+def replace_none(val):
+    return '无' if not val else val
+
+
 
 def send_async_email(app, msg):
     with app.app_context():

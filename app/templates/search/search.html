@@ -1,0 +1,68 @@
+{% extends "base/base.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% import 'base/_macros.html' as macros %}
+
+{% block page_content %}
+    <div class="col-md-2"></div>
+    <div class="col-md-6">
+        <h1>搜索结果</h1>
+    <!-- Nav tabs -->
+  <ul class="nav nav-tabs" role="tablist">
+
+    <li role="presentation" class={% if type=='post' %}"active"{% endif %}><a href="#post" aria-controls="post" role="tab" data-toggle="tab">文章</a></li>
+    <li role="presentation" class= {% if type=='question' %}"active"{% endif %}><a href="#question" aria-controls="question" role="tab" data-toggle="tab">问题</a></li>
+      <li role="presentation" class={% if type=='answer' %}"active"{% endif %}><a href="#answer" aria-controls="answer" role="tab" data-toggle="tab">答案</a></li>
+      <li role="presentation" class={% if type=='topic' %}"active"{% endif %}><a href="#topic" aria-controls="topic" role="tab" data-toggle="tab">话题</a></li>
+
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div role="tabpanel" class="tab-pane active" id="post">
+        {% if posts %}
+            {% include "utility/_posts.html" %}
+        {% endif %}
+    {% if p_pagination %}
+        <div class="pagination">
+                    {{ macros.pagination_widget(p_pagination,'main.search_detail',type='post',q=q) }}
+                    </div>
+    {% endif %}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="question">
+        {% if questions %}
+            {% include "utility/_questions.html" %}
+        {% endif %}
+    {% if q_pagination %}
+        <div class="pagination">
+                    {{ macros.pagination_widget(q_pagination,'main.search_detail',type='question',q=q) }}
+                    </div>
+    {% endif %}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="answer">
+        {% if answers %}
+            {% include "utility/_answers.html" %}
+        {% endif %}
+    {% if a_pagination %}
+        <div class="pagination">
+                    {{ macros.pagination_widget(a_pagination,'main.search_detail',type='answer',q=q) }}
+                    </div>
+    {% endif %}
+
+    </div>
+    <div role="tabpanel" class="tab-pane" id="topic">
+        {% if topics %}
+            {% include "utility/_topics.html" %}
+        {% endif %}
+    {% if a_pagination %}
+        <div class="pagination">
+                    {{ macros.pagination_widget(t_pagination,'main.search_detail',type='topic',q=q) }}
+                    </div>
+    {% endif %}
+
+    </div>
+  </div>
+
+</div>
+
+    <div class="col-md-4"></div>
+{% endblock %}

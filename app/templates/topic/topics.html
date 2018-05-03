@@ -73,7 +73,7 @@
                         {% if item.cover_url %}
                             <a href="{{ url_for('main.topic_detail',id=item.id) }}"><img src="{{ item.cover_url }}" alt=""></a>
                         {% else %}
-                            <a class="avatar" href="#"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
+                            <a class="avatar" href="{{ url_for('main.topic_detail',id=item.id) }}"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
                         {% endif %}
                     </div>
                     <div class="col-md-9">
@@ -101,7 +101,7 @@
                         {% if item.cover_url %}
                             <a href="{{ url_for('main.topic_detail',id=item.id) }}"><img src="{{ item.cover_url }}" alt=""></a>
                         {% else %}
-                            <a class="avatar" href="#"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
+                            <a class="avatar" href="{{ url_for('main.topic_detail',id=item.id) }}"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
                         {% endif %}
                     </div>
                     <div class="col-md-9">
@@ -140,7 +140,7 @@
                         {% if item.cover_url %}
                             <a href="{{ url_for('main.topic_detail',id=item.id) }}"><img src="{{ item.cover_url }}" alt=""></a>
                         {% else %}
-                            <a class="avatar" href="#"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
+                            <a class="avatar" href="{{ url_for('main.topic_detail',id=item.id) }}"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
                         {% endif %}
                     </div>
                 <div class="col-md-9">

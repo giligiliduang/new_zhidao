@@ -17,7 +17,7 @@
         display: inline;
         position: relative;
         top: 20px;
-        left: 150px;
+        left: 100px;
     }
     .question-author-name{
         padding-left: 20px;
@@ -27,7 +27,7 @@
 {% for question in questions  %}
        <div class="questions-item clearfix">
                <div class="title">
-               <h2><a href="{{ url_for('main.question',id=question.id) }}">{{ question.title }}</a></h2>
+               <h2><a href="{{ url_for('main.question',id=question.id) }}">{{ question.title}}</a></h2>
                </div>
                <div class="info text-muted">
                    <div class="col-md-8">

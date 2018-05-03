@@ -11,6 +11,9 @@ from sqlalchemy.ext.hybrid import hybrid_property,hybrid_method
 from sqlalchemy.ext.associationproxy import association_proxy
 from app.constants import topics
 import forgery_py
+
+
+
 class PostTag(db.Model,BaseMixin,DateTimeMixin):
     """关系表"""
     __tablename_='posttags'
@@ -264,6 +267,8 @@ class FollowTopic(db.Model,BaseMixin,DateTimeMixin):
 
 class Topic(db.Model,BaseMixin,DateTimeMixin):
     __tablename__='topics'
+    __analyzer__=SimpleAnalyzer()
+    __searchable__=['title']
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.String(64))#话题名称
     description=db.Column(db.Text)#话题描述
@@ -510,8 +515,8 @@ class User(db.Model,UserMixin,BaseMixin):
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = hashlib.md5(
                 self.email.encode('utf-8')).hexdigest()
-        if not self.is_following_user(self):
-            self.follow(self)
+        # if not self.is_following_user(self):
+        #     self.follow(self)
 
 
 
@@ -858,6 +863,19 @@ class User(db.Model,UserMixin,BaseMixin):
     def __repr__(self):
         return '<User{}>'.format(self.username)
 
+class Alembic(db.Model):
+    __tablename__ = 'alembic_version'
+    version_num = db.Column(db.String(32), primary_key=True, nullable=False)
+
+    @staticmethod
+    def clear_A():
+        for a in Alembic.query.all():
+            db.session.delete(a)
+        db.session.commit()
+
+
+
+
 
 class AnonymousUser(AnonymousUserMixin):
     def can(self,permissions):
@@ -870,6 +888,11 @@ class AnonymousUser(AnonymousUserMixin):
         return False
     def is_following_question(self,question):
         return False
+
+
+
+
+
 
 @login_manager.user_loader
 def load_user(id):

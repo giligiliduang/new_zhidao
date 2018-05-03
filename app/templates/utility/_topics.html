@@ -38,9 +38,9 @@
                 <div class="col-md-11">
                     <h4><a href="{{ url_for('main.topic_detail',id=topic.id) }}">{{ topic.title }}</a></h4>
                     {% if not topic.is_followed_by(current_user) %}
-                        <a href="{{ url_for('main.follow_topic',id=topic.id) }}" class="btn btn-default topic-follow">关注</a>
+                        <a href="{{ url_for('main.follow_topic',id=topic.id) }}" class="btn topic-follow btn-default ">关注</a>
                     {% else %}
-                        <a href="{{ url_for('main.unfollow_topic',id=topic.id) }}" class="btn btn-warning topic-follow ">取消关注</a>
+                        <a href="{{ url_for('main.unfollow_topic',id=topic.id) }}" class="btn  topic-follow btn-warning">取消关注</a>
                     {% endif %}
                     <p class="topic-item-description">{{ topic.description }}</p>
                 </div>

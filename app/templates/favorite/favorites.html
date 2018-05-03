@@ -76,7 +76,7 @@
                     <a class="avatar" href="{{ url_for('main.user',username=user.username) }}"><img src="{{ user.gravatar(50) }}" alt="avatar"></a>
                 {% endif %}
                 <span class="author">{{ user.username }}</span>
-                <span style="display: block;position: relative;left: 50px;bottom: 10px">{{ user.about_me }}</span>
+                <span style="display: block;position: relative;left: 50px;bottom: 10px">{{ user.about_me|replace_none }}</span>
             </div>
         </div>
     </div>

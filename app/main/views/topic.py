@@ -3,12 +3,14 @@ from flask import render_template,redirect,url_for,abort,request,session,current
 
 from app import photos, db
 from app.main import main
-from app.models import Topic, User, QuestionTopic, FollowTopic
+from app.models import Topic, User, QuestionTopic, FollowTopic, Answer
 from flask_login import login_required,current_user
 from app.main.views.search import search
 from app.decorators import admin_required
 from ..forms.topic import CreateTopicForm
 from app.utils import image_resize
+from operator import itemgetter
+
 
 @main.route('/topics',methods=['GET','POST'])
 def topics():
@@ -30,7 +32,15 @@ def topic_detail(id):
         return s
     topic=Topic.query.get_or_404(id)
     questions=[i.question for i in topic.questions.all()]
-    context=dict(questions=questions,topic=topic)
+    questions_ids_in_this_topic = [i.id for i in questions]
+    excellent_authors = []#该话题下的优秀回答者
+    for each in User.query.all():
+        answer_count=each.answers.filter(Answer.question_id.in_(questions_ids_in_this_topic)).count()
+        if answer_count!=0:
+            excellent_authors.append([each,answer_count])
+    excellent_authors.sort(key=itemgetter(1),reverse=True)
+
+    context=dict(questions=questions,topic=topic,excellent_authors=excellent_authors[:3])
 
     return render_template('topic/topic.html',**context)
 

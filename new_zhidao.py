@@ -176,12 +176,12 @@ def generate_fake_posts(numbers):
     with click.progressbar(range(int(numbers)), label='正在文章生成数据', fill_char='*') as bar:
         for i in bar:
             title = forgery_py.lorem_ipsum.title()
-            body = forgery_py.lorem_ipsum.sentences(random.randint(1,3))
+            body = forgery_py.personal.language()
             author = random.choice(users)
             tag=random.sample(tags,2)
             p=Post.create(title=title, body=body, author=author)
-            for i in tag:
-                i.add_post(p)
+            for each in tag:
+                each.add_post(p)
                 signals.post_tag_add.send(p)
 @app.cli.command()
 def random_topic_follow():
@@ -209,7 +209,6 @@ def random_topic_question_add():
              for i in random.sample(questions,5):
                  each_topic.add_question(i)
                  signals.topic_question_add.send(each_topic)
-
 
 
 
