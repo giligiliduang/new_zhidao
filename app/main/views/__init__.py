@@ -1,6 +1,8 @@
 
 from flask import request, current_app, redirect, flash, url_for
 from flask_sqlalchemy import get_debug_queries
+
+from app.auth.forms import LoginForm
 from app.models import Permission
 from .. import main
 from flask_login import current_user

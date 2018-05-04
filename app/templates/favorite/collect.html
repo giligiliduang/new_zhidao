@@ -6,6 +6,7 @@
     <script src="//cdn.ckeditor.com/4.8.0/standard/ckeditor.js"></script>
 {% endblock %}
 {% block page_content %}
+    <div class="col-md-2"></div>
     <div class="edit-self col-md-6">
     <form method="post">
         {{ form.hidden_tag() }}
@@ -15,4 +16,5 @@
     </form>
 {#    {{ wtf.quick_form(form) }}#}
     </div>
+    <div class="col-md-4"></div>
 {% endblock %}

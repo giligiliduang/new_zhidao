@@ -84,21 +84,38 @@
 
 {% block scripts %}
 {{ super() }}
-{#    <script>#}
-{#    var btn=$('#delete-favorite');#}
-{#    $(document).ready(function () {#}
-{#        btn.on('click',function (e) {#}
-{#        e.preventDefault();#}
-{#        var res=confirm('是否删除?');#}
-{#        var data={'ensure':Number(res)};#}
-{#        $.ajax(#}
-{#            '{{ url_for('main.delete_favorite',username=user.username,id=favorite.id) }}',#}
-{#         {data:data#}
-{#        }#}
-{#        ).done(function (data) {#}
-{#            console.log(data);#}
-{#        })#}
-{#    })#}
-{#    });#}
-{#    </script>#}
+    <script>
+
+    $(document).ready(function () {
+        var btn=$('#delete-favorite');
+        btn.on('click',function (e) {
+        e.preventDefault();
+        if(confirm('收藏夹里面的数据将被清空,是否删除?')){
+                $.post(
+                    {
+                        url:'{{ url_for('main.delete_favorite') }}',
+                        data:{
+                            'username':'{{ user.username }}',
+                            'id':{{ favorite.id }}
+                        },
+                        success:function (e) {
+                            console.log(e)
+                            if(e.code==='200'){
+                                location.reload()
+                            }
+                        },
+                        error:function (e) {
+                            console.log(e)
+                        }
+
+                    }
+
+
+            )
+
+        }
+
+    })
+    });
+    </script>
 {% endblock %}

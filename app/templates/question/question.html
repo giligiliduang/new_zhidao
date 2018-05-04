@@ -99,8 +99,8 @@
                     {% endif %}
                    <a class="btn btn-info" href="{{ url_for('main.write_answer',id=question.id) }}"><span class="glyphicon glyphicon-pencil"></span>写回答</a>
                    <a href="{{ url_for('main.question_comments',id=question.id) }}"><span class=""></span>{{ question.comments.count() }}条评论</a>
-                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
-                   <a href=""><span class="glyphicon glyphicon-user"></span>邀请回答</a>
+{#                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>#}
+{#                   <a href=""><span class="glyphicon glyphicon-user"></span>邀请回答</a>#}
                    {% if current_user==question.author or current_user.can(Permission.ADMINISTER)%}
                    <a href="{{ url_for('main.edit_question',id=question.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑问题</a>
                    {% endif %}

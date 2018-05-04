@@ -114,7 +114,7 @@ class Post(db.Model,BaseMixin,DateTimeMixin):
     title=db.Column(db.String(64))
     body=db.Column(db.Text)
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))
-    favorites = db.relationship('PostFavorite',backref='post',lazy='dynamic',foreign_keys=[PostFavorite.post_id])
+    favorites = db.relationship('PostFavorite',backref='post',lazy='dynamic',foreign_keys=[PostFavorite.post_id],cascade='all,delete-orphan')
     tags = db.relationship('PostTag', backref='post', foreign_keys=[PostTag.post_id], lazy='dynamic')#标签
     disable_comment=db.Column(db.Boolean,default=False)#是否禁止评论
     comments=db.relationship('Comment',backref='post',lazy='dynamic')#属于文章的评论
@@ -174,7 +174,7 @@ class Answer(db.Model,BaseMixin,DateTimeMixin):
     body=db.Column(db.Text)#回答详情
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))#作者
     question_id=db.Column(db.Integer,db.ForeignKey('questions.id'))#属于哪个问题
-    favorites = db.relationship('AnswerFavorite',lazy='dynamic',backref='answer',foreign_keys=[AnswerFavorite.answer_id])
+    favorites = db.relationship('AnswerFavorite',lazy='dynamic',backref='answer',foreign_keys=[AnswerFavorite.answer_id],cascade='all,delete-orphan')
     anonymous=db.Column(db.Boolean,default=False)#作者是否匿名回答
     disable_comment = db.Column(db.Boolean, default=False)  # 是否禁止评论
     comments = db.relationship('Comment', backref='answer', lazy='dynamic')
@@ -224,10 +224,10 @@ class Question(db.Model,BaseMixin,DateTimeMixin):
     __analyzer__=SimpleAnalyzer()
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.String(64))#问题名称
-    description=db.Column(db.String(128))#问题描述
+    description=db.Column(db.Text)#问题描述
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))#提出问题的人
     topics=db.relationship('QuestionTopic',backref='question',lazy='dynamic',foreign_keys=[QuestionTopic.question_id])#属于的话题
-    favorites=db.relationship('QuestionFavorite',backref='question',lazy='dynamic',foreign_keys=[QuestionFavorite.question_id])
+    favorites=db.relationship('QuestionFavorite',backref='question',lazy='dynamic',foreign_keys=[QuestionFavorite.question_id],cascade='all,delete-orphan')
     answers=db.relationship('Answer',backref='question',lazy='dynamic')#回答者
     browse_count=db.Column(db.Integer,default=0)#问题被浏览了多少次
     anonymous=db.Column(db.Boolean,default=False)#是否匿名提问
@@ -272,8 +272,8 @@ class Topic(db.Model,BaseMixin,DateTimeMixin):
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.String(64))#话题名称
     description=db.Column(db.Text)#话题描述
-    cover_url=db.Column(db.String(128))#封面图片
-    cover_url_sm=db.Column(db.String(128))#封面缩略图片
+    cover_url=db.Column(db.String(256))#封面图片
+    cover_url_sm=db.Column(db.String(256))#封面缩略图片
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))#创建人
     followers = db.relationship('FollowTopic', backref=db.backref('followed', lazy='joined'),
                                 lazy='dynamic', foreign_keys=[FollowTopic.followed_id],
@@ -325,12 +325,12 @@ class Favorite(db.Model,BaseMixin,DateTimeMixin):
     __tablename__='favorites'
     id=db.Column(db.Integer,primary_key=True)
     title=db.Column(db.String(64))#收藏夹的名称
-    description = db.Column(db.String(150))  # 描述
+    description = db.Column(db.Text)  # 描述
     public=db.Column(db.Boolean,default=True)#是否公开
     user_id=db.Column(db.Integer,db.ForeignKey('users.id'))#用户
-    questions=db.relationship('QuestionFavorite',backref='favorite',lazy='dynamic',foreign_keys=[QuestionFavorite.favorite_id])
-    answers=db.relationship('AnswerFavorite',backref='favorite',lazy='dynamic',foreign_keys=[AnswerFavorite.favorite_id])
-    posts=db.relationship('PostFavorite',backref='favorite',lazy='dynamic',foreign_keys=[PostFavorite.favorite_id])
+    questions=db.relationship('QuestionFavorite',backref='favorite',lazy='dynamic',foreign_keys=[QuestionFavorite.favorite_id],cascade='all,delete-orphan')
+    answers=db.relationship('AnswerFavorite',backref='favorite',lazy='dynamic',foreign_keys=[AnswerFavorite.favorite_id],cascade='all,delete-orphan')
+    posts=db.relationship('PostFavorite',backref='favorite',lazy='dynamic',foreign_keys=[PostFavorite.favorite_id],cascade='all,delete-orphan')
     comments=db.relationship('Comment',backref='favorite',lazy='dynamic')
     followers = db.relationship('FollowFavorite', backref=db.backref('followed', lazy='joined'),
                                 lazy='dynamic', foreign_keys=[FollowFavorite.followed_id],
@@ -461,8 +461,8 @@ class User(db.Model,UserMixin,BaseMixin):
     job=db.Column(db.String(64))
     about_me=db.Column(db.String(64))
     avatar_hash = db.Column(db.String(32))#默认头像
-    avatar_url_sm=db.Column(db.String(64))#自定义头像缩略图
-    avatar_url_nm=db.Column(db.String(64))#自定义头像正常图
+    avatar_url_sm=db.Column(db.String(256))#自定义头像缩略图
+    avatar_url_nm=db.Column(db.String(256))#自定义头像正常图
     last_seen=db.Column(db.DateTime,default=datetime.utcnow,onupdate=datetime.utcnow)#最近登录
     member_since=db.Column(db.DateTime,default=datetime.utcnow)#注册日期
     visited_count=db.Column(db.Integer,default=0)#个人主页被浏览次数
@@ -878,6 +878,7 @@ class Alembic(db.Model):
 
 
 class AnonymousUser(AnonymousUserMixin):
+
     def can(self,permissions):
         return False
 
@@ -888,6 +889,9 @@ class AnonymousUser(AnonymousUserMixin):
         return False
     def is_following_question(self,question):
         return False
+
+
+
 
 
 

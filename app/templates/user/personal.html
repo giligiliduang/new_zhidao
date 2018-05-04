@@ -75,8 +75,12 @@
                       <ul class="dropdown-menu">
 
                           {% for favorite in favorites %}
-                              {% if favorite.public %}
+                              {% if  favorite.public %}
                         <li><a href="{{ url_for('main.favorite',username=user.username,id=favorite.id) }}">{{ favorite.title }}</a></li>
+                              {% else %}
+                                  {% if current_user==favorite.user %}
+                                      <li><a href="{{ url_for('main.favorite',username=user.username,id=favorite.id) }}">{{ favorite.title }}</a></li>
+                                      {% endif %}
                               {% endif %}
                           {% endfor %}
 

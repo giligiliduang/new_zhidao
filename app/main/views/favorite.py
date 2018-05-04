@@ -1,4 +1,5 @@
-from flask import flash, redirect, url_for, abort, render_template, make_response, request,current_app
+from flask import flash, redirect, url_for, abort, render_template, make_response, \
+    request,current_app,jsonify
 from flask_login import login_required, current_user
 from app import db
 from app.main import main
@@ -7,6 +8,7 @@ from app.models import User, Favorite, Permission, Answer, Post, Question, Comme
 from app.main.forms import EditFavoriteForm, FavoriteForm, CollectForm, CommentForm
 from app.signals import favorite_question_delete,favorite_question_add,\
     favorite_answer_delete,favorite_answer_add,favorite_post_add,favorite_post_delete
+from app.decorators import require_ajax
 
 
 @main.route('/user/<username>/create-favorite',methods=['GET','POST'])
@@ -27,6 +29,30 @@ def create_favorite(username):
         flash('新建了{}收藏夹'.format(form.title.data),category='info')
         return redirect(url_for('.user',username=user.username))
     return render_template('favorite/create_favorite.html',form=form)#渲染表单
+
+@main.route('/delete/favorite/',methods=['POST'])
+@login_required
+@require_ajax
+def delete_favorite():
+    """
+
+    :return:
+    """
+    username=request.form.get('username')
+    id=request.form.get('id')
+    if username is None or id is None:
+        return jsonify({
+            'error':'BAD REQUEST',
+            'code':'400'
+        })
+    user=User.query.filter_by(username=username).first()
+    favor=Favorite.query.filter(Favorite.id==id,Favorite.user==user).first()
+    db.session.delete(favor)
+    db.session.commit()
+    return jsonify({
+        'success':'success delete',
+        'code':'200'
+    })
 
 
 

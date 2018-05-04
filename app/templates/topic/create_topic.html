@@ -1,17 +1,18 @@
 {% extends "base/base.html" %}
-
+{% import "bootstrap/wtf.html" as wtf %}
 {% block page_content %}
     <div class="col-md-2"></div>
     <div class="col-md-6 create-topic-form">
         <form action="" method="post" enctype="multipart/form-data">
-             {{ form.hidden_tag() }}
-        {{ form.title }}
-        {{ form.description }}
-     {{ form.photo }}
-     {% for error in form.photo.errors %}
-         <span style="color: red;">{{ error }}</span>
-     {% endfor %}
-     {{ form.submit }}
+{#             {{ form.hidden_tag() }}#}
+{#        {{ form.title }}#}
+{#        {{ form.description }}#}
+{#     {{ form.photo }}#}
+{#     {% for error in form.photo.errors %}#}
+{#         <span style="color: red;">{{ error }}</span>#}
+{#     {% endfor %}#}
+{#     {{ form.submit }}#}
+            {{ wtf.quick_form(form) }}
         </form>
 
     </div>

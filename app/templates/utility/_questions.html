@@ -53,6 +53,7 @@
                    <div class="col-md-4">
                        {% if question.author!=current_user%}
                            <div class="collect-question">
+                           {% if current_user.is_authenticated and not current_user.favorites.count()==0 %}
                            {% if not current_user.has_collect(question)  %}
                            <a href="{{ url_for('main.collect_question',id=question.id) }}" class="btn btn-danger">
                                收藏
@@ -62,6 +63,7 @@
                                <span class="glyphicon glyphicon-star"></span>
                                已收藏
                            </a>
+                               {% endif %}
                                {% endif %}
                            </div>
                        {% endif %}

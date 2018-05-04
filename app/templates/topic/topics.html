@@ -61,7 +61,9 @@
     {% endif %}
 
         <div class="zd-topic-title">
+            {% if current_user.is_authenticated %}
             <a href="{{ url_for('main.followed_topics',username=current_user.username) }}">已关注{{ current_user.followed_topics.count() }}个话题</a>
+            {% endif %}
             <h4>话题广场</h4>
         </div>
         <div class="zd-topic-main clearfix">
@@ -78,10 +80,12 @@
                     </div>
                     <div class="col-md-9">
                         <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
+                   {% if  current_user.is_authenticated %}
                     {% if not item.is_followed_by(current_user) %}
                         <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="btn btn-danger topic-follow">关注</a>
                     {% else %}
                         <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="btn btn-warning topic-follow">取消关注</a>
+                    {% endif %}
                     {% endif %}
                     <p class="topic-item-description">{{ item.description }}</p>
 
@@ -106,10 +110,12 @@
                     </div>
                     <div class="col-md-9">
                         <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
-                    {% if not item.is_followed_by(current_user) %}
-                        <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="btn btn-danger topic-follow">关注</a>
-                    {% else %}
-                        <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="btn btn-warning topic-follow">取消关注</a>
+                    {% if current_user.is_authenticated %}
+                            {% if not item.is_followed_by(current_user) %}
+                            <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="btn btn-danger topic-follow">关注</a>
+                        {% else %}
+                            <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="btn btn-warning topic-follow">取消关注</a>
+                        {% endif %}
                     {% endif %}
                     <p class="topic-item-description">{{ item.description }}</p>
 
@@ -145,10 +151,12 @@
                     </div>
                 <div class="col-md-9">
                      <h4><a href="{{ url_for('main.topic_detail',id=item.id) }}">{{ item.title }}</a></h4>
-                    {% if not item.is_followed_by(current_user) %}
-                        <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="topic-follow">关注</a>
-                    {% else %}
-                        <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="topic-follow">取消关注</a>
+                    {% if current_user.is_authenticated %}
+                        {% if not item.is_followed_by(current_user) %}
+                            <a href="{{ url_for('main.follow_topic',id=item.id) }}" class="topic-follow">关注</a>
+                        {% else %}
+                            <a href="{{ url_for('main.unfollow_topic',id=item.id) }}" class="topic-follow">取消关注</a>
+                        {% endif %}
                     {% endif %}
                     <p class="topic-item-description">{{ item.followers.count() }}人关注</p>
 

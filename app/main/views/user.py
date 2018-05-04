@@ -485,6 +485,8 @@ def like_answer(id):
     flash('点赞成功','success')
     return redirect(url_for('.question',id=answer.question_id))
 
+
+
 @main.route('/unlike/answer/<int:id>')
 @login_required
 @permission_required(Permission.FOLLOW)

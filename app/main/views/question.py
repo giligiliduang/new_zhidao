@@ -167,5 +167,6 @@ def question_followers(id):
     follows=[item.follower for item in pagination.items]#关注问题的人
     title='关注问题{}的人'.format(question.title)
     style='question_followers'
-    return render_template('user/user_follows.html',pagination=pagination,follows=follows,
-                           question=question,title=title,style=style)
+    context=dict(pagination=pagination,follows=follows,
+                           question=question,title=title,style=style,user=question.author)
+    return render_template('user/user_follows.html',**context)

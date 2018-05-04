@@ -16,7 +16,7 @@ class Config:
     ZHIDAO_FOLLOW_PER_PAGE=20
     ZHIDAO_LIKE_PER_PAGE=20
     WHOOSH_BASE='path/to/whoosh/base'
-    UPLOADED_PHOTOS_DEST=os.getcwd() + '/app/static/photos/'
+    UPLOADED_PHOTOS_DEST=os.path.join(os.path.join(basedir,'static'),'photos')
     SQLALCHEMY_RECORD_QUERIES=True
     FLASK_DB_QUERY_TIMEOUT=0.5
     FLASK_SLOW_DB_QUERY_TIME=0.2
