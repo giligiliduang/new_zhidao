@@ -16,32 +16,36 @@
     </style>
 {% endblock %}
 {% block page_content %}
-    <div class="container">
-    <div class="col-md-1"></div>
-    <div class="col-md-8">
-    <h1>{{ question.title }}</h1>
-    <h1>评论</h1>
-    <form method="post">
-        {{ form.hidden_tag() }}
-        {{ wtf.form_errors(form,hiddens='only') }}
-        {{ wtf.form_field(form.body,class='ckeditor') }}
-        {{ wtf.form_field(form.submit) }}
-    </form>
-    {% include "utility/_comments.html" %}
-    {% if pagination %}
-    <div class="pagination">
-        {{ macros.pagination_widget(pagination,'.question_comments',id=question.id) }}
+    <div class="col-md-2"></div>
+    <div class="col-md-6">
+    <div>
+        <h1>{{ question.title }}</h1>
+        <h1>评论</h1>
+        <form method="post">
+            {{ form.hidden_tag() }}
+            {{ wtf.form_errors(form,hiddens='only') }}
+            {{ wtf.form_field(form.body,class='ckeditor') }}
+            {{ wtf.form_field(form.submit) }}
+        </form>
     </div>
-    {% endif %}
-    </div>
-    <div class="col-md-3">
-      <div class="jumbotron">
-         <div class="adv">
-         </div>
-      </div>
-      <div class="tags jumbotron">
 
-      </div>
+            {% if comments %}
+            {% include "utility/_comments.html" %}
+            {% endif %}
+            {% if pagination %}
+            <div class="pagination">
+                {{ macros.pagination_widget(pagination,'.question_comments',id=question.id) }}
+            </div>
+            {% endif %}
     </div>
+    <div class="col-md-4">
+{#      <div class="jumbotron">#}
+{#         <div class="adv">#}
+{#         </div>#}
+{#      </div>#}
+{#      <div class="tags jumbotron">#}
+{##}
+{#      </div>#}
     </div>
+
 {% endblock %}

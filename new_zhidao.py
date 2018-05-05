@@ -7,6 +7,8 @@ import pymysql
 import click
 from click import prompt
 from app import signals
+
+
 app=create_app('development')
 migrate=Migrate(app,db)
 pymysql.install_as_MySQLdb()
@@ -16,7 +18,7 @@ def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role, Question=Question, Answer=Answer,
                 Topic=Topic, PostTag=PostTag, Post=Post, Tag=Tag, Comment=Comment,
                 Favorite=Favorite, LikePost=LikePost, LikeAnswer=LikeAnswer, LikeComment=LikeComment,
-                Follow=Follow,QuestionTopic=QuestionTopic)
+                LikeReply=LikeReply,Follow=Follow,QuestionTopic=QuestionTopic,Reply=Reply)
 
 
 @app.cli.command()

@@ -115,6 +115,8 @@ def favorite_questions(id):
 
 
 
+
+
 @main.route('/user/<username>/favorite/<int:id>/edit',methods=['GET','POST'])
 @login_required
 def edit_favorite(username,id):

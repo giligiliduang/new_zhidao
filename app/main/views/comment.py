@@ -4,7 +4,7 @@ from flask_login import current_user, login_required
 from app import db
 from app.main import main
 from app.main.forms import CommentForm
-from app.models import Comment, Permission
+from app.models import Comment, Permission, Reply
 from app.signals import question_comment_delete,answer_comment_delete,post_comment_delete
 
 @main.route('/delete/comment/<int:id>')
@@ -41,57 +41,79 @@ def delete_comment(id):
         abort(403)
 
 
+@main.route('/add_comment/comment/<int:id>',methods=['GET','POST'])
+@login_required
+def add_comment(id):
+    """
+    回复评论
+    :param id:
+    :return:
+    """
+    comment=Comment.query.get_or_404(id)
+    form=CommentForm()
+    topic_type=comment.topic_type
+    if topic_type=='post':
+        return execute_comment(form,comment,'post')
+    elif topic_type=='question':
+        return execute_comment(form,comment,'question')
+    elif topic_type=='answer':
+        return execute_comment(form,comment,'answer')
+    elif topic_type=='favorite':
+        return execute_comment(form,comment,'favorite')
+    else:
+        return execute_comment(form,comment,'')
+def execute_comment(form,comment,topic_type):
+
+    if comment.topic_type==topic_type and  form.validate_on_submit():
+        r = Reply.create(author=current_user._get_current_object(), body=form.body.data)
+        comment.add_reply(r)
+        return redirect(url_for('main.{}_comments'.format(topic_type), id=getattr(comment,topic_type).id))
+    item=getattr(comment,topic_type)
+    context = dict(form=form, item=item,comment=comment)
+    return render_template('comment/add_comment.html', **context)
 
 
-@main.route('/reply/comment/<int:id>/')
+
+
+
+
+
+@main.route('/reply/reply/<int:id>/',methods=['GET','POST'])
 @login_required
 def reply(id):
-    comment=Comment.query.get_or_404(id)#获取评论
+    """
+    回复评论里面的评论
+    :param id:
+    :return:
+    """
+    reply=Reply.query.get_or_404(id)#当前回复
+    comment=reply.comment
+
+    user=reply.author#我要回复的人
+    replies = comment.replies.filter(db.or_(db.and_(Reply.author == current_user._get_current_object(), Reply.user == user),
+                                            db.and_(Reply.author==user,Reply.user==current_user._get_current_object()))).all()
+
     form=CommentForm()
-    user=comment.author
-    # if current_user == user:
-    #     flash('自己不能回复自己')
-    #     return redirect(url_for('.index',username=current_user.username))
+
     if comment.topic_type=='post':
-        if form.validate_on_submit():
-            comment = Comment.create(author=current_user._get_current_object(), user=user,
-                              topic_type='post_reply', body=form.body.data,post=comment.post)  # 被回复的是作者
-            db.session.add(comment)
-            db.session.commit()
-            flash('回复成功', category='success')
-            return redirect(url_for('.reply', id=comment.id))
-        post=comment.post
-        comments=user.comments.filter_by(topic_type='post').order_by(Comment.timestamp.desc()).all()
-        replies=user.comments_from.filter_by(topic_type='post_reply').order_by(Comment.timestamp.desc()).all()#在文章中的回复
-        total=comments+replies
-        print(total)
-        return render_template('post/post.html',form=form,replies=replies,post=post,comments=total)#评论和回复
+        return execute_reply(comment,form=form,user=user,topic_type='post')
     elif comment.topic_type=='question':
-        if form.validate_on_submit():
-            comment = Comment.create(author=current_user._get_current_object(), user=user,
-                              topic_type='question_reply', body=form.body.data,question=comment.question)  # 被回复的是作者
-            db.session.add(comment)
-            db.session.commit()
-            flash('回复成功', category='success')
-            return redirect(url_for('.reply', id=comment.id))
-        question = comment.question
-        comments = user.comments.filter_by(topic_type='question').order_by(Comment.timestamp.desc()).all()
-        replies = user.comments_from.filter_by(topic_type='question_reply').order_by(Comment.timestamp.desc()).all()
-        total = comments + replies
-        return render_template('question/question_comments.html', form=form, comments=total,replies=replies, question=question)
+        return execute_reply(comment, form=form, user=user, topic_type='question')
     elif comment.topic_type=='answer':
-        if form.validate_on_submit():
-            comment = Comment.create(author=current_user._get_current_object(), user=user,
-                              topic_type='answer_reply', body=form.body.data,answer=comment.answer)  # 被回复的是作者
-            db.session.add(comment)
-            db.session.commit()
-            flash('回复成功', category='success')
-            return redirect(url_for('.reply', id=comment.id))
-        answer=comment.answer
-        comments = user.comments.filter_by(topic_type='answer').order_by(Comment.timestamp.desc()).all()
-        replies= user.comments_from.filter_by(topic_type='answer_reply').order_by(Comment.timestamp.desc()).all()
-        total = comments + replies
-        return render_template(answer/'answer_comments',form=form,comments=total,replies=replies,answer=answer)
-    elif comment.topic_type=='reply':
-        #楼中楼
-        pass
+        return execute_reply(comment, form=form, user=user, topic_type='answer')
+    elif comment.topic_type=='favorite':
+        return execute_reply(comment, form=form, user=user,topic_type='favorite')
+
+    else:
+        return execute_reply(comment=comment,form=form,user=user,topic_type='',replies=replies)
+
+
+
+def execute_reply(comment,form,user,topic_type,**kwargs):
+    if comment.topic_type==topic_type and form.validate_on_submit():
+        r=Reply.create(author=current_user._get_current_object(),body=form.body.data,user=user)
+        comment.add_reply(r)
+        return redirect(url_for('main.{}_comments'.format(topic_type),id=getattr(comment,topic_type).id))
+    replies=kwargs.get('replies')
+    context = dict(form=form, user=user, replies=replies, comment=comment)
+    return render_template('comment/reply.html', **context)

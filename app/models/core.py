@@ -67,17 +67,20 @@ class LikeComment(db.Model,DateTimeMixin,BaseMixin):
 
 
 class Comment(db.Model,BaseMixin,DateTimeMixin):
+    """
+    评论表，与回复一对多
+    """
     __tablename__='comments'
     id=db.Column(db.Integer,primary_key=True)
     question_id=db.Column(db.Integer,db.ForeignKey('questions.id'))#针对问题的评论
     answer_id=db.Column(db.Integer,db.ForeignKey('answers.id'))#针对答案的评论
     post_id=db.Column(db.Integer,db.ForeignKey('posts.id'))#针对文章的评论
     favorite_id = db.Column(db.Integer, db.ForeignKey('favorites.id'))#收藏夹评论
-    topic_type = db.Column(db.String(64), default='')#五种类型,文章评论,问题评论,答案评论,回复(评论里面的评论),收藏夹评论
+    topic_type = db.Column(db.String(64), default='')#五种类型,文章评论,问题评论,答案评论,收藏夹评论
     author_id=db.Column(db.Integer,db.ForeignKey('users.id'))#评论用户id
-    user_id=db.Column(db.Integer,db.ForeignKey('users.id'))#评论目标用户id
     body=db.Column(db.Text)
     disabled=db.Column(db.Boolean,default=False)#管理员审查言论
+    replies=db.relationship('Reply',backref='comment',lazy='dynamic')
     liked_comments = db.relationship('LikeComment', backref=db.backref('comment_liked', lazy='joined'),
                                   lazy='dynamic', foreign_keys=[LikeComment.comment_liked_id],
                                   cascade='all,delete-orphan')
@@ -92,8 +95,45 @@ class Comment(db.Model,BaseMixin,DateTimeMixin):
     def is_liked_by(self,user):
         return self.liked_comments.filter_by(like_comment_id=user.id).first() is not None
 
+    def add_reply(self,reply):
+        self.replies.append(reply)
+        db.session.commit()
+
+    def remove_reply(self,reply):
+        try:
+            self.replies.remove(reply)
+            db.session.commit()
+        except:
+            db.session.rollback()
+
+    def get_replies(self):
+        return self.replies.order_by(Reply.timestamp.desc()).all()
+
     def __repr__(self):
         return '<Comment {}>'.format(self.id)
+
+class LikeReply(db.Model,UserMixin,DateTimeMixin):
+    reply_liked_id=db.Column(db.Integer,db.ForeignKey('replies.id'),primary_key=True)
+    like_reply_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)
+
+
+class Reply(db.Model,BaseMixin,DateTimeMixin):
+    __tablename__='replies'
+    id = db.Column(db.Integer, primary_key=True)
+    author_id=db.Column(db.Integer,db.ForeignKey('users.id'))#评论的作者
+    user_id=db.Column(db.Integer,db.ForeignKey('users.id'))#要回复的人
+    parent_id=db.Column(db.Integer,db.ForeignKey('comments.id'))#属于的评论
+    body = db.Column(db.Text)
+    liked_replies = db.relationship('LikeReply', backref=db.backref('reply_liked', lazy='joined'),
+                                     lazy='dynamic', foreign_keys=[LikeReply.reply_liked_id],
+                                     cascade='all,delete-orphan')
+    liked_count = db.Column(db.Integer, default=0)  # 以点赞数排序
+
+
+
+
+
+
 
 
 class PostFavorite(db.Model,BaseMixin,DateTimeMixin):
@@ -473,10 +513,10 @@ class User(db.Model,UserMixin,BaseMixin):
     topics=db.relationship('Topic',backref='author',lazy='dynamic')#创建的话题
     posts=db.relationship('Post',backref='author',lazy='dynamic')#我的文章
     comments = db.relationship('Comment', backref='author', lazy='dynamic',foreign_keys=[Comment.author_id])#我的评论
-    comments_from=db.relationship('Comment',backref='user',lazy='dynamic',foreign_keys=[Comment.user_id])#回复我的
+    replies=db.relationship('Reply',backref='author',lazy='dynamic',foreign_keys=[Reply.author_id])#我的回复
+    received_replies=db.relationship('Reply',backref='user',lazy='dynamic',foreign_keys=[Reply.user_id])#回复我的
     # private_messages=db.relationship('Message',backref='sender',lazy='dynamic',foreign_keys=[Message.sender_id])#我发送的私信
     # private_messages_from=db.relationship('Message',backref='receiver',lazy='dynamic',foreign_keys=[Message.receiver_id])#我接收的私信
-
 
     favorites=db.relationship('Favorite',backref='user',lazy='dynamic')#收藏夹
     followers=db.relationship('Follow',backref=db.backref('followed',lazy='joined'),
@@ -502,6 +542,9 @@ class User(db.Model,UserMixin,BaseMixin):
                                cascade='all,delete-orphan')
     comment_likes=db.relationship('LikeComment',backref=db.backref('like_comment',lazy='joined'),
                                lazy='dynamic',foreign_keys=[LikeComment.like_comment_id],
+                               cascade='all,delete-orphan')
+    reply_likes=db.relationship('LikeReply',backref=db.backref('like_reply',lazy='joined'),
+                               lazy='dynamic',foreign_keys=[LikeReply.like_reply_id],
                                cascade='all,delete-orphan')
 
 
