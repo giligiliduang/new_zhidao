@@ -1,0 +1,83 @@
+{% extends "base/base.html" %}
+{% import "base/_macros.html" as macros %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block head %}
+    {{ super() }}
+    <script src="//cdn.ckeditor.com/4.8.0/standard/ckeditor.js"></script>
+    <style>
+        .total-messages{
+        box-shadow: #d9efc8 2px 2px 1px -1px;
+        border: 1px solid #dbefe9;
+        margin-top: 20px;
+        max-width: 100%;
+        min-height: 50px;
+        height: auto;
+    }
+    .message-body{
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+    .message-widget{
+        float: right;
+    }
+    </style>
+{% endblock %}
+
+
+{% block page_content %}
+    <div class="col-md-2"></div>
+    <div class="col-md-6">
+    <ul class="breadcrumb">
+  <li><a href="{{ url_for('main.messages',id=current_user.id) }}">回到私信列表</a></li>
+</ul>
+
+        <h1>发送私信给: <a href="{{ url_for('main.user',username=sender.username) }}">{{ sender.username }}</a></h1>
+
+        {{ wtf.quick_form(form) }}
+        {%  if messages %}
+        {% for message in  messages %}
+            <div class="total-messages clearfix">
+            <div class="message-body">
+                <div class="col-md-4">
+
+                    <div class="col-md-6"><a href="{{ url_for('main.user',username=message.sender.username) }} "><img src="{{ message.sender.avatar_url_sm }}" alt="avatar"></a></div>
+
+                    <div class="col-md-6">
+                        <a href="{{ url_for('main.user',username=message.sender.username) }}">
+                            {% if message.sender==current_user %}我
+                            {% else %}{{ message.sender.username }}
+                            {% endif %}
+                        </a>对<a href="{{ url_for('main.user',username=message.receiver.username) }}">{% if current_user==message.receiver %}我{% else %}{{ message.receiver.username }}{% endif %} </a>说
+
+                    </div>
+                </div>
+                <div class="col-md-8">
+                    <p>{{ message.message_content|safe }}</p>
+                    <div style="margin-top: 30px">
+
+
+                        <div class="message-widget" style="margin-top: 20px">
+{#                     <a href="#" class="">#}
+{#                       <span class="glyphicon glyphicon-thumbs-up"></span>#}
+{#                       <span class="badge">{{ comment.liked_count }}</span>#}
+{#                   </a>#}
+
+{#                   <a href=""><span class=""></span>{{ comment.replies.count() }}条评论</a>#}
+                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
+                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
+                            <span class="text-muted">发送于{{ moment(message.timestamp).format('L') }}</span>
+{#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
+{#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}
+{#                    {% endif %}#}
+            </div>
+                </div>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+
+    </div>
+    <div class="col-md-4"></div>
+{% endblock %}

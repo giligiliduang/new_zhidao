@@ -6,7 +6,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer,BadSignat
 from flask import current_app, request
 import hashlib
 from app import db,bcrypt,login_manager
-from ..constants import default_tags
+from ..constants import default_tags, MessageStatus, DeleteStatus, MessageType
 from sqlalchemy.ext.hybrid import hybrid_property,hybrid_method
 from sqlalchemy.ext.associationproxy import association_proxy
 from app.constants import topics
@@ -128,6 +128,7 @@ class Reply(db.Model,BaseMixin,DateTimeMixin):
                                      lazy='dynamic', foreign_keys=[LikeReply.reply_liked_id],
                                      cascade='all,delete-orphan')
     liked_count = db.Column(db.Integer, default=0)  # 以点赞数排序
+
 
 
 
@@ -476,16 +477,16 @@ class Follow(db.Model,BaseMixin,DateTimeMixin):
     __tablename__='follows'
     follower_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)#关注者
     followed_id=db.Column(db.Integer,db.ForeignKey('users.id'),primary_key=True)#被关注着
-#
-# class Message(db.Model,BaseMixin,DateTimeMixin):
-#     __tablename__='messages'
-#     id=db.Column(db.Integer,primary_key=True)
-#     sender_id=db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)
-#     receiver_id=db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)
-#     message_content=db.Column(db.Text)
-#     message_type=db.Column(db.String(64))#消息类型,系统消息，普通消息
-#
-#     status=db.Column(db.String(64))#消息状态，已读，未读，删除
+
+class Message(db.Model,BaseMixin,DateTimeMixin):
+    __tablename__='messages'
+    id=db.Column(db.Integer,primary_key=True)
+    sender_id=db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)#发送者id
+    receiver_id=db.Column(db.Integer,db.ForeignKey('users.id'),nullable=False)#接受者id
+    message_content=db.Column(db.Text)#发信内容
+    message_type=db.Column(db.Enum(MessageType),default=MessageType.standard)#消息类型,系统消息，普通消息
+    status=db.Column(db.Enum(MessageStatus),default=MessageStatus.unread)#消息状态，已读，未读
+    delete_status=db.Column(db.Enum(DeleteStatus),default=DeleteStatus.standard)#发件箱删除，收件箱删除，未删除
 
 
 
@@ -515,8 +516,8 @@ class User(db.Model,UserMixin,BaseMixin):
     comments = db.relationship('Comment', backref='author', lazy='dynamic',foreign_keys=[Comment.author_id])#我的评论
     replies=db.relationship('Reply',backref='author',lazy='dynamic',foreign_keys=[Reply.author_id])#我的回复
     received_replies=db.relationship('Reply',backref='user',lazy='dynamic',foreign_keys=[Reply.user_id])#回复我的
-    # private_messages=db.relationship('Message',backref='sender',lazy='dynamic',foreign_keys=[Message.sender_id])#我发送的私信
-    # private_messages_from=db.relationship('Message',backref='receiver',lazy='dynamic',foreign_keys=[Message.receiver_id])#我接收的私信
+    private_messages=db.relationship('Message',backref='sender',lazy='dynamic',foreign_keys=[Message.sender_id])#我发送的私信
+    private_messages_from=db.relationship('Message',backref='receiver',lazy='dynamic',foreign_keys=[Message.receiver_id])#我接收的私信
 
     favorites=db.relationship('Favorite',backref='user',lazy='dynamic')#收藏夹
     followers=db.relationship('Follow',backref=db.backref('followed',lazy='joined'),
@@ -679,7 +680,7 @@ class User(db.Model,UserMixin,BaseMixin):
             filter(Follow.follower_id==self.id)
     def who_is_following_current_user_in_my_followed(self,user):
         """
-        除自己之外我关注的人里面谁也关注了他,返回两个数据
+        除自己之外我关注的人里面谁也关注了他,返回两条数据
         :param user:
         :return:
         """
@@ -800,6 +801,64 @@ class User(db.Model,UserMixin,BaseMixin):
         return '{url}/{hash}?s={size}&d={default}&r={rating}'.format(
             url=url, hash=hash, size=size, default=default, rating=rating)
 
+    def send_standard_message_to(self,content,to):
+        Message.create(sender=self,receiver=to,message_content=content)
+
+    def send_system_message_to(self,content):
+        for user in User.query.filter(User.id!=self.id).all():
+            Message.create(sender=self, receiver=user, message_content=content,
+                           message_type=MessageType.system)
+    def delete_send_box_msg(self,msg):
+        message= self.private_messages.filter_by(id=msg.id).first()
+        message.delete_status=DeleteStatus.author_delete
+        db.session.add(message)
+        db.session.commit()
+    def delete_in_box_msg(self,msg):
+        message = self.private_messages_from.filter_by(id=msg.id).first()
+        message.delete_status = DeleteStatus.user_delete
+        db.session.add(message)
+        db.session.commit()
+
+
+
+    @property
+    def send_box_messages(self):
+        """
+        :return:
+        """
+        return self.private_messages.filter(Message.delete_status!=DeleteStatus.author_delete)
+
+
+
+    @property
+    def in_box_messages(self):
+        """
+        收件箱全部信息，包括未读的
+        :return:
+        """
+        return self.private_messages_from.filter(Message.delete_status!=DeleteStatus.user_delete)
+
+    def set_messages_read(self):
+        for message in self.in_box_messages.all():
+            message.status=MessageStatus.read
+            db.session.add(message)
+        db.session.commit()
+    @property
+    def in_box_message_unread_count(self):
+        return self.private_messages_from.filter(Message.delete_status!=DeleteStatus.user_delete,
+                                                 Message.status==MessageStatus.unread).count()
+
+    def dialogue_with(self,whom):
+        """
+        与某个人的对话
+        :param whom:
+        :return:
+        """
+
+        return Message.query.filter(db.or_(db.and_(Message.sender==self,Message.receiver==whom),
+                                    db.and_(Message.sender==whom,Message.receiver==self)),
+                                    Message.delete_status==DeleteStatus.standard,
+                                    Message.message_type==MessageType.standard)
 
 
     @hybrid_property

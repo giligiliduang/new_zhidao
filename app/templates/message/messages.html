@@ -1,0 +1,183 @@
+
+{% extends "base/base.html" %}
+{% import "bootstrap/wtf.html" as wtf%}
+{% import 'base/_macros.html' as macros %}
+{% block title %}私信{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <style>
+        .total-messages{
+        box-shadow: #d9efc8 2px 2px 1px -1px;
+        border: 1px solid #dbefe9;
+        margin-top: 20px;
+        max-width: 100%;
+        min-height: 50px;
+        height: auto;
+    }
+    .message-body{
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+    .message-widget{
+        float: right;
+    }
+    </style>
+{% endblock %}
+
+{% block page_content %}
+    <div class="col-md-2"></div>
+    <div class="col-md-6">
+    <ul class="nav nav-tabs" role="tablist">
+    <li role="presentation" class=""><a href="#sendbox" aria-controls="sendbox" role="tab" data-toggle="tab">发出的</a></li>
+    <li role="presentation" class="active"><a href="#inbox"  aria-controls="inbox" role="tab" data-toggle="tab">收到的</a></li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+  <ol class="breadcrumb">
+  <li><a href="{{ url_for('main.send_message') }}">发送私信</a></li>
+</ol>
+    <div role="tabpanel" class="tab-pane" id="sendbox">
+        {% for message in send_box_messages %}
+            <div class="total-messages clearfix">
+            <div class="message-body">
+                <div class="col-md-2">
+
+                    <div class="col-md-2"><a href="{{ url_for('main.user',username=message.sender.username) }} "><img src="{{ message.sender.avatar_url_sm }}" alt="avatar"></a></div>
+
+                    <div class="col-md-10">
+                        <a href="{{ url_for('main.user',username=message.sender.username) }}">{% if message.sender==current_user %}我{% else %}{{ message.sender.username }}{% endif %}</a>对{{ message.receiver.username }}说
+                        <span style="display: block">{{ message.sender.about_me|replace_none }}</span>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <p>{{ message.message_content|safe }}</p>
+                    <div style="margin-top: 30px">
+
+
+                        <div class="message-widget" style="margin-top: 20px">
+{#                     <a href="#" class="">#}
+{#                       <span class="glyphicon glyphicon-thumbs-up"></span>#}
+{#                       <span class="badge">{{ comment.liked_count }}</span>#}
+{#                   </a>#}
+
+{#                   <a href=""><span class=""></span>{{ comment.replies.count() }}条评论</a>#}
+                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
+                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
+                            <a href="" id="delete-snd-msg" name="{{ message.id }}"><span class="glyphicon glyphicon-trash">删除</span></a>
+                            <span class="text-muted">评论于{{ moment(message.timestamp).format('L') }}</span>
+{#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
+{#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}
+{#                    {% endif %}#}
+            </div>
+                </div>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div role="tabpanel" class="tab-pane" id="inbox">
+        {% for message in in_box_messages %}
+            <div class="total-messages clearfix">
+            <div class="message-body">
+                <div class="col-md-2">
+
+                    <div class="col-md-2">
+                        <a href="{{ url_for('main.user',username=message.sender.username) }} ">
+{#                        <img src="{{ message.sender.avatar_url_sm }}" alt="avatar">#}
+                        </a>
+                    </div>
+
+                    <div class="col-md-10">
+                        <a href="{{ url_for('main.user',username=message.sender.username) }}">{{ message.sender.username }}</a>对{% if message.receiver!=current_user %}{{ message.receiver.username }}{% else %}我{% endif %}说
+{#                        <span style="display: block">{{ message.sender.about_me|replace_none }}</span>#}
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <p>{{ message.message_content|safe }}</p>
+                    <div style="margin-top: 30px">
+
+
+                        <div class="message-widget" style="margin-top: 20px">
+{#                     <a href="#" class="">#}
+{#                       <span class="glyphicon glyphicon-thumbs-up"></span>#}
+{#                       <span class="badge">{{ comment.liked_count }}</span>#}
+{#                   </a>#}
+
+                   <a href="{{ url_for('main.dialogue',id=message.sender.id) }}"><span class="">回复</span></a>
+                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
+                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
+                            <a href="" id="delete-recv-msg" name="{{ message.id }}"><span class="glypgicon glypgicon-trash">删除</span></a>
+                            <span class="text-muted">评论于{{ moment(message.timestamp).format('L') }}</span>
+{#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
+{#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}
+{#                    {% endif %}#}
+            </div>
+                </div>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+  </div>
+
+</div>
+
+
+
+
+
+
+    <div class="col-md-4"></div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+    <script>
+        $(document).ready(function () {
+            var snd_btn=$('#delete-snd-msg')
+            var recv_btn=$('#delete-recv-msg')
+            snd_btn.on('click',function (e) {
+            e.preventDefault();
+            if(confirm('确定删除吗?')){
+                $.post({
+                    url:'{{ url_for('main.delete_msg') }}',
+                    data:{
+                        'msg_id':$(snd_btn).attr('name'),
+                        'mode':'author_delete'
+                    },
+                    success:function (data) {
+                        if(data.code==='200'){
+                            location.reload()
+                        }
+                    }
+                })
+            }
+        })
+            recv_btn.on('click',function (e) {
+            e.preventDefault();
+            if(confirm('确定删除吗?')){
+                $.post({
+                    url:'{{ url_for('main.delete_msg') }}',
+                    data:{
+                        'msg_id':$(recv_btn).attr('name'),
+                        'mode':'user_delete'
+                    },
+                    success:function (data) {
+                        if(data.code==='200'){
+                            location.reload()
+                        }
+                    }
+                })
+            }
+        })
+        })
+    </script>
+{% endblock %}
+
+

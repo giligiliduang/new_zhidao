@@ -18,7 +18,7 @@ def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role, Question=Question, Answer=Answer,
                 Topic=Topic, PostTag=PostTag, Post=Post, Tag=Tag, Comment=Comment,
                 Favorite=Favorite, LikePost=LikePost, LikeAnswer=LikeAnswer, LikeComment=LikeComment,
-                LikeReply=LikeReply,Follow=Follow,QuestionTopic=QuestionTopic,Reply=Reply)
+                LikeReply=LikeReply,Follow=Follow,QuestionTopic=QuestionTopic,Reply=Reply,Message=Message)
 
 
 @app.cli.command()

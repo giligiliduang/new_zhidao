@@ -90,19 +90,19 @@ def reply(id):
     comment=reply.comment
 
     user=reply.author#我要回复的人
-    replies = comment.replies.filter(db.or_(db.and_(Reply.author == current_user._get_current_object(), Reply.user == user),
-                                            db.and_(Reply.author==user,Reply.user==current_user._get_current_object()))).all()
+    replies = comment.replies.filter(db.or_(db.and_(Reply.author == current_user, Reply.user == user),
+                                            db.and_(Reply.author==user,Reply.user==current_user))).all()
 
     form=CommentForm()
 
     if comment.topic_type=='post':
-        return execute_reply(comment,form=form,user=user,topic_type='post')
+        return execute_reply(comment,form=form,user=user,topic_type='post',replies=replies)
     elif comment.topic_type=='question':
-        return execute_reply(comment, form=form, user=user, topic_type='question')
+        return execute_reply(comment, form=form, user=user, topic_type='question',replies=replies)
     elif comment.topic_type=='answer':
-        return execute_reply(comment, form=form, user=user, topic_type='answer')
+        return execute_reply(comment, form=form, user=user, topic_type='answer',replies=replies)
     elif comment.topic_type=='favorite':
-        return execute_reply(comment, form=form, user=user,topic_type='favorite')
+        return execute_reply(comment, form=form, user=user,topic_type='favorite',replies=replies)
 
     else:
         return execute_reply(comment=comment,form=form,user=user,topic_type='',replies=replies)
@@ -114,6 +114,8 @@ def execute_reply(comment,form,user,topic_type,**kwargs):
         r=Reply.create(author=current_user._get_current_object(),body=form.body.data,user=user)
         comment.add_reply(r)
         return redirect(url_for('main.{}_comments'.format(topic_type),id=getattr(comment,topic_type).id))
+
     replies=kwargs.get('replies')
+    print(replies)
     context = dict(form=form, user=user, replies=replies, comment=comment)
     return render_template('comment/reply.html', **context)

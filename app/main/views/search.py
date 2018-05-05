@@ -44,7 +44,7 @@ def search_detail():
     questions=q_pagination.items
     answers=a_pagination.items
     topics=t_pagination.items
-    print(topics)
+
     context=dict(p_pagination=p_pagination,q_pagination=q_pagination,a_pagination=a_pagination,t_pagination=t_pagination,
                  posts=posts,questions=questions,answers=answers,topics=topics,
                  type=type,q=q)

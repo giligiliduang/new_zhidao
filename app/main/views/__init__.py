@@ -16,6 +16,7 @@ from .question import *
 from .upload import *
 from .user import *
 from .topic import *
+from .messages import *
 
 __all__=['before_request','after_request','index','upload_avatar','image_resize',
          'user','user_answers','user_questions','user_posts','user_followed','user_followers',

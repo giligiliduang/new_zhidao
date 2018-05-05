@@ -6,3 +6,20 @@ jobs=['互联网/IT','电子/微电子','制造业','广告/公关','房地产',
 types=['post','answer','question','topic']
 
 topics=['游戏','运动','互联网','艺术','阅读','美食','动漫','汽车','生活方式','教育','摄影','历史','文化','旅行']
+
+
+import enum
+
+class MessageStatus(enum.Enum):
+    read='read'
+    unread='unread'
+
+class MessageType(enum.Enum):
+    standard = 'standard'
+    system='system'
+
+
+class DeleteStatus(enum.Enum):
+    standard='standard'
+    user_delete='user_delete'
+    author_delete='author_delete'

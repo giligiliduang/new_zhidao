@@ -1,6 +1,6 @@
 from flask_login import current_user
 from app.models import Permission
-from flask import abort,request
+from flask import abort, request, jsonify
 from functools import wraps
 import blinker
 
@@ -30,7 +30,12 @@ def require_ajax(f):
     @wraps(f)
     def wrapper(*args,**kwargs):
         if not request.is_xhr:
-            abort(403)
+            return jsonify(
+                {
+                    'error':'Bad Request',
+                    'code':400
+                }
+            )
         return f(*args,**kwargs)
     return wrapper
 

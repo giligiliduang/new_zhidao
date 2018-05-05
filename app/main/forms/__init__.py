@@ -7,10 +7,10 @@ from .question import *
 from .search import *
 from .upload import *
 from .user import *
-
+from .message import *
 
 __all__=[
     'EditAnswerForm','WriteAnswerForm','CommentForm','FavoriteForm','EditFavoriteForm',
     'WriteArticleForm','EditArticleForm','QuestionForm','EditQuestionForm','SearchForm',
-    'UploadForm','EditProfileForm'
+    'UploadForm','EditProfileForm','MessageForm','SendMessageForm'
 ]
