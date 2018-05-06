@@ -21,8 +21,8 @@ class TagListField(Field):
             return u''
 
     def process_formdata(self, valuelist):
-        print ('process_formdata..')
-        print (valuelist)
+        print('process_formdata..')
+        print(valuelist)
         if valuelist:
             tags = self._remove_duplicates([x.strip() for x in valuelist[0].split(',')])
             self.data = [self.str_to_obj(tag) for tag in tags]

@@ -13,10 +13,54 @@
 {% block page_content %}
     <div class="col-md-2"></div>
     <div class="col-md-6">
-
+        {% if type=='system' %}
+            <h1>发送系统消息</h1>
+            {% else %}
         <h1>发送私信给:</h1>
-
+        {% endif %}
         {{ wtf.quick_form(form) }}
+    {% if system_messages %}
+    {% for message in system_messages %}
+            <div class="total-messages clearfix">
+            <div class="message-body">
+                <div class="col-md-2">
+
+                    <div class="col-md-2"><a href="{{ url_for('main.user',username=message.sender.username) }} "></a></div>
+
+                    <div class="col-md-10">
+
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <p>{{ message.message_content|safe }}</p>
+                    <div style="margin-top: 30px">
+
+
+                        <div class="message-widget" style="margin-top: 20px">
+{#                     <a href="#" class="">#}
+{#                       <span class="glyphicon glyphicon-thumbs-up"></span>#}
+{#                       <span class="badge">{{ comment.liked_count }}</span>#}
+{#                   </a>#}
+
+{#                   <a href=""><span class=""></span>{{ comment.replies.count() }}条评论</a>#}
+                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
+                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
+                            <a href="" id="delete-snd-msg" name="{{ message.id }}"><span class="glyphicon glyphicon-trash">删除</span></a>
+{#                            <span class="text-muted">发表于{{ moment(message.timestamp).format('L') }}</span>#}
+{#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
+{#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}
+{#                    {% endif %}#}
+            </div>
+                </div>
+                </div>
+
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+
     </div>
+
+
     <div class="col-md-4"></div>
 {% endblock %}

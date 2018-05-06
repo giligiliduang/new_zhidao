@@ -193,5 +193,20 @@ a:hover,a:active{
 
 
 
-
+/*私信*/
+ .total-messages{
+        box-shadow: #d9efc8 2px 2px 1px -1px;
+        border: 1px solid #dbefe9;
+        margin-top: 20px;
+        max-width: 100%;
+        min-height: 50px;
+        height: auto;
+    }
+    .message-body{
+        word-wrap: break-word;
+        word-break: break-all;
+    }
+    .message-widget{
+        float: right;
+    }
 

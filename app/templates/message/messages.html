@@ -37,6 +37,9 @@
   <div class="tab-content">
   <ol class="breadcrumb">
   <li><a href="{{ url_for('main.send_message') }}">发送私信</a></li>
+      {% if current_user.is_administrator() %}
+        <li><a href="{{ url_for('main.send_system_msg') }}">发送系统消息</a></li>
+      {% endif %}
 </ol>
     <div role="tabpanel" class="tab-pane" id="sendbox">
         {% for message in send_box_messages %}
@@ -91,7 +94,7 @@
                     </div>
 
                     <div class="col-md-10">
-                        <a href="{{ url_for('main.user',username=message.sender.username) }}">{{ message.sender.username }}</a>对{% if message.receiver!=current_user %}{{ message.receiver.username }}{% else %}我{% endif %}说
+                        <a href="{{ url_for('main.user',username=message.sender.username) }}">{% if message.message_type==MessageType.system %}<a href="">网站管理员</a>{% else %}{{ message.sender.username }}</a> {% endif %}对{% if message.receiver!=current_user %}{{ message.receiver.username }}{% else %}我{% endif %}说
 {#                        <span style="display: block">{{ message.sender.about_me|replace_none }}</span>#}
                     </div>
                 </div>

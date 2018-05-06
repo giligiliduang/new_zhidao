@@ -11,14 +11,12 @@ from threading import Thread
 from flask import current_app, render_template, url_for
 from flask_mail import Message
 from app import mail, photos
-
+from app.constants import MessageType,MessageStatus
 
 @main.context_processor
 def inject_permissions():
-    searchform=SearchForm()
-    return dict(Permission=Permission,searchform=searchform)#全局渲染表单
-
-
+    searchform = SearchForm()
+    return dict(Permission=Permission, searchform=searchform,MessageType=MessageType)  # 全局渲染表单
 
 
 @main.app_template_global('choice')
@@ -26,10 +24,10 @@ def choice():
     styles = ['success', 'info', 'default', 'warning', 'danger', 'primary']
     return random.choice(styles)
 
+
 @main.add_app_template_filter
 def replace_none(val):
     return '无' if not val else val
-
 
 
 def send_async_email(app, msg):
@@ -53,6 +51,7 @@ img_suffix = {
     400: '_s'  # show
 }
 
+
 def image_resize(image, base_width):
     #: create thumbnail
     filename, ext = os.path.splitext(image)
@@ -63,4 +62,4 @@ def image_resize(image, base_width):
     h_size = int((float(img.size[1]) * float(w_percent)))
     img = img.resize((base_width, h_size), Image.ANTIALIAS)
     img.save(os.path.join(current_app.config['UPLOADED_PHOTOS_DEST'], filename + img_suffix[base_width] + ext))
-    return url_for('main.uploaded_file', filename=filename + img_suffix[base_width] + ext,_external=True)
+    return url_for('main.uploaded_file', filename=filename + img_suffix[base_width] + ext, _external=True)

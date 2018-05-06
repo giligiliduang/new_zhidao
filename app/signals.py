@@ -1,7 +1,6 @@
 from blinker import Namespace
-signals=Namespace()
 
-
+signals = Namespace()
 
 """
 通过信号来更新,数据库字段
@@ -9,9 +8,9 @@ signals=Namespace()
 
 # user_follow=signals.signal('user_follow')
 # user_unfollow=signals.signal('user_unfollow')
-user_visited=signals.signal('user_visited')
+user_visited = signals.signal('user_visited')
 
-question_browsed=signals.signal('question_browsed')
+question_browsed = signals.signal('question_browsed')
 question_answer_add = signals.signal('question_answer_add')
 question_follow = signals.signal('question_follow')
 question_unfollow = signals.signal('question_unfollow')
@@ -28,12 +27,12 @@ comment_cancel_vote = signals.signal('comment_cancel_vote')
 
 favorite_answer_add = signals.signal('favorite_answer_add')
 favorite_answer_delete = signals.signal('favorite_answer_delete')
-favorite_question_add=signals.signal('favorite_question_add')
-favorite_question_delete=signals.signal('favorite_question_delete')
-favorite_post_add=signals.signal('favorite_post_add')
-favorite_post_delete=signals.signal('favorite_post_delete')
-favorite_comment_add=signals.signal('favorite_comment_add')
-favorite_comment_delete=signals.signal('favorite_comment_delete')
+favorite_question_add = signals.signal('favorite_question_add')
+favorite_question_delete = signals.signal('favorite_question_delete')
+favorite_post_add = signals.signal('favorite_post_add')
+favorite_post_delete = signals.signal('favorite_post_delete')
+favorite_comment_add = signals.signal('favorite_comment_add')
+favorite_comment_delete = signals.signal('favorite_comment_delete')
 favorite_follow = signals.signal('favorite_follow')
 favorite_unfollow = signals.signal('favorite_unfollow')
 
@@ -41,9 +40,9 @@ post_comment_add = signals.signal('post_comment_add')
 post_comment_delete = signals.signal('post_comment_delete')
 post_voteup = signals.signal('post_voteup')
 post_cancel_vote = signals.signal('post_cancel_vote')
-post_tag_add=signals.signal('post_tag_add')
+post_tag_add = signals.signal('post_tag_add')
 
-topic_question_add=signals.signal('topic_question_add')
-topic_question_delete=signals.signal('topic_question_delete')
-topic_follow=signals.signal('topic_follow')
-topic_unfollow=signals.signal('topic_unfollow')
+topic_question_add = signals.signal('topic_question_add')
+topic_question_delete = signals.signal('topic_question_delete')
+topic_follow = signals.signal('topic_follow')
+topic_unfollow = signals.signal('topic_unfollow')

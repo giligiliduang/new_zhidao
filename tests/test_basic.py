@@ -1,12 +1,13 @@
 from unittest import TestCase
-from app import db,create_app
+from app import db, create_app
 
 from flask import current_app
-class BasicTestCase(TestCase):
 
+
+class BasicTestCase(TestCase):
     def setUp(self):
-        self.app=create_app('testing')
-        self.app_context=self.app.app_context()
+        self.app = create_app('testing')
+        self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
 
@@ -20,4 +21,3 @@ class BasicTestCase(TestCase):
 
     def test_app_is_testing(self):
         self.assertTrue(current_app.config['TESTING'])
-

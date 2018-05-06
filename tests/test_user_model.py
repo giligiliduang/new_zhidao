@@ -1,4 +1,3 @@
-
 import time
 
 import datetime
@@ -7,7 +6,7 @@ from app import create_app, db
 
 import unittest
 from app.models import User, Role, Permission, AnonymousUser, Follow, Question, FollowQuestion, FollowFavorite, \
-    Favorite, Topic, FollowTopic
+    Favorite, Topic, FollowTopic, Message
 
 
 class UserModelTestCase(unittest.TestCase):
@@ -24,7 +23,7 @@ class UserModelTestCase(unittest.TestCase):
         self.app_context.pop()
 
     def test_password_setter(self):
-        u = User(password = 'dog')
+        u = User(password='dog')
         self.assertTrue(u.password_hash is not None)
 
     def test_password_getter(self):
@@ -33,7 +32,7 @@ class UserModelTestCase(unittest.TestCase):
             u.password
 
     def test_password_verification(self):
-        u = User(password = 'dog')
+        u = User(password='dog')
         self.assertFalse(u.verify_password('cat'))
         self.assertTrue(u.verify_password('dog'))
 
@@ -62,8 +61,8 @@ class UserModelTestCase(unittest.TestCase):
         self.assertFalse(u.confirm(token))
 
     def test_password_salts_are_random(self):
-        u = User(password = 'dog')
-        u2 = User(password = 'dog')
+        u = User(password='dog')
+        u2 = User(password='dog')
         self.assertTrue(u.password_hash != u2.password_hash)
 
     def test_roles_and_permissions(self):
@@ -75,8 +74,6 @@ class UserModelTestCase(unittest.TestCase):
     def test_anonymous_user(self):
         u = AnonymousUser()
         self.assertFalse(u.can(Permission.CREATE_POSTS))
-
-
 
     def test_gravatar(self):
         u = User(email='john@example.com', password='cat')
@@ -95,13 +92,10 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue('https://secure.gravatar.com/avatar/' +
                         'd4c74594d841139328695756648b6bd6' in gravatar_ssl)
 
-
     def test_self_follows(self):
         u1 = User.create(email='john@example.com', password='cat')
         self.assertTrue(u1.is_following_user(u1))
         self.assertTrue(u1.is_followed_by_user(u1))
-
-
 
     def test_user_follows(self):
         u1 = User.create(email='john@example.com', password='cat')
@@ -142,9 +136,9 @@ class UserModelTestCase(unittest.TestCase):
 
     def test_question_follows(self):
         u1 = User.create(email='john@example.com', password='cat')
-        u2=User.create(email='lao@163.com',password='mouse')
-        q1=Question.create(title='你见过的最漂亮的人',author=u2)
-        db.session.add_all([u1,u2,q1])
+        u2 = User.create(email='lao@163.com', password='mouse')
+        q1 = Question.create(title='你见过的最漂亮的人', author=u2)
+        db.session.add_all([u1, u2, q1])
         db.session.commit()
         self.assertFalse(u1.is_following_question(q1))
         self.assertFalse(q1.is_followed_by(u1))
@@ -155,27 +149,27 @@ class UserModelTestCase(unittest.TestCase):
         timestamp_after = datetime.datetime.utcnow()
         self.assertTrue(u1.is_following_question(q1))
         self.assertTrue(q1.is_followed_by(u1))
-        self.assertTrue(q1.followers.count()==1)
-        self.assertTrue(u1.followed_questions.count()==1)
-        f=u1.followed_questions.all()[0]
-        self.assertTrue(f.followed==q1)
+        self.assertTrue(q1.followers.count() == 1)
+        self.assertTrue(u1.followed_questions.count() == 1)
+        f = u1.followed_questions.all()[0]
+        self.assertTrue(f.followed == q1)
         self.assertTrue(timestamp_before <= f.timestamp <= timestamp_after)
-        s=q1.followers.all()[0]
-        self.assertTrue(s.follower==u1)
+        s = q1.followers.all()[0]
+        self.assertTrue(s.follower == u1)
         u1.unfollow(q1)
         db.session.add(u1)
         db.session.commit()
         self.assertFalse(u1.is_following_question(q1))
         self.assertFalse(q1.is_followed_by(u1))
-        self.assertTrue(u1.followed_questions.count()==0)
-        self.assertTrue(q1.followers.count()==0)
-        self.assertTrue(FollowQuestion.query.count()==0)
+        self.assertTrue(u1.followed_questions.count() == 0)
+        self.assertTrue(q1.followers.count() == 0)
+        self.assertTrue(FollowQuestion.query.count() == 0)
 
     def test_favorite_follows(self):
-        u1=User.create(email='wanghua@qq.com',password='meijd')
-        u2=User.create(email='lihua@qq.com',password='laodi')
-        favor=Favorite.create(title='美术',user=u2)
-        db.session.add_all([u1,u2,favor])
+        u1 = User.create(email='wanghua@qq.com', password='meijd')
+        u2 = User.create(email='lihua@qq.com', password='laodi')
+        favor = Favorite.create(title='美术', user=u2)
+        db.session.add_all([u1, u2, favor])
         db.session.commit()
         self.assertFalse(u1.is_following_favorite(favor))
         self.assertFalse(favor.is_followed_by(u1))
@@ -186,8 +180,8 @@ class UserModelTestCase(unittest.TestCase):
         timestamp_after = datetime.datetime.utcnow()
         self.assertTrue(u1.is_following_favorite(favor))
         self.assertTrue(favor.is_followed_by(u1))
-        self.assertTrue(u1.followed_favorites.count()==1)
-        self.assertTrue(favor.followers.count()==1)
+        self.assertTrue(u1.followed_favorites.count() == 1)
+        self.assertTrue(favor.followers.count() == 1)
         f = u1.followed_favorites.all()[0]
         self.assertTrue(f.followed == favor)
         self.assertTrue(timestamp_before <= f.timestamp <= timestamp_after)
@@ -196,10 +190,9 @@ class UserModelTestCase(unittest.TestCase):
         db.session.commit()
         self.assertFalse(u1.is_following_favorite(favor))
         self.assertFalse(favor.is_followed_by(u1))
-        self.assertTrue(u1.followed_favorites.count()==0)
-        self.assertTrue(favor.followers.count()==0)
-        self.assertTrue(FollowFavorite.query.count()==0)
-
+        self.assertTrue(u1.followed_favorites.count() == 0)
+        self.assertTrue(favor.followers.count() == 0)
+        self.assertTrue(FollowFavorite.query.count() == 0)
 
     def test_topic_follows(self):
         u1 = User.create(email='wanghua@qq.com', password='meijd')
@@ -214,10 +207,10 @@ class UserModelTestCase(unittest.TestCase):
         timestamp_after = datetime.datetime.utcnow()
         self.assertTrue(u1.is_following_topic(topic))
         self.assertTrue(topic.is_followed_by(u1))
-        self.assertTrue(u1.followed_topics.count()==1)
-        self.assertTrue(topic.followers.count()==1)
-        t=u1.followed_topics.all()[0]
-        self.assertTrue(t.followed==topic)
+        self.assertTrue(u1.followed_topics.count() == 1)
+        self.assertTrue(topic.followers.count() == 1)
+        t = u1.followed_topics.all()[0]
+        self.assertTrue(t.followed == topic)
         self.assertTrue(timestamp_before <= t.timestamp <= timestamp_after)
 
         u1.unfollow(topic)
@@ -229,4 +222,53 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue(topic.followers.count() == 0)
         self.assertTrue(FollowTopic.query.count() == 0)
 
+    def test_send_private_message(self):
+        """
+        测试发送私信,接收私信
+        :return:
+        """
+        u1 = User.create(username='ldjf')
+        u2 = User.create(username='ldwjf')
+        db.session.add_all([u1, u2])
+        db.session.commit()
+        self.assertTrue(u1.private_messages_from.count() == 0)
+        self.assertTrue(u1.in_box_messages.count() == 0)
+        self.assertTrue(u1.private_messages.count() == 0)
+        self.assertTrue(u1.send_box_messages.count() == 0)
+        self.assertTrue(Message.query.count() == 0)
+        self.assertTrue(u2.private_messages_from.count() == 0)
+        self.assertTrue(u2.in_box_messages.count() == 0)
+        self.assertTrue(u2.private_messages.count() == 0)
+        self.assertTrue(u2.send_box_messages.count() == 0)
+        self.assertTrue(Message.query.count() == 0)
 
+        # 对话
+        u1.send_standard_message_to('哈哈天气不错', u2)
+        u2.send_standard_message_to('是的呢', u1)
+        u1.send_standard_message_to('你在干嘛', u2)
+        u2.send_standard_message_to('打游戏', u1)
+        # 测试发收
+        self.assertTrue(u1.send_box_messages.count() == 2)
+        self.assertTrue(u1.in_box_messages.count() == 2)
+        self.assertTrue(u1.in_box_message_unread_count == 2)
+        self.assertTrue(u2.send_box_messages.count() == 2)
+        self.assertTrue(u2.in_box_message_unread_count == 2)
+        self.assertTrue(u2.in_box_messages.count() == 2)
+        self.assertTrue(u1.dialogue_with(u2).count() == 4)
+        self.assertTrue(u2.dialogue_with(u1).count() == 4)
+
+        u1.set_messages_read()
+        u2.set_messages_read()
+        # 测试未读私信
+        self.assertTrue(u1.in_box_message_unread_count == 0)
+        self.assertTrue(u2.in_box_message_unread_count == 0)
+
+        u1.delete_send_box_msg(Message.query.get(1))
+        u1.delete_in_box_msg(Message.query.get(2))
+
+        self.assertTrue(u1.send_box_messages.count() == 1)
+        self.assertTrue(u1.in_box_messages.count() == 1)
+        self.assertTrue(u2.send_box_messages.count() == 2)
+        self.assertTrue(u2.in_box_messages.count() == 2)
+        self.assertTrue(u1.dialogue_with(u2).count() == 4)
+        self.assertTrue(u1.dialogue_with(u2).count() == 4)

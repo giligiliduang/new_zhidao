@@ -1,11 +1,11 @@
 import os
-from flask_admin import BaseView,expose
+from flask_admin import BaseView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.contrib.fileadmin import FileAdmin
 
 from flask_login import login_required, current_user
 # from ..models import Permission
-from .forms import  CKTextAreaField,AdminLoginForm
+from .forms import CKTextAreaField, AdminLoginForm
 
 
 # class MyView(BaseView):
@@ -30,9 +30,9 @@ from .forms import  CKTextAreaField,AdminLoginForm
 
 class CustomModelView(ModelView):
     """自定义模型类管理"""
+
     def is_accessible(self):
         return current_user.is_authenticated and current_user.is_administrator()
-
 
 
 class PostView(CustomModelView):
@@ -41,8 +41,9 @@ class PostView(CustomModelView):
     form_overrides = {
         'body': CKTextAreaField
     }
-    column_searchable_list = ('title','body')
-    column_filters = ('timestamp','tags')
+    column_searchable_list = ('title', 'body')
+    column_filters = ('timestamp', 'tags')
+
 
 class AnswerView(CustomModelView):
     extra_js = ['//cdn.ckeditor.com/4.6.0/standard/ckeditor.js']
@@ -52,6 +53,8 @@ class AnswerView(CustomModelView):
     }
     column_searchable_list = ('body',)
     column_filters = ('timestamp',)
+
+
 class QuestionView(CustomModelView):
     extra_js = ['//cdn.ckeditor.com/4.6.0/standard/ckeditor.js']
 
@@ -60,6 +63,8 @@ class QuestionView(CustomModelView):
     }
     column_searchable_list = ('title',)
     column_filters = ('timestamp',)
+
+
 class CommentView(CustomModelView):
     extra_js = ['//cdn.ckeditor.com/4.6.0/standard/ckeditor.js']
 
@@ -70,9 +75,5 @@ class CommentView(CustomModelView):
     column_filters = ('timestamp',)
 
 
-
-
 class CustomFileAdmin(FileAdmin):
     pass
-
-
