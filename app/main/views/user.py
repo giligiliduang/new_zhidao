@@ -6,11 +6,11 @@ from app.decorators import permission_required
 from app.main import main
 from app.main.forms import EditProfileForm, UserForm
 from app.models import User, Question, Post, Answer, Permission, Follow, Favorite, FollowQuestion, FollowFavorite, \
-    Topic, FollowTopic, LikePost
+    Topic, FollowTopic, LikePost, Comment, Reply
 from .search import search
 from app.signals import user_visited, favorite_unfollow, \
     favorite_follow, question_unfollow, question_follow, post_voteup, post_cancel_vote, answer_cancel_vote, \
-    answer_voteup, topic_follow, topic_unfollow
+    answer_voteup, topic_follow, topic_unfollow, comment_voteup, comment_cancel_vote, reply_voteup, reply_cancel_vote
 
 from app import signals, db
 
@@ -433,6 +433,7 @@ def like_post(id):
     post = Post.query.get_or_404(id)
     if current_user.is_like_post(post):
         flash('点过赞了', 'info')
+        return redirect(url_for('.post', id=post.id))
     current_user.like(post)
     post_voteup.send(post)
     flash('点赞成功', 'success')
@@ -450,6 +451,7 @@ def unlike_post(id):
         flash('取消赞')
         return redirect(url_for('.post', id=post.id))
     flash('还没赞呢')
+    return redirect(url_for('.post', id=post.id))
 
 
 @main.route('/user/<username>/post_likes')
@@ -496,3 +498,73 @@ def unlike_answer(id):
         flash('取消赞')
         return redirect(url_for('.question', id=answer.question_id))
     flash('还没赞呢')
+    return redirect(url_for('.question', id=answer.question_id))
+
+
+@main.route('/like/comment/<int:id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def like_comment(id):
+    comment = Comment.query.get_or_404(id)
+
+    if current_user.is_like_comment(comment):
+        flash('你已经赞过了')
+        return choose_to_redirect(comment.topic_type, comment)
+    current_user.like(comment)
+    comment_voteup.send(comment)
+    flash('点赞成功')
+    return choose_to_redirect(comment.topic_type, comment)
+
+
+@main.route('/unlike/comment/<int:id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def unlike_comment(id):
+    comment = Comment.query.get_or_404(id)
+    if comment.is_liked_by(current_user):
+        current_user.unlike(comment)
+        comment_cancel_vote.send(comment)
+        flash('取消赞')
+        return choose_to_redirect(comment.topic_type, comment)
+    flash('还没赞呢')
+    return choose_to_redirect(comment.topic_type, comment)
+
+
+@main.route('/like/reply/<int:id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def like_reply(id):
+    reply = Reply.query.get_or_404(id)
+
+    if current_user.is_like_reply(reply):
+        flash('你已经赞过了')
+        return choose_to_redirect(reply.comment.topic_type, reply.comment)
+    current_user.like(reply)
+    reply_voteup.send(reply)
+    flash('点赞成功')
+    return choose_to_redirect(reply.comment.topic_type, reply.comment)
+
+
+@main.route('/unlike/reply/<int:id>')
+@login_required
+@permission_required(Permission.FOLLOW)
+def unlike_reply(id):
+    reply = Reply.query.get_or_404(id)
+    if reply.is_like_by(current_user):
+        current_user.un_like_reply(reply)
+        reply_cancel_vote.send(reply)
+        flash('取消赞')
+        return choose_to_redirect(reply.comment.topic_type, reply.comment)
+    flash('还没点赞')
+    return choose_to_redirect(reply.comment.topic_type, reply.comment)
+
+
+def choose_to_redirect(topic_type, comment):
+    if topic_type == 'post':
+        return redirect(url_for('main.post', id=comment.post_id))
+    elif topic_type == 'question':
+        return redirect(url_for('main.question_comments', id=comment.question_id))
+    elif topic_type == 'answer':
+        return redirect(url_for('main.answer_comments', id=comment.question_id))
+    elif topic_type == 'favorite':
+        return redirect(url_for('main.favorite_comments', id=comment.question_id))

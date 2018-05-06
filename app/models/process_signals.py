@@ -167,7 +167,12 @@ def update_comment_like_count(sender):
     sender.liked_count = Comment.query.get(sender.id).liked_comments.count()
     db.session.add(sender)
     db.session.commit()
-
+@use_signal(signals.reply_cancel_vote)
+@use_signal(signals.reply_voteup)
+def update_reply_like_count(reply):
+    reply.liked_count=Reply.query.get(reply.id).liked_replies.count()
+    db.session.add(reply)
+    db.session.commit()
 
 ############话题####################
 

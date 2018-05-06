@@ -24,6 +24,8 @@ answer_cancel_vote = signals.signal('answer_cancel_vote')
 
 comment_voteup = signals.signal('comment_voteup')
 comment_cancel_vote = signals.signal('comment_cancel_vote')
+reply_voteup=signals.signal('reply_voteup')
+reply_cancel_vote=signals.signal('reply_cancel_vote')
 
 favorite_answer_add = signals.signal('favorite_answer_add')
 favorite_answer_delete = signals.signal('favorite_answer_delete')

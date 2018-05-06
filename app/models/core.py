@@ -115,7 +115,7 @@ class Comment(db.Model, BaseMixin, DateTimeMixin):
         return '<Comment {}>'.format(self.id)
 
 
-class LikeReply(db.Model, UserMixin, DateTimeMixin):
+class LikeReply(db.Model, UserMixin, DateTimeMixin,BaseMixin):
     reply_liked_id = db.Column(db.Integer, db.ForeignKey('replies.id'), primary_key=True)
     like_reply_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
 
@@ -131,6 +131,9 @@ class Reply(db.Model, BaseMixin, DateTimeMixin):
                                     lazy='dynamic', foreign_keys=[LikeReply.reply_liked_id],
                                     cascade='all,delete-orphan')
     liked_count = db.Column(db.Integer, default=0)  # 以点赞数排序
+
+    def is_like_by(self,user):
+        return self.liked_replies.filter_by(like_reply_id=user.id).first() is not None
 
 
 class PostFavorite(db.Model, BaseMixin, DateTimeMixin):
@@ -733,7 +736,12 @@ class User(db.Model, UserMixin, BaseMixin):
 
     def like_comment(self, comment):
         if not self.is_like_comment(comment):
-            f = LikeComment.create(like_comment=self, comment_liked=comment)
+            LikeComment.create(like_comment=self, comment_liked=comment)
+
+    def like_reply(self,reply):
+        if not self.is_like_reply(reply):
+            LikeReply.create(like_reply=self,reply_liked=reply)
+
 
     def unlike_answer(self, answer):
         f = self.answer_likes.filter_by(answer_liked_id=answer.id).first()
@@ -749,6 +757,10 @@ class User(db.Model, UserMixin, BaseMixin):
         f = self.comment_likes.filter_by(comment_liked_id=comment.id).first()
         if f:
             db.session.delete(f)
+    def unlike_reply(self,reply):
+        f=self.reply_likes.filter_by(reply_liked_id=reply.id).first()
+        if f:
+            db.session.delete(f)
 
     def is_like_answer(self, answer):
         return self.answer_likes.filter_by(answer_liked_id=answer.id).first() is not None
@@ -758,6 +770,8 @@ class User(db.Model, UserMixin, BaseMixin):
 
     def is_like_comment(self, comment):
         return self.comment_likes.filter_by(comment_liked_id=comment.id).first() is not None
+    def is_like_reply(self,reply):
+        return self.reply_likes.filter_by(reply_liked_id=reply.id).first() is not None
 
     def has_collect_question(self, question):
 

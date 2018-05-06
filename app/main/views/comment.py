@@ -109,6 +109,8 @@ def execute_reply(comment, form, user, topic_type, **kwargs):
     if comment.topic_type == topic_type and form.validate_on_submit():
         r = Reply.create(author=current_user._get_current_object(), body=form.body.data, user=user)
         comment.add_reply(r)
+        if topic_type == 'post':
+            return redirect(url_for('main.{}'.format(topic_type), id=getattr(comment, topic_type).id))
         return redirect(url_for('main.{}_comments'.format(topic_type), id=getattr(comment, topic_type).id))
 
     replies = kwargs.get('replies')
