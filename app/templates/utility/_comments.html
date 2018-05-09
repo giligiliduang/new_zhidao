@@ -1,6 +1,5 @@
-
 <style>
-    .total-comments{
+    .total-comments {
         box-shadow: #d9efc8 2px 2px 1px -1px;
         border: 1px solid #dbefe9;
         margin-top: 20px;
@@ -8,17 +7,19 @@
         min-height: 100px;
         height: auto;
     }
-    .total-replies{
+
+    .total-replies {
         box-shadow: #d9efc8 2px 2px 1px -1px;
         border: 1px solid #dbefe9;
         margin-top: 20px;
         max-width: 100%;
     }
 
-    .comment-widget a{
+    .comment-widget a {
         padding-right: 10px;
     }
-    .comment-body p{
+
+    .comment-body p {
         word-break: break-all;
         word-wrap: break-word;
     }
@@ -31,7 +32,8 @@
             <div class="comment-body">
                 <div class="col-md-2">
 
-                    <div class="col-md-2"><a href="{{ url_for('main.user',username=comment.author.username) }} "><img src="{{ comment.author.avatar_url_sm }}" alt="avatar"></a></div>
+                    <div class="col-md-2"><a href="{{ url_for('main.user',username=comment.author.username) }} "><img
+                            src="{{ comment.author.avatar_url_sm }}" alt="avatar"></a></div>
 
                     <div class="col-md-10">
                         <a href="{{ url_for('main.user',username=comment.author.username) }}">{{ comment.author.username }}</a>
@@ -45,82 +47,87 @@
 
                         <div class="comment-widget" style="margin-top: 20px">
                             {% if not current_user.is_like_comment(comment) %}
-                     <a href="{{ url_for('main.like_comment',id=comment.id) }}" class="">
-                       <span class="glyphicon glyphicon-thumbs-up"></span>
-                       <span class="badge">{{ comment.liked_count }}</span>
-                   </a>
+                                <a href="{{ url_for('main.like_comment',id=comment.id) }}" class="">
+                                    <span class="glyphicon glyphicon-thumbs-up"></span>
+                                    <span class="badge">{{ comment.liked_count }}</span>
+                                </a>
                             {% else %}
                                 <a href="{{ url_for('main.unlike_comment',id=comment.id) }}" class="">
-                       <span class="glyphicon glyphicon-thumbs-down"></span>
-                       <span class="badge">{{ comment.liked_count }}</span>
-                   </a>
-                        {% endif %}
-                   <a href="{{ url_for('main.add_comment',id=comment.id) }}"><span class=""></span>{{ comment.replies.count() }}条评论</a>
-                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
-                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
+                                    <span class="glyphicon glyphicon-thumbs-down"></span>
+                                    <span class="badge">{{ comment.liked_count }}</span>
+                                </a>
+                            {% endif %}
+                            <a href="{{ url_for('main.add_comment',id=comment.id) }}"><span
+                                    class=""></span>{{ comment.replies.count() }}条评论</a>
+                            <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
+                            <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
                             <span class="text-muted">评论于{{ moment(comment.timestamp).format('L') }}</span>
-{#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
-{#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}
-{#                    {% endif %}#}
-            </div>
-                </div>
+                            {#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
+                            {#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}
+                            {#                    {% endif %}#}
+                        </div>
+                    </div>
                 </div>
 
             </div>
         </div>
-    {% if comment.replies.count()!=0 %}
+        {% if comment.replies.count()!=0 %}
             <div class="col-md-2"></div>
-           <div class="col-md-10">
+            <div class="col-md-10">
                 {% for reply in comment.get_replies() %}
                     <div class="total-replies clearfix">
                         <div class="comment-body">
-                    <div class="col-md-3">
+                            <div class="col-md-3">
 
-                        <div class="col-md-2"><a href="{{ url_for('main.user',username=reply.author.username) }} "><img src="{{ reply.author.gravatar(50) }}" alt="avatar"></a></div>
+                                <div class="col-md-2"><a
+                                        href="{{ url_for('main.user',username=reply.author.username) }} "><img
+                                        src="{{ reply.author.gravatar(50) }}" alt="avatar"></a></div>
 
-                        <div class="col-md-10">
-                            <a href="{{ url_for('main.user',username=reply.author.username) }}">{{ reply.author.username }}</a>回复
-                            @<a href="{{ url_for('main.user',username=reply.author.username) }}">{% if reply.user %}{{ reply.user.username }}{% else %}{{ reply.comment.author.username }}{% endif %}</a>说
+                                <div class="col-md-10">
+                                    <a href="{{ url_for('main.user',username=reply.author.username) }}">{{ reply.author.username }}</a>回复
+                                    @<a href="{{ url_for('main.user',username=reply.author.username) }}">
+                                    {% if reply.user %}{{ reply.user.username }}{% else %}
+                                        {{ reply.comment.author.username }}{% endif %}</a>说
 
+
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <p>{{ reply.body|safe }}</p>
+                                <div style="margin-top: 30px">
+
+
+                                    <div class="comment-widget" style="margin-top: 20px">
+                                        {% if not current_user.is_like_reply(reply) %}
+                                            <a href="{{ url_for('main.like_reply',id=reply.id) }}" class="">
+                                            <span class="glyphicon glyphicon-thumbs-up"></span>
+                                            <span class="badge">{{ reply.liked_replies.count() }}</span>
+                                        {% else %}
+                                            <a href="{{ url_for('main.unlike_reply',id=reply.id) }}" class="">
+                                            <span class="glyphicon glyphicon-thumbs-down"></span>
+                                            <span class="badge">{{ reply.liked_replies.count() }}</span>
+                                        {% endif %}
+                                        </a>
+                                        {% if reply.author!=current_user %}
+                                            <a href="{{ url_for('main.reply',id=reply.id) }}">回复</a>
+                                        {% endif %}
+                                        <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
+                                        <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
+                                        <span class="text-muted">评论于{{ moment(comment.timestamp).format('L') }}</span>
+                                        {#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
+                                        {#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}
+                                        {#                    {% endif %}#}
+                                    </div>
+                                </div>
+                            </div>
 
                         </div>
-                    </div>
-                    <div class="col-md-9">
-                        <p>{{ reply.body|safe }}</p>
-                        <div style="margin-top: 30px">
-
-
-                            <div class="comment-widget" style="margin-top: 20px">
-                            {% if not current_user.is_like_reply(reply) %}
-                         <a href="{{ url_for('main.like_reply',id=reply.id) }}" class="">
-                           <span class="glyphicon glyphicon-thumbs-up"></span>
-                           <span class="badge">{{ reply.liked_count }}</span>
-                             {% else %}
-                                <a href="{{ url_for('main.unlike_reply',id=reply.id) }}" class="">
-                           <span class="glyphicon glyphicon-thumbs-down"></span>
-                           <span class="badge">{{ reply.liked_count }}</span>
-                             {% endif %}
-                       </a>
-                        {% if reply.author!=current_user %}
-                       <a href="{{ url_for('main.reply',id=reply.id) }}">回复</a>
-                                {% endif %}
-                       <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
-                       <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
-                                <span class="text-muted">评论于{{ moment(comment.timestamp).format('L') }}</span>
-    {#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
-    {#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}
-    {#                    {% endif %}#}
-                </div>
-                    </div>
-                    </div>
-
-                </div>
 
                     </div>
                 {% endfor %}
 
-           </div>
-    {% endif %}
+            </div>
+        {% endif %}
     </div>
 
 {% endfor %}

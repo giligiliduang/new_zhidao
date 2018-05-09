@@ -24,3 +24,9 @@ class DeleteStatus(enum.Enum):
     standard = 'standard'
     user_delete = 'user_delete'
     author_delete = 'author_delete'
+
+
+
+
+
+

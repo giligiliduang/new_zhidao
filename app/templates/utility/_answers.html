@@ -1,5 +1,5 @@
 <style>
-    .total-answers{
+    .total-answers {
         margin-top: 20px;
         box-shadow: #d9efc8 2px 2px 1px -1px;
         border: 1px solid #dbefe9;
@@ -10,68 +10,72 @@
 </style>
 
 {% for answer in answers %}
-        <div class="total-answers clearfix">
-            <div class="author-info">
-                {% if not answer.anonymous %}
-                    {% if answer.author.avatar_url_sm %}
-                <div class="col-md-1"><a href="{{ url_for('main.user',username=answer.author.username) }} "><img src="{{ answer.author.avatar_url_sm }}" alt="avatar"></a></div>
-                    {% else %}
-                        <div class="col-md-1"><a href="{{ url_for('main.user',username=answer.author.username) }} "><img src="{{ answer.author.gravatar(50) }}" alt="avatar"></a></div>
-                        {% endif %}
-
-                    {% else %}
-                 <div class="col-md-1"><img src="https://dummyimage.com/20x20/748/699" alt="avatar"></div>
+    <div class="total-answers clearfix">
+        <div class="author-info">
+            {% if not answer.anonymous %}
+                {% if answer.author.avatar_url_sm %}
+                    <div class="col-md-1"><a href="{{ url_for('main.user',username=answer.author.username) }} "><img
+                            src="{{ answer.author.avatar_url_sm }}" alt="avatar"></a></div>
+                {% else %}
+                    <div class="col-md-1"><a href="{{ url_for('main.user',username=answer.author.username) }} "><img
+                            src="{{ answer.author.gravatar(50) }}" alt="avatar"></a></div>
                 {% endif %}
-                <div class="col-md-11">
-                    {% if not answer.anonymous %}
+
+            {% else %}
+                <div class="col-md-1"><img src="https://dummyimage.com/20x20/748/699" alt="avatar"></div>
+            {% endif %}
+            <div class="col-md-11">
+                {% if not answer.anonymous %}
                     <a href="{{ url_for('main.user',username=answer.author.username) }}">{{ answer.author.username }}</a>
                     <span style="display: block">{{ answer.author.about_me|replace_none }}</span>
-                    {% else %}
-                    <a href="">匿名用户</a>
-                    {% endif %}
-                </div>
-            </div>
-        <div><a href="{{ url_for('main.question',id=answer.question.id) }}"><h1>{{ answer.question.title }}</h1></a></div>
-{#            <span class="text-muted" style="position: relative;top: 10px">{{ answer.liked_answers.count() }}人赞同了该答案</span>#}
-            <div class="answer-body">
-                <p>{{ answer.body|safe }}</p>
-                <div style="margin-top: 30px">
-                <span class="text-muted">编辑于{{ moment(answer.timestamp).format('L') }}</span>
-                </div>
-            </div>
-            <div class="question-widget" style="margin-top: 20px">
-            {% if not current_user.is_like_answer(answer) %}
-                     <a href="{{ url_for('main.like_answer',id=answer.id) }}" class="">
-                       <span class="glyphicon glyphicon-thumbs-up"></span>
-                       <span class="badge">{{ answer.liked_answers.count() }}</span>
-                   </a>
                 {% else %}
-                <a href="{{ url_for('main.unlike_answer',id=answer.id) }}" class="">
-                       <span class="glyphicon glyphicon-thumbs-down"></span>
-                       <span class="badge">{{ answer.liked_answers.count() }}</span>
-                   </a>
-            {% endif %}
-
-                   <a href="{{ url_for('.answer_comments',id=answer.id) }}"><span class=""></span>{{ answer.comments.count() }}条评论</a>
-                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
-                   {% if answer.author!=current_user%}
-                           {% if not current_user.has_collect(answer)  %}
-                           <a href="{{ url_for('main.collect_answer',id=answer.id) }}" class="">
-                               <span class="glyphicon glyphicon-empty"></span>
-                               收藏
-                           </a>
-                           {% else  %}
-                            <a href="#" class="">
-                               <span class="glyphicon glyphicon-star"></span>
-                               已收藏
-                           </a>
-                               {% endif %}
-                       {% endif %}
-
-                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
-                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}
-                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>
-                    {% endif %}
+                    <a href="">匿名用户</a>
+                {% endif %}
             </div>
         </div>
+        <div><a href="{{ url_for('main.question',id=answer.question.id) }}"><h1>{{ answer.question.title }}</h1></a>
+        </div>
+        {#            <span class="text-muted" style="position: relative;top: 10px">{{ answer.liked_answers.count() }}人赞同了该答案</span>#}
+        <div class="answer-body">
+            <p>{{ answer.body|safe }}</p>
+            <div style="margin-top: 30px">
+                <span class="text-muted">编辑于{{ moment(answer.timestamp).format('L') }}</span>
+            </div>
+        </div>
+        <div class="question-widget" style="margin-top: 20px">
+            {% if not current_user.is_like_answer(answer) %}
+                <a href="{{ url_for('main.like_answer',id=answer.id) }}" class="">
+                    <span class="glyphicon glyphicon-thumbs-up"></span>
+                    <span class="badge">{{ answer.liked_answers.count() }}</span>
+                </a>
+            {% else %}
+                <a href="{{ url_for('main.unlike_answer',id=answer.id) }}" class="">
+                    <span class="glyphicon glyphicon-thumbs-down"></span>
+                    <span class="badge">{{ answer.liked_answers.count() }}</span>
+                </a>
+            {% endif %}
+
+            <a href="{{ url_for('.answer_comments',id=answer.id) }}"><span class=""></span>{{ answer.comments.count() }}条评论</a>
+            <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
+            {% if answer.author!=current_user %}
+                {% if not current_user.has_collect(answer) %}
+                    <a href="{{ url_for('main.collect_answer',id=answer.id) }}" class="">
+                        <span class="glyphicon glyphicon-empty"></span>
+                        收藏
+                    </a>
+                {% else %}
+                    <a href="#" class="">
+                        <span class="glyphicon glyphicon-star"></span>
+                        已收藏
+                    </a>
+                {% endif %}
+            {% endif %}
+
+            <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
+            {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}
+                <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span
+                        class="glyphicon glyphicon-pencil"></span>编辑答案</a>
+            {% endif %}
+        </div>
+    </div>
 {% endfor %}

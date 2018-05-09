@@ -48,6 +48,11 @@
         position: relative;
         top: 28px;
     }
+    .total-topic-liked-answers-count{
+        position: relative;
+        top: 28px;
+        float:right;
+    }
     </style>
 {% endblock %}
 
@@ -98,11 +103,13 @@
     </div>
 
         </div>
+    {% if  excellent_authors%}
+    <h2>话题优秀回答者</h2>
         {% for author,count in excellent_authors %}
             <div class="excellent_author_card">
               <div class="col-md-6">
                     {% if author.avatar_url_sm %}
-                    <a href="{{ url_for('main.user',username=author.username) }} "><img src="{{ author.avatar_url_sm }}" alt="avatar"></a>
+                    <a href="{{ url_for('main.user',username=author.username) }} "><img src="{{ author.avatar_url_nm }}" alt="avatar"></a>
                     {% else %}
                          <a href="{{ url_for('main.user',username=author.username) }} "><img src="{{ author.gravatar() }}" alt="avatar"></a>
                     {% endif %}
@@ -111,9 +118,11 @@
                 <div class="col-md-6">
                     <h3><a href="{{ url_for('main.user',username=author.username) }}">{{ author.username }}</a></h3>
                     <span class="total-topic-answers">共{{ count }}回答</span>
+                    <span class="total-topic-liked-answers-count">共{{  author.total_liked_answers_count}}赞同</span>
                 </div>
             </div>
         {% endfor %}
+    {% endif %}
     </div>
         <div class="col-md-4">
 

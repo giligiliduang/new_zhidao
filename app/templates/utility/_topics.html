@@ -1,13 +1,15 @@
 <style>
-    .zd-topic-main{
+    .zd-topic-main {
         position: relative;
         top: 20px;
         text-overflow: clip;
     }
-    .zd-topic-main h4{
+
+    .zd-topic-main h4 {
         display: inline;
     }
-    .zd-topic-main li{
+
+    .zd-topic-main li {
         margin-top: 10px;
         box-shadow: #d9efc8 2px 2px 1px -1px;
         border: 1px solid #dbefe9;
@@ -15,40 +17,44 @@
         max-width: 100%;
         height: 100px;
     }
-    .topic-item-description{
+
+    .topic-item-description {
         position: relative;
         left: 50px;
     }
-    .topic-follow{
+
+    .topic-follow {
         float: right;
     }
 
 </style>
 {% for topic in topics %}
     <div class="zd-topic-main clearfix">
-                <ul class="list-group">
-                <li class="list-group-item">
+        <ul class="list-group">
+            <li class="list-group-item">
                 <div class="col-md-1 ">
-                        {% if topic.cover_url %}
-                            <a href="{{ url_for('main.topic_detail',id=topic.id) }}"><img src="{{ topic.cover_url }}" alt=""></a>
-                        {% else %}
-                            <a class="avatar" href="#"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
-                        {% endif %}
-                    </div>
+                    {% if topic.cover_url %}
+                        <a href="{{ url_for('main.topic_detail',id=topic.id) }}"><img src="{{ topic.cover_url }}"
+                                                                                      alt=""></a>
+                    {% else %}
+                        <a class="avatar" href="#"><img src="https://dummyimage.com/40x40/748/699" alt="avatar"></a>
+                    {% endif %}
+                </div>
                 <div class="col-md-11">
                     <h4><a href="{{ url_for('main.topic_detail',id=topic.id) }}">{{ topic.title }}</a></h4>
                     {% if not topic.is_followed_by(current_user) %}
                         <a href="{{ url_for('main.follow_topic',id=topic.id) }}" class="btn topic-follow btn-default ">关注</a>
                     {% else %}
-                        <a href="{{ url_for('main.unfollow_topic',id=topic.id) }}" class="btn  topic-follow btn-warning">取消关注</a>
+                        <a href="{{ url_for('main.unfollow_topic',id=topic.id) }}"
+                           class="btn  topic-follow btn-warning">取消关注</a>
                     {% endif %}
                     <p class="topic-item-description">{{ topic.description }}</p>
                 </div>
 
-                </li>
+            </li>
 
-            </ul>
+        </ul>
 
-        </div>
+    </div>
 
 {% endfor %}

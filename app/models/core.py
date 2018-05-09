@@ -1,3 +1,4 @@
+from sqlalchemy.ext.declarative import declared_attr
 from whoosh.analysis import SimpleAnalyzer
 from datetime import datetime
 from flask_login import UserMixin, AnonymousUserMixin
@@ -7,8 +8,8 @@ from flask import current_app, request
 import hashlib
 from app import db, bcrypt, login_manager
 from ..constants import default_tags, MessageStatus, DeleteStatus, MessageType
-from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
-from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from app.constants import topics
 import forgery_py
 
@@ -115,7 +116,7 @@ class Comment(db.Model, BaseMixin, DateTimeMixin):
         return '<Comment {}>'.format(self.id)
 
 
-class LikeReply(db.Model, UserMixin, DateTimeMixin,BaseMixin):
+class LikeReply(db.Model, DateTimeMixin, BaseMixin):
     reply_liked_id = db.Column(db.Integer, db.ForeignKey('replies.id'), primary_key=True)
     like_reply_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
 
@@ -132,7 +133,7 @@ class Reply(db.Model, BaseMixin, DateTimeMixin):
                                     cascade='all,delete-orphan')
     liked_count = db.Column(db.Integer, default=0)  # 以点赞数排序
 
-    def is_like_by(self,user):
+    def is_like_by(self, user):
         return self.liked_replies.filter_by(like_reply_id=user.id).first() is not None
 
 
@@ -717,6 +718,8 @@ class User(db.Model, UserMixin, BaseMixin):
             self.like_post(item)
         elif isinstance(item, Comment):
             self.like_comment(item)
+        elif isinstance(item, Reply):
+            self.like_reply(item)
 
     def unlike(self, item):
         if isinstance(item, Answer):
@@ -725,6 +728,8 @@ class User(db.Model, UserMixin, BaseMixin):
             self.unlike_post(item)
         elif isinstance(item, Comment):
             self.unlike_comment(item)
+        elif isinstance(item, Reply):
+            self.unlike_reply(item)
 
     def like_answer(self, answer):
         if not self.is_like_answer(answer):
@@ -738,10 +743,9 @@ class User(db.Model, UserMixin, BaseMixin):
         if not self.is_like_comment(comment):
             LikeComment.create(like_comment=self, comment_liked=comment)
 
-    def like_reply(self,reply):
+    def like_reply(self, reply):
         if not self.is_like_reply(reply):
-            LikeReply.create(like_reply=self,reply_liked=reply)
-
+            LikeReply.create(like_reply=self, reply_liked=reply)
 
     def unlike_answer(self, answer):
         f = self.answer_likes.filter_by(answer_liked_id=answer.id).first()
@@ -757,8 +761,9 @@ class User(db.Model, UserMixin, BaseMixin):
         f = self.comment_likes.filter_by(comment_liked_id=comment.id).first()
         if f:
             db.session.delete(f)
-    def unlike_reply(self,reply):
-        f=self.reply_likes.filter_by(reply_liked_id=reply.id).first()
+
+    def unlike_reply(self, reply):
+        f = self.reply_likes.filter_by(reply_liked_id=reply.id).first()
         if f:
             db.session.delete(f)
 
@@ -770,7 +775,8 @@ class User(db.Model, UserMixin, BaseMixin):
 
     def is_like_comment(self, comment):
         return self.comment_likes.filter_by(comment_liked_id=comment.id).first() is not None
-    def is_like_reply(self,reply):
+
+    def is_like_reply(self, reply):
         return self.reply_likes.filter_by(reply_liked_id=reply.id).first() is not None
 
     def has_collect_question(self, question):
@@ -835,12 +841,11 @@ class User(db.Model, UserMixin, BaseMixin):
 
     def send_system_message(self, content):
         for user in User.query.all():
-            if user.id==self.id:
+            if user.id == self.id:
                 Message.create(sender=self, receiver=user, message_content=content,
                                message_type=MessageType.system)
             Message.create(sender=self, receiver=user, message_content=content,
-                           message_type=MessageType.system,delete_status=DeleteStatus.author_delete)
-
+                           message_type=MessageType.system, delete_status=DeleteStatus.author_delete)
 
     def delete_send_box_msg(self, msg):
         message = self.private_messages.filter_by(id=msg.id).first()
@@ -890,6 +895,14 @@ class User(db.Model, UserMixin, BaseMixin):
         return Message.query.filter(db.or_(db.and_(Message.sender == self, Message.receiver == whom),
                                            db.and_(Message.sender == whom, Message.receiver == self)),
                                     Message.message_type == MessageType.standard)
+
+    @property
+    def total_liked_answers_count(self):
+        """
+        所有答案的总赞同
+        :return:
+        """
+        return sum(i.liked_answers.count() for i in self.answers)
 
     @hybrid_property
     def visited(self):

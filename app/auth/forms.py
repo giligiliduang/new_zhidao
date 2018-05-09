@@ -85,9 +85,10 @@ class PasswordResetForm(FlaskForm):
 
 
 class ChangeEmailForm(FlaskForm):
-    email = StringField('新邮箱地址', validators=[DataRequired(message='邮箱不能为空'), Length(1, 64),
-                                             Email(message='请输入有效的邮箱地址，比如：username@domain.com')])
-    password = PasswordField('密码', validators=[DataRequired(message='密码不能为空')])
+    email = StringField('', validators=[DataRequired(message='邮箱不能为空'), Length(1, 64),
+                                        Email(message='请输入有效的邮箱地址，比如：username@domain.com')],
+                        render_kw={'placeholder': '新邮箱地址'})
+    password = PasswordField('', validators=[DataRequired(message='密码不能为空')], render_kw={'placeholder': "密码"})
     submit = SubmitField('更新')
 
     def validate_email(self, field):

@@ -6,9 +6,26 @@ signals = Namespace()
 通过信号来更新,数据库字段
 """
 
-# user_follow=signals.signal('user_follow')
-# user_unfollow=signals.signal('user_unfollow')
+user_follow = signals.signal('user_follow')
+user_unfollow = signals.signal('user_unfollow')
 user_visited = signals.signal('user_visited')
+
+# user_registered = signals.signal('user_registered')
+# user_like_answer = signals.signal('user_like_answer')
+# user_unlike_answer = signals.signal('user_unlike_answer')
+# user_like_post = signals.signal('user_like_post')
+# user_unlike_post = signals.signal('user_unlike_post')
+# user_like_comment = signals.signal('user_like_comment')
+# user_unlike_comment = signals.signal('user_unlike_comment')
+# user_follow_topic = signals.signal('user_follow_topic')
+# user_unfollow_topic = signals.signal('user_unfollow_topic')
+# user_follow_question = signals.signal('user_follow_question')
+# user_unfollow_question = signals.signal('user_unfollow_question')
+# user_add_post = signals.signal('user_add_post')
+# user_add_answer = signals.signal('user_add_answer')
+# user_add_favorite = signals.signal('user_add_favorite')
+# user_add_comment = signals.signal('user_add_comment')
+# user_add_reply = signals.signal('user_add_reply')
 
 question_browsed = signals.signal('question_browsed')
 question_answer_add = signals.signal('question_answer_add')
@@ -22,10 +39,11 @@ answer_comment_delete = signals.signal('answer_comment_delete')
 answer_voteup = signals.signal('answer_voteup')
 answer_cancel_vote = signals.signal('answer_cancel_vote')
 
+
 comment_voteup = signals.signal('comment_voteup')
 comment_cancel_vote = signals.signal('comment_cancel_vote')
-reply_voteup=signals.signal('reply_voteup')
-reply_cancel_vote=signals.signal('reply_cancel_vote')
+reply_voteup = signals.signal('reply_voteup')
+reply_cancel_vote = signals.signal('reply_cancel_vote')
 
 favorite_answer_add = signals.signal('favorite_answer_add')
 favorite_answer_delete = signals.signal('favorite_answer_delete')

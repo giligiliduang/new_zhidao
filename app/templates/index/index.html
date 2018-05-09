@@ -1,85 +1,91 @@
 {% extends "base/base.html" %}
-{% import "bootstrap/wtf.html" as wtf%}
-{% import"base/_macros.html" as macros%}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import"base/_macros.html" as macros %}
 {% block head %}
-{{ super() }}
+    {{ super() }}
     <style>
-        .TopstoryHeader-nav{
+        .TopstoryHeader-nav {
             max-width: 100%;
             height: 50px;
             border: 1px solid navajowhite;
             font-size: 20px;
         }
-    .TopstoryHeader-nav a{
-        padding-left: 40px;
-        margin-left:100px;
-    }
-    .wrapper{
-        position: relative;
-        top: 10px;
-    }
-    .wrapper a{
-        color: #0f0927;
-    }
-    .title{
-        font-size: 25px;
-        font-weight: bold;
-    }
-    .news-item{
-        margin-bottom: 50px;
-    }
-    .info a{
-        padding-left: 20px;
-    }
+
+        .TopstoryHeader-nav a {
+            padding-left: 40px;
+            margin-left: 100px;
+        }
+
+        .wrapper {
+            position: relative;
+            top: 10px;
+        }
+
+        .wrapper a {
+            color: #0f0927;
+        }
+
+        .info a {
+            padding-left: 20px;
+        }
+
+        .sidebar li:hover {
+            background-color: #cdefdb;
+            cursor: pointer;
+
+        }
+        .sidebar a{
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #cdefdb;
+        }
     </style>
 {% endblock %}
 
 {% block page_content %}
 
     <div class="container">
-    <div class="col-md-1">
-    </div>
-    <div class="news col-md-8">
-        <div class="TopstoryHeader-nav">
-            <div class="wrapper">
-            <a href="{{ url_for('main.pose_question') }}" class=""><span class="glyphicon glyphicon-question-sign"></span>提问</a>
-            <a href="{{ url_for('main.user',username=current_user.username) }}" class=""><span class="glyphicon glyphicon-list"></span>回答</a>
-            <a href="{{ url_for('main.create_post') }}" class=""><span class="glyphicon glyphicon-pencil"></span>写文章</a>
+        <div class="col-md-1">
+        </div>
+        <div class="news col-md-8">
+            <div class="TopstoryHeader-nav">
+                <div class="wrapper">
+                    <a href="{{ url_for('main.pose_question') }}" class=""><span
+                            class="glyphicon glyphicon-question-sign"></span>提问</a>
+                    <a href="{{ url_for('main.user',username=current_user.username) }}" class=""><span
+                            class="glyphicon glyphicon-list"></span>回答</a>
+                    <a href="{{ url_for('main.create_post') }}" class=""><span
+                            class="glyphicon glyphicon-pencil"></span>写文章</a>
+                </div>
+            </div>
+
+            {% include "utility/_questions.html" %}
+            {% if pagination %}
+                <div class="pagination">
+                    {{ macros.pagination_widget(pagination,'.index') }}
+                </div>
+            {% endif %}
+
+        </div>
+        <div class="col-md-3">
+            <div class="jumbotron">
+                <div class="adv">
+                    <p>广告位招租</p>
+                </div>
+            </div>
+            <div class="sidebar">
+                <ul class="list-group">
+                    <li class="list-group-item"><a
+                            href="{{ url_for('main.followed_questions',username=current_user.username) }}">我关注的问题</a>
+                    </li>
+                    <li class="list-group-item"><a href="{{ url_for('main.my_followed_user_posts',username=current_user.username) }}">我关注的人的文章</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('main.my_followed_user_questions',username=current_user.username) }}">我关注的人的问题</a></li>
+                    <li class="list-group-item"><a href="{{ url_for('main.user',username=current_user.username) }}">资料页</a></li>
+                </ul>
+
             </div>
         </div>
-
-    {% include "utility/_questions.html" %}
-    {% if pagination %}
-    <div class="pagination">
-        {{ macros.pagination_widget(pagination,'.index') }}
     </div>
-    {% endif %}
-
-    </div>
-    <div class="col-md-3">
-      <div class="jumbotron">
-         <div class="adv">
-             <p>广告位招租</p>
-         </div>
-      </div>
-      <div class="tags jumbotron">
-          <div class="tag-item">
-          <a href="#" class="label label-danger">python</a>
-          <a href="#" class="label label-default">Java</a>
-          <a href="#" class="label label-warning">C++</a>
-          <a href="#" class="label label-success">C#</a>
-          <a href="#" class="label label-info">Javascript</a>
-          <a href="#" class="label label-danger">F#</a>
-          <a href="#" class="label label-danger">nodejs</a>
-          <a href="#" class="label label-danger">bootstrap</a>
-          <a href="#" class="label label-danger">angular.js</a>
-          <a href="#" class="label label-danger">个人随笔</a>
-          <a href="#" class="label label-danger">日记</a>
-          <a href="#" class="label label-info">写在前面</a>
-          <a href="#" class="label label-danger">该说不说的</a>
-          </div>
-      </div>
-    </div>
-</div>
 
 {% endblock %}

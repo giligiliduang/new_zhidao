@@ -2,7 +2,7 @@ from app import signals
 from .core import *
 from app.decorators import use_signal
 from app import db
-from flask_login import user_logged_in
+from flask_login import user_logged_in, user_logged_out
 from datetime import datetime
 
 """
@@ -22,10 +22,15 @@ def update_user_lastseen(app, **kwargs):
     db.session.commit()
 
 
+
+
+
 @use_signal(signals.user_visited)
 def update_user_visited_count(sender):
     assert isinstance(sender, User)
     sender.visited += 1
+
+
 
 
 ###################回答#####################
@@ -174,7 +179,7 @@ def update_reply_like_count(reply):
     db.session.add(reply)
     db.session.commit()
 
-############话题####################
+############话题################
 
 @use_signal(signals.topic_question_add)
 @use_signal(signals.topic_question_delete)

@@ -29,3 +29,5 @@ class DateTimeMixin(object):
     @declared_attr
     def updated(self):
         return db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+

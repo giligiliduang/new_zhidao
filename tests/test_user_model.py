@@ -222,7 +222,7 @@ class UserModelTestCase(unittest.TestCase):
         self.assertTrue(topic.followers.count() == 0)
         self.assertTrue(FollowTopic.query.count() == 0)
 
-    def test_send_private_message(self):
+    def test_send_private_messages(self):
         """
         测试发送私信,接收私信
         :return:

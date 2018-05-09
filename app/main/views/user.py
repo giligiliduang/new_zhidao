@@ -436,6 +436,7 @@ def like_post(id):
         return redirect(url_for('.post', id=post.id))
     current_user.like(post)
     post_voteup.send(post)
+    # signals.user_like_post.send(current_user)
     flash('点赞成功', 'success')
     return redirect(url_for('.post', id=post.id))
 
@@ -448,6 +449,7 @@ def unlike_post(id):
     if post.is_liked_by(current_user):
         current_user.unlike(post)
         post_cancel_vote.send(post)
+        # signals.user_unlike_post.send(current_user)
         flash('取消赞')
         return redirect(url_for('.post', id=post.id))
     flash('还没赞呢')
@@ -551,7 +553,7 @@ def like_reply(id):
 def unlike_reply(id):
     reply = Reply.query.get_or_404(id)
     if reply.is_like_by(current_user):
-        current_user.un_like_reply(reply)
+        current_user.unlike_reply(reply)
         reply_cancel_vote.send(reply)
         flash('取消赞')
         return choose_to_redirect(reply.comment.topic_type, reply.comment)
@@ -565,6 +567,6 @@ def choose_to_redirect(topic_type, comment):
     elif topic_type == 'question':
         return redirect(url_for('main.question_comments', id=comment.question_id))
     elif topic_type == 'answer':
-        return redirect(url_for('main.answer_comments', id=comment.question_id))
+        return redirect(url_for('main.answer_comments', id=comment.answer_id))
     elif topic_type == 'favorite':
-        return redirect(url_for('main.favorite_comments', id=comment.question_id))
+        return redirect(url_for('main.favorite_comments', id=comment.favorite_id))

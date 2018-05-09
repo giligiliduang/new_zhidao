@@ -5,6 +5,7 @@ from ..models import User, db
 from flask_login import login_user, logout_user, login_required, current_user
 from flask import redirect, url_for, render_template, flash, request
 from ..utils import send_email
+from app import signals
 
 
 @auth.route('/login', methods=['GET', 'POST'])

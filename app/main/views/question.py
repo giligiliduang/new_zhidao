@@ -116,7 +116,8 @@ def edit_question(id):
         return redirect(url_for('.question', id=question.id))
     form.description.data = question.description
     form.anonymous.data = question.anonymous
-    return render_template('edit_question.html', form=form, question=question)
+    context=dict(form=form, question=question)
+    return render_template('question/edit_question.html',**context)
 
 
 @main.route('/render-question', methods=['GET', 'POST'])
