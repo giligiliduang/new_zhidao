@@ -7,6 +7,7 @@ from ..models import User
 class LoginForm(FlaskForm):
     email = StringField('', validators=[DataRequired(), Email(), Length(1, 64)], render_kw={'placeholder': '邮箱'})
     password = PasswordField('', validators=[DataRequired(), Length(6, 64)], render_kw={'placeholder': '密码'})
+    verification_code=StringField('',validators=[DataRequired()],render_kw={'placeholder':'验证码'})
     remember_me = BooleanField('记住我')
     submit = SubmitField('登录')
 
@@ -32,6 +33,7 @@ class RegisterForm(FlaskForm):
     password = PasswordField('', validators=[DataRequired(), EqualTo('password2', message='两次输入密码必须一致')],
                              render_kw={'placeholder': '密码'})
     password2 = PasswordField('', validators=[DataRequired()], render_kw={'placeholder': '确认密码'})
+    verification_code=StringField('',validators=[DataRequired()],render_kw={'placeholder':'输入验证码'})
     submit = SubmitField('注册')
 
     def validate(self):

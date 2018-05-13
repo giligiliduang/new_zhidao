@@ -633,6 +633,13 @@ class User(db.Model, UserMixin, BaseMixin):
 
     def is_friend(self, user):
         return self.is_following_user(user) and self.is_followed_by_user(user)
+    @property
+    def friends(self):
+        followers=[i.follower for i in self.followers]
+        followed=[i.followed for i in self.followed]
+        users=list(set(followers+followed))
+        friends=[i for i in users if self.is_friend(i)]
+        return friends
 
     def follow_question(self, question):
         if not self.is_following_question(question):
@@ -839,6 +846,10 @@ class User(db.Model, UserMixin, BaseMixin):
     def send_standard_message_to(self, content, to):
         Message.create(sender=self, receiver=to, message_content=content)
 
+    def send_invitation(self, content, to):
+        Message.create(sender=self, receiver=to, message_content=content, message_type=MessageType.invite)
+
+
     def send_system_message(self, content):
         for user in User.query.all():
             if user.id == self.id:
@@ -864,7 +875,8 @@ class User(db.Model, UserMixin, BaseMixin):
         """
         :return:
         """
-        return self.private_messages.filter(Message.delete_status != DeleteStatus.author_delete)
+        return self.private_messages.filter(Message.delete_status != DeleteStatus.author_delete,
+                                            Message.message_type != MessageType.invite)
 
     @property
     def in_box_messages(self):
@@ -873,6 +885,10 @@ class User(db.Model, UserMixin, BaseMixin):
         :return:
         """
         return self.private_messages_from.filter(Message.delete_status != DeleteStatus.user_delete)
+
+    @property
+    def invite_messages_count(self):
+        return self.private_messages.filter(Message.message_type==MessageType.invite).count()
 
     def set_messages_read(self):
         for message in self.in_box_messages.all():

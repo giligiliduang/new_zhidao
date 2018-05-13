@@ -1,11 +1,12 @@
 from flask import request, current_app, render_template
-
+from flask_login import login_required
 from app.main import main
 from app.main.views.search import search
 from app.models import Question
 
 
 @main.route('/', methods=['GET', 'POST'])
+@login_required
 def index():
     page = request.args.get('page', 1, type=int)
     s = search()

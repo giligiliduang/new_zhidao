@@ -1,4 +1,4 @@
-from flask import flash, url_for, redirect, request, current_app, render_template, make_response, session, abort
+from flask import flash, url_for, redirect, request, current_app, render_template, make_response, session, abort, g
 from flask_login import login_required, current_user
 
 from app.constants import jobs
@@ -27,6 +27,7 @@ def user(username):
         return redirect(url_for('.index'))
     if user != current_user:
         user_visited.send(user)
+    recent_q_count = session.get('recent_q_count',0)
     page = request.args.get('page', 1, type=int)
     answers = None
     posts = None
@@ -43,7 +44,8 @@ def user(username):
         )
         answers = pagination.items
         type = 'answer'
-        a_context = dict(user=user, answers=answers, type=type, pagination=pagination, favorites=favorites)
+        a_context = dict(user=user, answers=answers, type=type, pagination=pagination, favorites=favorites,
+                         recent_q_count=recent_q_count)
         return render_template('user/personal.html', **a_context)
     elif request.cookies.get('items') == '3':
         pagination = user.posts.order_by(Post.timestamp.desc()).paginate(
@@ -51,7 +53,8 @@ def user(username):
         )
         posts = pagination.items
         type = 'post'
-        p_context = dict(user=user, posts=posts, type=type, pagination=pagination, favorites=favorites)
+        p_context = dict(user=user, posts=posts, type=type, pagination=pagination, favorites=favorites,
+                         recent_q_count=recent_q_count)
         return render_template('user/personal.html', **p_context)
 
     elif request.cookies.get('items') == '2':
@@ -61,11 +64,12 @@ def user(username):
         )
         questions = pagination.items
         type = 'question'
-        q_context = dict(user=user, questions=questions, type=type, pagination=pagination, favorites=favorites)
+        q_context = dict(user=user, questions=questions, type=type, pagination=pagination, favorites=favorites,
+                         recent_q_count=recent_q_count)
         return render_template('user/personal.html', **q_context)
 
     return render_template('user/personal.html', user=user, questions=questions, answers=answers, posts=posts,
-                           type=type, pagination=pagination, favorites=favorites)
+                           type=type, pagination=pagination, favorites=favorites, recent_q_count=recent_q_count)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
@@ -327,7 +331,29 @@ def user_followed(username):
     return render_template('user/user_follows.html', **context)
 
 
+@main.route('/user/<username>/friends', methods=['GET', 'POST'])
+@login_required
+def my_friends(username):
+    """
+    我的好友列表
+    :param username:用户名
+    :return:
+    """
+    s = search()
+    if s:
+        return s
+    user = User.query.filter_by(username=username).first()
+    if user is None:
+        flash('用户不存在')
+        return redirect(url_for('.index'))
+    friends = user.friends
+    friends_count = len(friends)
+    context = dict(follows=friends, title='我的好友', friends_count=friends_count, user=user)
+    return render_template('user/user_follows.html', **context)
+
+
 @main.route('/user/<username>/followed-questions', methods=['GET', 'POST'])
+@login_required
 def followed_questions(username):
     """
     我关注的问题
@@ -389,6 +415,7 @@ def followed_topics(username):
 
 
 @main.route('/user/<username>/followed-user-questions')
+@login_required
 def my_followed_user_questions(username):
     s = search()
     if s:
@@ -407,6 +434,7 @@ def my_followed_user_questions(username):
 
 
 @main.route('/user/<username>/followed-user-posts')
+@login_required
 def my_followed_user_posts(username):
     s = search()
     if s:
@@ -449,7 +477,7 @@ def unlike_post(id):
     if post.is_liked_by(current_user):
         current_user.unlike(post)
         post_cancel_vote.send(post)
-        # signals.user_unlike_post.send(current_user)
+
         flash('取消赞')
         return redirect(url_for('.post', id=post.id))
     flash('还没赞呢')

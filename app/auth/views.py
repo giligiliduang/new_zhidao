@@ -2,10 +2,10 @@ from .forms import LoginForm, RegisterForm, ChangePasswordForm, PasswordResetFor
     ChangeEmailForm
 from . import auth
 from ..models import User, db
-from flask_login import login_user, logout_user, login_required, current_user
-from flask import redirect, url_for, render_template, flash, request
-from ..utils import send_email
-from app import signals
+from flask_login import login_user, logout_user, login_required, current_user,fresh_login_required
+from flask import redirect, url_for, render_template, flash, request, session, make_response
+from ..utils import send_email,generate_verification_code
+
 
 
 @auth.route('/login', methods=['GET', 'POST'])
@@ -14,9 +14,14 @@ def login():
     if form.validate() and request.method == 'POST':
         user = User.query.filter_by(email=form.email.data).first()
         if user.verify_password(password=form.password.data):
-            login_user(user, remember=form.remember_me.data)  # 是否记住登录状态
-            flash('登录成功', category='success')
-            return redirect(url_for('main.index') or request.args.get('next'))
+            if 'code_text' in session and form.verification_code.data==session['code_text']:
+                login_user(user, remember=form.remember_me.data)  # 是否记住登录状态
+                flash('登录成功', category='success')
+                session.pop('code_text')
+                return redirect(url_for('main.index') or request.args.get('next'))
+            else:
+                flash('验证码错误{}'.format(form.verification_code.data))
+                return redirect(url_for('auth.login'))
         else:
             flash('密码错误')
     return render_template('security/login.html', form=form)
@@ -34,11 +39,17 @@ def logout():
 def register():
     form = RegisterForm()
     if form.validate_on_submit():
-        user = User.create(email=form.email.data, username=form.username.data, password=form.password.data)
-        token = user.generate_confirm_token()
-        send_email(user.email, '确认账户', 'security/email/confirm', user=user, token=token)
-        flash('注册成功', category='success')
-        return redirect(url_for('auth.login'))
+        if 'code_text' in session and session['code_text'] != form.verification_code.data:
+            flash('输入错误：%s' % form.verification_code.data,'error')
+            return redirect(url_for('auth.register'))
+        else:
+            flash('输入验证码正确','success')
+            session.pop('code_text')
+            user = User.create(email=form.email.data, username=form.username.data, password=form.password.data)
+            token = user.generate_confirm_token()
+            send_email(user.email, '确认账户', 'security/email/confirm', user=user, token=token)
+            flash('注册成功', category='success')
+            return redirect(url_for('auth.login'))
     return render_template('security/register.html', form=form)
 
 
@@ -80,7 +91,7 @@ def resend_confirmation():
 
 
 @auth.route('/change_password', methods=['GET', 'POST'])
-@login_required
+@fresh_login_required
 def change_password():
     """更改密码"""
     form = ChangePasswordForm()
@@ -129,7 +140,7 @@ def password_reset(token):
 
 
 @auth.route('/change-email', methods=['GET', 'POST'])
-@login_required
+@fresh_login_required
 def change_email_request():
     form = ChangeEmailForm()
     if form.validate_on_submit():
@@ -147,10 +158,18 @@ def change_email_request():
 
 
 @auth.route('/change-email/<token>')
-@login_required
+@fresh_login_required
 def change_email(token):
     if current_user.change_email(token):
         flash('你的邮箱地址已经更新。', 'success')
     else:
         flash('请求无效.', 'warning')
     return redirect(url_for('main.index'))
+
+@auth.route('/verifyCode/')
+def get_verify_code():
+    code_img, code_text = generate_verification_code()
+    session['code_text'] = code_text
+    response = make_response(code_img)
+    response.headers['Content-Type'] = 'image/jpeg'
+    return response

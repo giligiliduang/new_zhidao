@@ -120,11 +120,12 @@
 
                 </div>
                 <div class="list-group">
+                    <a href="{{ url_for('.my_friends',username=user.username) }}" class="list-group-item">我的好友<span class="badge">{{ len(user.friends) }}</span></a>
                     <a href="{{ url_for('.followed_questions',username=user.username) }}" class="list-group-item">关注的问题<span class="badge">{{ user.followed_questions.count() }}</span></a>
                     <a href="{{ url_for('.followed_topics',username=user.username) }}" class="list-group-item">关注的话题<span class="badge">{{ user.followed_topics.count() }}</span></a>
                     <a href="{{ url_for('.followed_favorites',username=user.username) }}" class="list-group-item">关注的收藏夹<span class="badge">{{ user.followed_favorites.count() }}</span></a>
                     <a href="{{ url_for('.post_likes',username=user.username) }}" class="list-group-item">赞过的文章<span class="badge">{{ user.post_likes.count() }}</span></a>
-                    <a href="{{ url_for('.recent_questions') }}" class="list-group-item">最近浏览问题<span class="badge">5</span></a>
+                    <a href="{{ url_for('.recent_questions') }}" class="list-group-item">最近浏览问题<span class="badge">{{ recent_q_count }}</span></a>
                 </div>
                 <div class="text-muted">
                     <h5>注册时间 ·<span>{{ moment(user.member_since).format('L') }}</span></h5>

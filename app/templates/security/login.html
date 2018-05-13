@@ -19,6 +19,7 @@
         {{ wtf.form_errors(form,hiddens='only') }}
         {{ wtf.form_field(form.email) }}
         {{ wtf.form_field(form.password) }}
+        {{ wtf.form_field(form.verification_code,id='verification_code') }}
         {{ wtf.form_field(form.remember_me) }}
         {{ wtf.form_field(form.submit,class='col-md-12 btn btn-danger') }}
     </form>
@@ -26,4 +27,27 @@
     <div><a href="{{ url_for('auth.register') }}" class="text-muted">还没账号?点击注册</a></div>
     <div><a href="{{ url_for('auth.password_reset_request') }}" class="text-muted">忘记密码?点击重置</a></div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+    <script>
+
+    function create_verify_code()
+    {
+        var img = $('<img id="verify_img" src="{{ url_for('auth.get_verify_code', _external=True) }}">');
+        img.css({'cursor':'pointer'});
+        $("#verification_code").before(img);
+    }
+    //开始创建验证码图片
+    create_verify_code();
+    $(document).ready(function(){
+        //点击验证码刷新，主要采取重设src属性，属性每次都要不一样，所以在网址后面增加参数
+        $("img").click(function(){
+            var img_url = "{{ url_for('auth.get_verify_code', _external=True) }}?d=" + Math.random();
+            $(this).attr("src", img_url);
+        });
+    });
+</script>
 {% endblock %}

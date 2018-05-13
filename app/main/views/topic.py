@@ -12,6 +12,7 @@ from operator import itemgetter
 
 
 @main.route('/topics', methods=['GET', 'POST'])
+@login_required
 def topics():
     s = search()
     if s:

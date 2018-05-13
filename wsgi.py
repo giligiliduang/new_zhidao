@@ -127,7 +127,7 @@ def create_newapp(name):
 
 
 @app.cli.command()
-@click.argument('numbers')
+@click.argument('numbers',default=50)
 def generate_fake_users(numbers):
     """
     生成假用户并让他们随即关注话题
@@ -157,7 +157,7 @@ def generate_fake_users(numbers):
 
 
 @app.cli.command()
-@click.argument('numbers')
+@click.argument('numbers',default=50)
 def generate_fake_questions(numbers):
     """
     生成假问题
@@ -175,7 +175,7 @@ def generate_fake_questions(numbers):
 
 
 @app.cli.command()
-@click.argument('numbers')
+@click.argument('numbers',default=50)
 def generate_fake_posts(numbers):
     """
     生成假文章

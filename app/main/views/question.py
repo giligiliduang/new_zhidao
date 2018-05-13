@@ -1,14 +1,14 @@
 from app import db
 from app.decorators import permission_required
 from app.main import main
-from flask import request, current_app, make_response, render_template, redirect, flash, url_for, abort
+from flask import request, current_app, make_response, render_template, redirect, flash, url_for, abort, g, session
 from flask_login import current_user, login_required
 
 from app.main.forms import CommentForm, EditQuestionForm, Topic, QuestionForm
 from app.signals import question_unfollow, question_follow, question_answer_add, question_browsed, question_comment_add
 
 from app.main.views.search import search
-from app.models import Question, Answer, Comment, Permission, FollowQuestion
+from app.models import Question, Answer, Comment, Permission, FollowQuestion, User
 from collections import deque
 
 
@@ -54,6 +54,8 @@ def question(id):
             recent_q.appendleft(ques_id)  # 再在前面添加
         else:
             recent_q.appendleft(ques_id)
+        recent_q_count=len(recent_q)
+        session['recent_q_count']=recent_q_count
         recent_q = ','.join(recent_q)  # 拼接字符串 类似'4,8,6,9'
         context = dict(question=question, answers=answers, pagination=pagination, topics=topics)
         resp = make_response(
@@ -116,8 +118,8 @@ def edit_question(id):
         return redirect(url_for('.question', id=question.id))
     form.description.data = question.description
     form.anonymous.data = question.anonymous
-    context=dict(form=form, question=question)
-    return render_template('question/edit_question.html',**context)
+    context = dict(form=form, question=question)
+    return render_template('question/edit_question.html', **context)
 
 
 @main.route('/render-question', methods=['GET', 'POST'])
@@ -165,3 +167,26 @@ def question_followers(id):
     context = dict(pagination=pagination, follows=follows,
                    question=question, title=title, style=style, user=question.author)
     return render_template('user/user_follows.html', **context)
+
+
+@main.route('/question<id>/invite', methods=['GET', 'POST'])
+@login_required
+def invite(id):
+    """
+    邀请关注该话题的人来回答问题
+    :param id:
+    :return:
+    """
+    question = Question.query.get_or_404(id)
+    topics = [i.topic for i in question.topics.all()]
+    author = question.author
+    users = [i for i in User.query.all() for j in topics if i.is_following_topic(j) and i != current_user]
+
+    if current_user == author:
+        name = current_user.username
+        url = url_for('main.question', id=question.id, _external=True)
+        [current_user.send_invitation('{name}邀请你回答问题:{url}'.format(name=name, url=url), i) for i in users]
+        flash('成功发出邀请')
+        return redirect(url_for('main.question',id=question.id))
+    flash('你不是作者')
+    return redirect(url_for('main.question', id=question.id))
