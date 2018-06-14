@@ -1,18 +1,9 @@
 {% extends "base/base.html" %}
 {% import "base/_macros.html" as macros %}
-
+{% block title %}文章{% endblock %}
 {% block head %}
     {{ super() }}
-    <style>
-        .news-item{
-        margin-bottom: 50px;
 
-    }
-    .title{
-        font-size: 25px;
-        font-weight: bold;
-    }
-    </style>
 {% endblock %}
 {% block page_content %}
     <div class="container">

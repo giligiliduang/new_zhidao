@@ -18,7 +18,7 @@ class MessageStatus(enum.Enum):
 class MessageType(enum.Enum):
     standard = 'standard'
     system = 'system'
-    invite='invite'
+
 
 
 class DeleteStatus(enum.Enum):

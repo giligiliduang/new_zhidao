@@ -4,15 +4,13 @@
 {% block head %}
 {{ super() }}
     <script src="//cdn.ckeditor.com/4.8.0/standard/ckeditor.js"></script>
-    <style>
-        .edit-self{
-            position: relative;
-            left: 400px;
-        }
-    </style>
 {% endblock %}
 {% block page_content %}
-    <div class="edit-self col-md-6">
+    <div class="col-md-2"></div>
+    <div class="col-md-6">
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.question',id=answer.question.id) }}">回到问题</a></li>
+    </ol>
     <h1>{{ answer.question.title}}</h1>
     <form method="post">
         {{ form.hidden_tag() }}
@@ -22,4 +20,5 @@
     </form>
 {#    {{ wtf.quick_form(form) }}#}
     </div>
+    <div class="col-md-4"></div>
 {% endblock %}

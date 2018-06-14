@@ -5,35 +5,34 @@ from app import db
 from app.main import main
 from app.main.forms import CommentForm
 from app.models import Comment, Permission, Reply
-from app.signals import question_comment_delete, answer_comment_delete, post_comment_delete
+from app.signals import question_comment_delete, answer_comment_delete, post_comment_delete, favorite_comment_delete
 
 
 @main.route('/delete/comment/<int:id>')
 def delete_comment(id):
+    """
+    评论采用标记删除,防止回复也被删除
+    """
     comment = Comment.query.get_or_404(id)
     if current_user == comment.author or current_user.can(Permission.MODERATE_COMMENTS):
         if comment.topic_type == 'question':
             q_id = comment.question.id
             question = comment.question
-            db.session.delete(comment)
-            db.session.commit()
+            current_user.delete_comment(comment)
             question_comment_delete.send(question)
             flash('删除评论成功', 'success')
             return redirect(url_for('.question_comments', id=q_id))
         elif comment.topic_type == 'post':
-
             p_id = comment.post.id
             post = comment.post
-            db.session.delete(comment)
-            db.session.commit()
+            current_user.delete_comment(comment)
             post_comment_delete.send(post)
             flash('删除评论成功', 'success')
             return redirect(url_for('.post', id=p_id))
         elif comment.topic_type == 'answer':
             a_id = comment.answer.id
             answer = comment.answer
-            db.session.delete(comment)
-            db.session.commit()
+            current_user.delete_comment(comment)
             answer_comment_delete.send(answer)
             flash('删除评论成功', 'success')
             return redirect(url_for('.answer_comments', id=a_id))
@@ -69,6 +68,11 @@ def execute_comment(form, comment, topic_type):
     if comment.topic_type == topic_type and form.validate_on_submit():
         r = Reply.create(author=current_user._get_current_object(), body=form.body.data)
         comment.add_reply(r)
+        if topic_type == 'post':
+            return redirect(url_for('main.post', id=getattr(comment, topic_type).id))
+        elif topic_type == 'favorite':
+            username = comment.favorite.user.username
+            return redirect(url_for('main.favorite_comments', username=username, id=getattr(comment, topic_type).id))
         return redirect(url_for('main.{}_comments'.format(topic_type), id=getattr(comment, topic_type).id))
     item = getattr(comment, topic_type)
     context = dict(form=form, item=item, comment=comment)
@@ -114,6 +118,5 @@ def execute_reply(comment, form, user, topic_type, **kwargs):
         return redirect(url_for('main.{}_comments'.format(topic_type), id=getattr(comment, topic_type).id))
 
     replies = kwargs.get('replies')
-    print(replies)
     context = dict(form=form, user=user, replies=replies, comment=comment)
     return render_template('comment/reply.html', **context)

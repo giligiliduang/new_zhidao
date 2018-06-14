@@ -59,7 +59,7 @@ def update_answer_like_count(sender):
 @use_signal(signals.question_comment_delete)
 def update_question_comment_count(sender):
     assert isinstance(sender, Question)
-    sender.comments_count = Question.query.get(sender.id).comments.count()
+    sender.comments_count = Question.query.get(sender.id).comments.filter(Comment.was_delete==False).count()
     db.session.add(sender)
     db.session.commit()
 
@@ -111,7 +111,7 @@ def update_post_like_count(sender):
 @use_signal(signals.post_tag_add)
 def update_post_tag_count(sender):
     assert isinstance(sender, Post)
-    sender.tag_count = Post.query.get(id).tags.count()
+    sender.tag_count = Post.query.get(sender.id).tags.count()
     db.session.add(sender)
     db.session.commit()
 

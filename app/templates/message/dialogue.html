@@ -33,7 +33,11 @@
 
         <h1>发送私信给: <a href="{{ url_for('main.user',username=sender.username) }}">{{ sender.username }}</a></h1>
 
-        {{ wtf.quick_form(form) }}
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            {{ wtf.form_field(form.body,class='ckeditor') }}
+            {{ wtf.form_field(form.submit) }}
+        </form>
         {%  if messages %}
         {% for message in  messages %}
             <div class="total-messages clearfix">
@@ -63,8 +67,6 @@
 {#                   </a>#}
 
 {#                   <a href=""><span class=""></span>{{ comment.replies.count() }}条评论</a>#}
-                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
-                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
                             <span class="text-muted">发送于{{ moment(message.timestamp).format('L') }}</span>
 {#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}
 {#                   <a href="{{ url_for('main.edit_answer',id=answer.id) }}"><span class="glyphicon glyphicon-pencil"></span>编辑答案</a>#}

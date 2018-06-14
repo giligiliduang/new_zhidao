@@ -3,6 +3,7 @@ from config import config
 from .ext import db, bootstrap, login_manager, moment, mail, cache, bcrypt, photos, admin
 from flask_uploads import configure_uploads, patch_request_class
 import flask_whooshalchemyplus
+from app.models import User, Post, Question
 
 
 def create_app(config_name):

@@ -15,8 +15,7 @@
 <div class="col-md-4 login">
 <h1>登录</h1>
     <form class="form" method="post">
-        {{ form.hidden_tag() }}
-        {{ wtf.form_errors(form,hiddens='only') }}
+        {{ form.csrf_token}}
         {{ wtf.form_field(form.email) }}
         {{ wtf.form_field(form.password) }}
         {{ wtf.form_field(form.verification_code,id='verification_code') }}

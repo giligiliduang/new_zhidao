@@ -18,7 +18,14 @@
             {% else %}
         <h1>发送私信给:</h1>
         {% endif %}
-        {{ wtf.quick_form(form) }}
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            {% if form.user %}
+            {{ wtf.form_field(form.user) }}
+            {% endif %}
+            {{ wtf.form_field(form.body,class='ckeditor') }}
+            {{ wtf.form_field(form.submit) }}
+        </form>
     {% if system_messages %}
     {% for message in system_messages %}
             <div class="total-messages clearfix">
@@ -43,8 +50,7 @@
 {#                   </a>#}
 
 {#                   <a href=""><span class=""></span>{{ comment.replies.count() }}条评论</a>#}
-                   <a href=""><span class="glyphicon glyphicon-cloud "></span>分享</a>
-                   <a href=""><span class="glyphicon glyphicon-heart"></span>感谢</a>
+
                             <a href="" id="delete-snd-msg" name="{{ message.id }}"><span class="glyphicon glyphicon-trash">删除</span></a>
 {#                            <span class="text-muted">发表于{{ moment(message.timestamp).format('L') }}</span>#}
 {#                    {% if answer.author==current_user or current_user.can(Permission.MODERATE_COMMENTS) %}#}

@@ -12,7 +12,9 @@
         <li><a href="{{ url_for('main.user',username=user.username) }}">回到资料页</a></li>
     </ul>
          <h1>{{ title }}</h1>
+    {% if follows %}
     {% include "utility/_follows.html" %}
+    {% endif %}
     {% if style=='user_followers' %}
         {% if pagination %}
             <div class="pagination">

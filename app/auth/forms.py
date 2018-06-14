@@ -5,9 +5,9 @@ from ..models import User
 
 
 class LoginForm(FlaskForm):
-    email = StringField('', validators=[DataRequired(), Email(), Length(1, 64)], render_kw={'placeholder': '邮箱'})
-    password = PasswordField('', validators=[DataRequired(), Length(6, 64)], render_kw={'placeholder': '密码'})
-    verification_code=StringField('',validators=[DataRequired()],render_kw={'placeholder':'验证码'})
+    email = StringField('', validators=[DataRequired('必填字段'), Email(), Length(1, 64)], render_kw={'placeholder': '邮箱'})
+    password = PasswordField('', validators=[DataRequired('必填字段'), Length(6, 64)], render_kw={'placeholder': '密码'})
+    verification_code=StringField('',validators=[DataRequired('必填字段')],render_kw={'placeholder':'验证码'})
     remember_me = BooleanField('记住我')
     submit = SubmitField('登录')
 

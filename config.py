@@ -1,6 +1,8 @@
 import os
 
 basedir = os.path.abspath(os.path.dirname(__file__))
+mysql_username = 'root'
+mysql_pwd = 'Bye0Bye6'
 
 
 class Config:
@@ -10,8 +12,10 @@ class Config:
     ZHIDAO_MAIL_SUBJECT_PREFIX = '[ZHIDAO]'
     ZHIDAO_MAIL_SENDER = 'ZHIDAO Admin <zhidao@163.com>'
     ZHIDAO_ADMIN = os.environ.get('ZHIDAO_ADMIN') or 'zhidao'
+    ZHIDAO_USER_PER_PAGE = 10
     ZHIDAO_QUESTION_PER_PAGE = 10
     ZHIDAO_ANSWER_PER_PAGE = 10
+    ZHIDAO_FAVORITE_PER_PAGE = 10
     ZHIDAO_POST_PER_PAGE = 15
     ZHIDAO_TOPIC_PER_PAGE = 10
     ZHIDAO_MESSAGE_PER_PAGE = 10
@@ -30,6 +34,9 @@ class Config:
 
 
 class DevelopmentConfig(Config):
+    """
+    开发环境使用mysql，用户名和密码需要修改mysql_username和mysql_pwd
+    """
     MAIL_SERVER = 'smtp.163.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
@@ -38,10 +45,9 @@ class DevelopmentConfig(Config):
     DEBUG = True
     CACHE_TYPE = 'simple'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
-                              'mysql://root:Bye0Bye6@localhost/new_zhidao'
-    # 'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
-    CELERY_BROKER_URL = 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+                              'mysql://{}:{}@localhost/new_zhidao'.format(mysql_username, mysql_pwd)
+
+
 
 
 class TestingConfig(Config):

@@ -211,7 +211,7 @@ def favorite_comments(username, id):
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment.create(author=current_user._get_current_object(), body=form.body.data,
-                                 favorite=favorite)
+                                 favorite=favorite, topic_type='favorite')
         db.session.add(comment)
         db.session.commit()
         flash('评论添加成功')

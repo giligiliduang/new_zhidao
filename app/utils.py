@@ -178,6 +178,7 @@ def create_strs(draw, chars, length, font_path, font_size, width, height, fg_col
 def generate_verification_code():
     code_img, str_text = create_validate_code()
     buf = BytesIO()
+
     code_img.save(buf, 'JPEG', quality=70)
     buf_str = buf.getvalue()
     return buf_str, str_text

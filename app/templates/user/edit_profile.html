@@ -3,16 +3,14 @@
 {% block title %}编辑资料{% endblock %}
 {% block head %}
 {{ super() }}
-    <style>
-        .edit-self{
-
-        }
-    </style>
 {% endblock %}
 
 {% block page_content %}
     <div class="col-md-2"></div>
     <div class="edit-self col-md-6">
+    <ol class="breadcrumb">
+        <li><a href="{{ url_for('main.user',username=current_user.username) }}">回到个人资料</a></li>
+    </ol>
     <h1>编辑资料-{{ current_user.username }}</h1>
 {#    <form method="post">#}
 {#    {{ form.hidden_tag() }}#}

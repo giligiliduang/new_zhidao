@@ -9,6 +9,7 @@ from flask_uploads import UploadSet, IMAGES
 from flask_admin import Admin
 
 
+
 db = SQLAlchemy()
 bootstrap = Bootstrap()
 login_manager = LoginManager()

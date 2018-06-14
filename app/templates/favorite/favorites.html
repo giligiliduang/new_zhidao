@@ -39,7 +39,7 @@
             <h4>{{ favorite.description|safe }}</h4>
             <span class="text-muted">创建于{{ favorite.timestamp }}</span>
             <div class="favorite-widget">
-                <a href="{{ url_for('main.favorite_comments',username=user.username,id=favorite.id) }}">{{ favorite.comments.count() }}评论</a>
+                <a href="{{ url_for('main.favorite_comments',username=user.username,id=favorite.id) }}">{{ favorite.undelete_comments.count() }}评论</a>
                 <a href="">{{ favorite.followers.count() }}关注</a>
                 <a href="{{ url_for('main.edit_favorite',username=user.username,id=favorite.id) }}">编辑</a>
                 <a href="" id="delete-favorite">删除</a>

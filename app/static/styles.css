@@ -1,138 +1,157 @@
-img{
+img {
     display: block;
     max-width: 100%;
     border-radius: 5px;
 }
 
-
-.navbar.navbar-inverse li{
+.navbar.navbar-inverse li {
     padding-left: 10px;
 }
-.list-group a{
+
+.list-group a {
     border: 0px;
     border-radius: 3px;
     margin-top: 10px;
 }
-.list-group a:hover{
-    background-color:#E4D8D8;
+
+.list-group a:hover {
+    background-color: #E4D8D8;
 }
-.title{
+
+.title {
     font-weight: bold;
     margin-top: 0;
 }
-.title h3{
+
+.title h3 {
     margin-top: 0;
 }
 
-.news-item a:link{
+.news-item a:link {
     color: black;
 }
-.news-item a:hover{
+
+.news-item a:hover {
     text-decoration: none;
     color: dimgray;
 }
-.info{
+
+.info {
     font-size: 15px;
     margin-top: 35px;
 
 }
+
 .info span {
     padding-left: 20px;
 }
-.avatar img{
+
+.avatar img {
     display: inline;
     border-radius: 0;
 }
 
-.news>div{
+.news > div {
     margin-top: 10px;
 }
 
-
-.post-title h1{
+.post-title h1 {
     line-height: 1.2;
     font-size: 30px;
     font-weight: bolder;
 }
-.post-info span{
+
+.post-info span {
     padding-left: 10px;
 }
-.post-content{
+
+.post-content {
     font-size: 20px;
     display: block;
 }
-.desc{
+
+.desc {
     font-size: 13px;
 }
 
-.message-box{
+.message-box {
     width: 50%;
     height: 150px;
     margin: 0 auto;
-    border-bottom:1px solid dimgray;
+    border-bottom: 1px solid dimgray;
 }
-.message-title img{
+
+.message-title img {
     display: block;
     max-width: 50%;
     border-radius: 5px;
 }
-.avatar{
+
+.avatar {
     padding: 0;
 }
-.foot{
+
+.foot {
     position: relative;
     top: 129px;
     padding: 0;
     text-align: right;
 }
 
-.foot a:link{
+.foot a:link {
     font-size: 10px;
 }
 
-a:hover,a:active{
+a:hover, a:active {
     text-decoration: none;
 }
+
 /*.container>div{
     margin-top:20px;
     margin-bottom: 20px;
 }*/
-.message-body{
+.message-body {
     word-break: break-all;
     word-wrap: break-word;
 }
 
-.adv{
+.adv {
     max-width: 100%;
     height: 200px;
     border: 1px solid dimgray;
     background-color: #26BA6E;
 }
-.tags{
+
+.tags {
     max-width: 100%;
     height: 200px;
-    
+
 }
-.tag-item{
+
+.tag-item {
     position: relative;
     left: auto;
 
 }
-.search-btn{
+
+.search-btn {
     position: relative;
     top: 6px;
 }
-.person{
+
+.person {
     margin: 0 auto;
     width: 77%;
     height: 1000px;
 }
-.person-title{
+
+.person-title {
     max-width: 100%;
     height: 200px;
     border-bottom: 1px solid dimgray;
 }
-.user-avatar img{
+
+.user-avatar img {
     width: 150px;
     height: 141px;
     display: block;
@@ -142,71 +161,327 @@ a:hover,a:active{
     position: relative;
     top: 59px;
 }
-.avatar-sm{
-            position: relative;
-            left:20px;
-        }
 
-.user-info{
+.avatar-sm {
+    position: relative;
+    left: 20px;
+}
+
+.user-info {
     text-align: right;
     position: relative;
     bottom: 37px;
     right: 28px;
 }
-.edit-btn{
+
+.edit-btn {
     position: relative;
     top: 126px;
-    left:542px;
+    left: 542px;
 }
 
-
-#edit{
+#edit {
     position: relative;
-    top:100px;
-    right:335px;
+    top: 100px;
+    right: 335px;
 }
-.search-bar{
-    margin: 0  auto;
+
+.search-bar {
+    margin: 0 auto;
     width: 50%;
     position: relative;
     top: 200px;
 }
+
 /*关注者列表*/
-.author-info{
+.author-info {
     max-width: 100%;
     height: 100px;
 }
 
-
-
 /*个人主页*/
-.introduce{
-            position: relative;
-            top: 120px;
-            right: 30px;
-        }
+.introduce {
+    position: relative;
+    top: 120px;
+    right: 30px;
+}
 
+.follow-card {
+    max-width: 100%;
+    height: 130px;
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+    border: 1px solid #dbefe9;
+    margin-top: 20px;
+}
 
+.follow-card p {
+    font-size: 30px;
+}
 
 /*话题*/
+.zd-topic-main {
+    position: relative;
+    top: 20px;
+    text-overflow: clip;
+}
 
+.zd-topic-main h4 {
+    display: inline;
+}
 
+.zd-topic-main li {
+    margin-top: 10px;
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+    border: 1px solid #dbefe9;
 
+    max-width: 100%;
+    height: 100px;
+}
+
+.topic-item-description {
+    position: relative;
+    left: 50px;
+}
+
+.topic-card {
+    border: 1px solid #dbefe9;
+    max-width: 100%;
+    height: 200px;
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+}
+
+.topic-followers-count-card {
+    border: 1px solid #dbefe9;
+    max-width: 100%;
+    height: 100px;
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+}
+
+.excellent_author_card {
+    max-width: 100%;
+    height: 100px;
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+    border: 1px solid #dbefe9;
+    margin-top: 20px;
+}
+
+.topic-follow-btn {
+    position: relative;
+    top: 60px;
+
+}
+
+.topic-card .side {
+
+}
+
+.topic-card {
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+.topic-questions {
+    position: relative;
+    top: 20px;
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+    border: 1px solid #dbefe9;
+}
+
+.total-topic-answers {
+    position: relative;
+    top: 28px;
+}
+
+.total-topic-liked-answers-count {
+    position: relative;
+    top: 28px;
+    float: right;
+}
+
+.zd-topic-title {
+    border-bottom: 1px solid dimgray;
+}
+
+.zd-topic-title a {
+    float: right;
+    color: dimgray;
+}
+
+.hot-topic-main li {
+    margin-top: 10px;
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+    border: 1px solid #dbefe9;
+    max-width: 100%;
+    height: 100px;
+}
+
+.topic-item-description {
+    position: relative;
+    left: 50px;
+}
+
+.topic-follow {
+    float: right;
+}
 
 /*私信*/
- .total-messages{
-        box-shadow: #d9efc8 2px 2px 1px -1px;
-        border: 1px solid #dbefe9;
-        margin-top: 20px;
-        max-width: 100%;
-        min-height: 50px;
-        height: auto;
-    }
-    .message-body{
-        word-wrap: break-word;
-        word-break: break-all;
-    }
-    .message-widget{
-        float: right;
-    }
+.total-messages {
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+    border: 1px solid #dbefe9;
+    margin-top: 20px;
+    max-width: 100%;
+    min-height: 50px;
+    height: auto;
+}
 
+.message-body {
+    word-wrap: break-word;
+    word-break: break-all;
+}
+
+.message-widget {
+    float: right;
+}
+
+/*问题*/
+.question-follow-count {
+    max-width: 100%;
+    height: 100px;
+    border: 1px solid antiquewhite;
+    font-size: 20px;
+}
+
+.question-follower {
+    position: relative;
+    left: 20px;
+    top: 20px;
+    cursor: pointer;
+    color: black;
+}
+
+.question-follower-num {
+    position: relative;
+    top: 50px;
+    right: 30px;
+    cursor: pointer;
+    color: black;
+}
+
+.question-browse {
+    position: relative;
+    top: 20px;
+    left: 50px;
+}
+
+.question-description {
+    position: relative;
+    top: 5px;
+    word-break: break-all;
+    word-wrap: break-word;
+    font-size: 15px;
+}
+
+.question-widget * {
+    margin-left: 10px;
+}
+
+.total-answers-count {
+    max-width: 100%;
+    height: 40px;
+    background-color: #eee;
+    text-align: center;
+    letter-spacing: 5px;
+}
+
+.total-answers p {
+    position: relative;
+    top: 15px;
+}
+
+.question-widget {
+    margin-left: 10px;
+
+}
+
+.collect-question {
+    float: right;
+}
+
+.questions-item {
+
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+    border: 1px solid #dbefe9;
+    margin-top: 20px;
+}
+
+.question-timestamp {
+    float: right;
+    position: relative;
+    top: 30px;
+}
+
+.question-comments {
+    display: inline;
+    position: relative;
+    top: 15px;
+    left: 100px;
+}
+
+.question-author-name {
+    padding-left: 20px;
+}
+
+/*答案*/
+
+.total-answers {
+    height: auto;
+    position: relative;
+    top: 20px;
+    background-color: #eeeeee;
+}
+
+/*收藏夹*/
+.favorite-main {
+    max-width: 100%;
+    height: 100px;
+    box-shadow: #d9efc8 2px 2px 1px -1px;
+    border: 1px solid #dbefe9;
+    margin-top: 20px;
+}
+
+.follow-favorite-btn {
+    float: right;
+
+}
+
+.breadcrumb a {
+    margin-left: 15px;
+}
+
+.favorite-widget {
+    height: 30px;
+    border-bottom: 1px solid dimgray;
+    margin-bottom: 30px;
+    margin-top: 10px;
+}
+
+.favorite-widget a {
+    padding-left: 15px;
+}
+
+.avatar img {
+    width: 50px;
+    height: 50px;
+}
+
+.favorite-author {
+    position: relative;
+    top: 30px;
+}
+
+/*文章*/
+
+.post-body {
+    word-wrap: break-word;
+    word-break: break-all;
+}

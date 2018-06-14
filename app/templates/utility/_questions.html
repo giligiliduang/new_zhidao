@@ -19,7 +19,7 @@
     .question-comments {
         display: inline;
         position: relative;
-        top: 20px;
+        top: 15px;
         left: 100px;
     }
 
@@ -30,6 +30,9 @@
 
 {% for question in questions %}
     <div class="questions-item clearfix">
+    {% for topic in question.q_topcis %}
+        <span class="text-muted">来自话题:{{ topic.title }}</span>
+        {% endfor %}
         <div class="title">
             <h2><a href="{{ url_for('main.question',id=question.id) }}">{{ question.title }}</a></h2>
         </div>
@@ -51,7 +54,7 @@
                 {% endif %}
                 <div class="question-comments">
                     <a href="{{ url_for('main.question_comments',id=question.id) }}"
-                       class="author">{{ question.comments.count() }}条评论</a>
+                       class="author">{{ question.undelete_comments.count() }}条评论</a>
                 </div>
 
                 <div class="question-timestamp">

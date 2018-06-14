@@ -1,6 +1,7 @@
 {% extends "base/base.html" %}
 {% import "bootstrap/wtf.html" as wtf%}
 {% import "base/_macros.html" as macros %}
+{% block title %}问题{% endblock %}
 {% block head %}
 {{ super() }}
     <style>
@@ -10,14 +11,14 @@
             border: 1px solid antiquewhite;
             font-size: 20px;
         }
-    .question-followr{
+    .question-follower{
         position: relative;
         left: 20px;
         top: 20px;
         cursor: pointer;
         color: black;
     }
-    .question-followr-num{
+    .question-follower-num{
         position: relative;
         top: 50px;
         right: 30px;
@@ -120,8 +121,8 @@
     </div>
     <div class="col-md-3">
       <div class="question-follow-count">
-          <a class="question-followr" href="{{ url_for('.question_followers',id=question.id) }}">关注者</a>
-          <a class="question-followr-num">{{ question.followers.count() }}</a>
+          <a class="question-follower" href="{{ url_for('.question_followers',id=question.id) }}">关注者</a>
+          <a class="question-follower-num">{{ question.followers.count() }}</a>
           <span class="question-browse">被浏览</span>
           <span style="position: relative;top: 50px">{{ question.browse_count }}次</span>
       </div>

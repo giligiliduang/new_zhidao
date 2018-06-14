@@ -88,6 +88,7 @@ class Comment(db.Model, BaseMixin, DateTimeMixin):
                                      lazy='dynamic', foreign_keys=[LikeComment.comment_liked_id],
                                      cascade='all,delete-orphan')
     liked_count = db.Column(db.Integer, default=0)  # 以点赞数排序
+    was_delete = db.Column(db.Boolean, default=False)  # 是否被删除
 
     def count_ping(self):
         """点赞，取消赞之后调用"""
@@ -198,6 +199,10 @@ class Post(db.Model, BaseMixin, DateTimeMixin):
     def is_liked_by(self, user):
         return self.liked_posts.filter_by(like_post_id=user.id).first() is not None
 
+    @property
+    def undelete_comments(self):
+        return self.comments.filter(Comment.was_delete == False)
+
 
 class LikeAnswer(db.Model, BaseMixin, DateTimeMixin):
     like_answer_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)  # 赞同回答的人
@@ -241,6 +246,10 @@ class Answer(db.Model, BaseMixin, DateTimeMixin):
     def disable(self):
         self.disable_comment = True
         db.session.add(self)
+
+    @property
+    def undelete_comments(self):
+        return self.comments.filter(Comment.was_delete == False)
 
     def __repr__(self):
         return '<Answer {}>'.format(self.id)
@@ -305,6 +314,14 @@ class Question(db.Model, BaseMixin, DateTimeMixin):
 
     def is_followed_by(self, user):
         return self.followers.filter_by(follower_id=user.id).first() is not None
+
+    @property
+    def q_topics(self):
+        return [i.topic for i in self.topics.all()]
+
+    @property
+    def undelete_comments(self):
+        return self.comments.filter(Comment.was_delete == False)
 
     def __repr__(self):
         return '<Question {}>'.format(self.title)
@@ -453,6 +470,10 @@ class Favorite(db.Model, BaseMixin, DateTimeMixin):
     def is_followed_by(self, user):
         return self.followers.filter_by(follower_id=user.id).first() is not None
 
+    @property
+    def undelete_comments(self):
+        return self.comments.filter(Comment.was_delete == False)
+
 
 class Permission():
     FOLLOW = 0x01
@@ -581,8 +602,7 @@ class User(db.Model, UserMixin, BaseMixin):
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = hashlib.md5(
                 self.email.encode('utf-8')).hexdigest()
-            # if not self.is_following_user(self):
-            #     self.follow(self)
+        User.add_self_follows()
 
     def follow(self, item):
         if isinstance(item, User):
@@ -633,12 +653,13 @@ class User(db.Model, UserMixin, BaseMixin):
 
     def is_friend(self, user):
         return self.is_following_user(user) and self.is_followed_by_user(user)
+
     @property
     def friends(self):
-        followers=[i.follower for i in self.followers]
-        followed=[i.followed for i in self.followed]
-        users=list(set(followers+followed))
-        friends=[i for i in users if self.is_friend(i)]
+        followers = [i.follower for i in self.followers]
+        followed = [i.followed for i in self.followed]
+        users = list(set(followers + followed))
+        friends = [i for i in users if self.is_friend(i)]
         return friends
 
     def follow_question(self, question):
@@ -846,10 +867,6 @@ class User(db.Model, UserMixin, BaseMixin):
     def send_standard_message_to(self, content, to):
         Message.create(sender=self, receiver=to, message_content=content)
 
-    def send_invitation(self, content, to):
-        Message.create(sender=self, receiver=to, message_content=content, message_type=MessageType.invite)
-
-
     def send_system_message(self, content):
         for user in User.query.all():
             if user.id == self.id:
@@ -859,15 +876,33 @@ class User(db.Model, UserMixin, BaseMixin):
                            message_type=MessageType.system, delete_status=DeleteStatus.author_delete)
 
     def delete_send_box_msg(self, msg):
+        """
+        如果删除状态为标准，设置为author_delete
+        如果删除状态为user_delete，说明接收者已经将其删除，可以真正删除
+        :param msg:
+        :return:
+        """
         message = self.private_messages.filter_by(id=msg.id).first()
-        message.delete_status = DeleteStatus.author_delete
-        db.session.add(message)
+        if message.delete_status == DeleteStatus.standard:
+            message.delete_status = DeleteStatus.author_delete
+            db.session.add(message)
+        elif message.delete_status == DeleteStatus.user_delete:
+            db.session.delete(message)
         db.session.commit()
 
     def delete_in_box_msg(self, msg):
+        """
+        如果删除状态为标准，设置为user_delete
+        如果删除状态为author_delete,说明发送者已经删除该消息，可以将其真正删除
+        :param msg:
+        :return:
+        """
         message = self.private_messages_from.filter_by(id=msg.id).first()
-        message.delete_status = DeleteStatus.user_delete
-        db.session.add(message)
+        if message.delete_status == DeleteStatus.standard:
+            message.delete_status = DeleteStatus.user_delete
+            db.session.add(message)
+        elif message.delete_status == DeleteStatus.author_delete:
+            db.session.delete(message)
         db.session.commit()
 
     @property
@@ -875,8 +910,7 @@ class User(db.Model, UserMixin, BaseMixin):
         """
         :return:
         """
-        return self.private_messages.filter(Message.delete_status != DeleteStatus.author_delete,
-                                            Message.message_type != MessageType.invite)
+        return self.private_messages.filter(Message.delete_status != DeleteStatus.author_delete)
 
     @property
     def in_box_messages(self):
@@ -885,10 +919,6 @@ class User(db.Model, UserMixin, BaseMixin):
         :return:
         """
         return self.private_messages_from.filter(Message.delete_status != DeleteStatus.user_delete)
-
-    @property
-    def invite_messages_count(self):
-        return self.private_messages.filter(Message.message_type==MessageType.invite).count()
 
     def set_messages_read(self):
         for message in self.in_box_messages.all():
@@ -919,6 +949,21 @@ class User(db.Model, UserMixin, BaseMixin):
         :return:
         """
         return sum(i.liked_answers.count() for i in self.answers)
+
+    def delete_comment(self, comment):
+        if comment.replies.count() == 0:
+            db.session.delete(comment)
+        else:
+            comment.was_delete = True
+            db.session.add(comment)
+        db.session.commit()
+
+    def delete_reply(self,reply):
+        if reply.comment.was_delete == True and reply.comment.replies.count() == 1:
+            db.session.delete(reply.comment)
+        else:
+            db.session.delete(reply)
+        db.session.commit()
 
     @hybrid_property
     def visited(self):

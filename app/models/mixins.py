@@ -1,12 +1,10 @@
 from ..ext import db
-from sqlalchemy.ext.declarative import declared_attr, has_inherited_table
+from sqlalchemy.ext.declarative import declared_attr
 from datetime import datetime
 
 
 class BaseMixin(object):
-    # @declared_attr
-    # def __tablename__(self,val):
-    #     return val.lower()+'s'
+
 
     @classmethod
     def create(cls, **kwargs):

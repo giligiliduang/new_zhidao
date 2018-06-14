@@ -1,4 +1,5 @@
 import forgery_py
+from faker import Faker,Factory
 from flask import Request
 from app import create_app, db
 from app.models import *
@@ -11,7 +12,7 @@ from app.constants import MessageType,MessageStatus
 app = create_app('development')
 migrate = Migrate(app, db)
 pymysql.install_as_MySQLdb()
-
+fake=Factory.create()
 
 @app.shell_context_processor
 def make_shell_context():
@@ -26,24 +27,27 @@ def make_shell_context():
 def test():
     """Run the unit tests"""
     import unittest
-    tests = unittest.TestLoader().discover('tests')
+    tests = unittest.TestLoader().discover('tests',pattern='test_comment_model.py')
     unittest.TextTestRunner(verbosity=2).run(tests)
 
 
 @app.cli.command()
 def init_db():
     """
-    initialize the database
+    初始化数据库，生成文章标签和话题
     """
     db.drop_all()
     db.create_all()
     click.echo(click.style('数据库初始化成功', fg='green'))
-
+    Tag.generate_tags()
+    click.echo('生成标签成功')
+    Topic.generate_topics()
+    click.echo('生成话题成功')
 
 @app.cli.command()
 def drop_db():
     """
-    drop db from env
+    删除数据库数据
     """
     rv = prompt('是否删除数据库?', confirmation_prompt=True)
     if rv:
@@ -54,7 +58,7 @@ def drop_db():
 @app.cli.command()
 def create_superadmin():
     """
-    create superadmin for the website
+    创建管理员账户
     """
     import re
     PWD_PATTERN = re.compile(r'^[a-zA-Z\d_]{8,}$')  # 长度8位
@@ -93,7 +97,7 @@ def create_superadmin():
 
 @app.cli.command()
 def drop_superadmin():
-    """drop superadmin """
+    """删除管理员账户 """
     name = prompt('请输入要删除的管理员用户名')
     admin = Role.query.filter_by(name='Administrator').first()
     u = User.query.filter(User.username == name, User.role == admin).first()
@@ -110,6 +114,9 @@ def drop_superadmin():
 @app.cli.command()
 @click.argument('name')
 def create_newapp(name):
+    """
+    创建新应用
+    """
     import os
     BASE_DIR = os.path.dirname(__file__)
     app_dir = os.path.join(BASE_DIR, name)
@@ -130,9 +137,7 @@ def create_newapp(name):
 @click.argument('numbers',default=50)
 def generate_fake_users(numbers):
     """
-    生成假用户并让他们随即关注话题
-    :param numbers:
-    :return:
+    生成假用户并让他们随机关注话题
     """
     import random
 
@@ -140,7 +145,7 @@ def generate_fake_users(numbers):
         for i in bar:
             username = forgery_py.internet.user_name()
             email = forgery_py.internet.email_address()
-            password = 'Bye0Bye6'
+            password = '123456'
             location = forgery_py.address.city()
             job = forgery_py.name.job_title()
             about_me = 'Have a nice day'
@@ -161,8 +166,6 @@ def generate_fake_users(numbers):
 def generate_fake_questions(numbers):
     """
     生成假问题
-    :param numbers:
-    :return:
     """
     import random
     users = User.query.all()
@@ -179,16 +182,15 @@ def generate_fake_questions(numbers):
 def generate_fake_posts(numbers):
     """
     生成假文章
-    :param numbers:
-    :return:
+
     """
     import random
     users = User.query.all()
     tags = Tag.query.all()
     with click.progressbar(range(int(numbers)), label='正在文章生成数据', fill_char='*') as bar:
         for i in bar:
-            title = forgery_py.lorem_ipsum.title()
-            body = forgery_py.personal.language()
+            title = fake.sentence()[:15]
+            body = fake.text()
             author = random.choice(users)
             tag = random.sample(tags, 2)
             p = Post.create(title=title, body=body, author=author)
@@ -201,8 +203,6 @@ def generate_fake_posts(numbers):
 def random_topic_follow():
     """
     随机关注,用户，话题
-    :param numbers:
-    :return:
     """
     import random
     users = User.query.all()[1:]
@@ -216,6 +216,9 @@ def random_topic_follow():
 
 @app.cli.command()
 def random_topic_question_add():
+    """
+    给话题随机添加问题
+    """
     import random
     questions = Question.query.all()
     topics = Topic.query.all()
@@ -225,8 +228,27 @@ def random_topic_question_add():
                 each_topic.add_question(i)
                 signals.topic_question_add.send(each_topic)
 
+@app.cli.command()
+def init_data_for_website():
+    """
+    生成基础数据
+    :return:
+    """
+    import os
+    os.system('set FLASK_APP=wsgi.py')#设置环境变量
+    os.system('flask drop_db')#删除数据库
+    os.system('flask init_db')#初始化数据库
+    os.system('flask generate_fake_users')#生成用户数据
+    os.system('flask generate_fake_questions')#生成问题数据
+    os.system('flask generate_fake_posts 2')#生成文章数据
+    os.system('flask random_topic_question_add')#给话题随机添加问题
+
+
 
 if __name__ == '__main__':
     app.jinja_env.auto_reload = True
     app.run(host='localhost', port=5001, debug=True)
+
+
+
 

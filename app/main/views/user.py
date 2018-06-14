@@ -27,7 +27,7 @@ def user(username):
         return redirect(url_for('.index'))
     if user != current_user:
         user_visited.send(user)
-    recent_q_count = session.get('recent_q_count',0)
+    recent_q_count = session.get('recent_q_count', 0)
     page = request.args.get('page', 1, type=int)
     answers = None
     posts = None
@@ -597,4 +597,8 @@ def choose_to_redirect(topic_type, comment):
     elif topic_type == 'answer':
         return redirect(url_for('main.answer_comments', id=comment.answer_id))
     elif topic_type == 'favorite':
-        return redirect(url_for('main.favorite_comments', id=comment.favorite_id))
+        if isinstance(comment, Comment):
+            username = comment.favorite.user.username
+        elif isinstance(comment, Reply):
+            username = comment.comment.favorite.user.username
+        return redirect(url_for('main.favorite_comments', username=username, id=comment.favorite_id))

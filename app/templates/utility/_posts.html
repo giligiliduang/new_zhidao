@@ -18,7 +18,7 @@
                             <img src="{{ post.author.gravatar(50) }}" alt="avatar">{% endif %}</a>
                 {% endif %}
                 <span class="author">{{ post.author.username }}</span>
-                <span class="author">{{ post.comments.count() }}条评论</span>
+                <span class="author">{{ post.undelete_comments.count() }}条评论</span>
                 <span>.</span>
                 <span class="timestamp">{{ moment(post.timestamp).fromNow() }}</span>
             </div>
