@@ -43,6 +43,8 @@ def init_db():
     click.echo('生成标签成功')
     Topic.generate_topics()
     click.echo('生成话题成功')
+    Role.insert_roles()
+    click.echo('生成用户角色成功')
 
 @app.cli.command()
 def drop_db():
